@@ -1,0 +1,16 @@
+<h2>Las más vistas</h2>
+
+@if (cargando()) {
+  <p>Cargando...</p>
+} @else {
+  <div class="grid">
+    @for (peli of peliculasDestacadas(); track peli.id) {
+      <div class="card">
+        <img [src]="peli.imagen_url" [alt]="peli.titulo" />
+        <h3>{{ peli.titulo }}</h3>
+        <p>⭐ {{ peli.puntuacion_promedio }} ({{ peli.cantidad_resenas }} reseñas)</p>
+        <p>{{ peli.entradas_vendidas }} entradas vendidas</p>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,75 @@
+@if (cargando()) {
+  <p>Cargando...</p>
+} @else if (pelicula()) {
+  <div class="ficha">
+    <img [src]="pelicula().imagen_url" [alt]="pelicula().titulo" />
+
+    <div class="info">
+      <h2>{{ pelicula().titulo }}</h2>
+
+      @if (pelicula().restriccion_edad) {
+        <span class="restriccion">+{{ pelicula().restriccion_edad }} — debe ir acompañado de un adulto</span>
+      }
+
+      <p>{{ pelicula().sinopsis }}</p>
+      <p>Duración: {{ pelicula().duracion_min }} min</p>
+      <p>⭐ {{ pelicula().puntuacion_promedio }} ({{ pelicula().cantidad_resenas }} reseñas)</p>
+
+      <h3>Funciones disponibles</h3>
+      @if (funciones().length === 0) {
+        <p>No hay funciones programadas por ahora.</p>
+      } @else {
+        <ul>
+          @for (funcion of funciones(); track funcion.id) {
+            <li>
+              {{ funcion.fecha_hora | date: 'short' }} —
+              {{ funcion.salas.nombre }} —
+              {{ funcion.formato }} —
+              {{ funcion.idioma }} —
+              ${{ funcion.precio }}
+            </li>
+          }
+        </ul>
+      }
+
+            <h3>Reseñas</h3>
+
+      @if (resenas().length === 0) {
+        <p>Todavía no hay reseñas.</p>
+      } @else {
+        <ul class="resenas">
+          @for (r of resenas(); track r.id) {
+            <li>
+              <strong>{{ r.perfiles.nombre }}</strong> — ⭐ {{ r.estrellas }}
+              <p>{{ r.comentario }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (auth.currentUser()) {
+        <div class="nueva-resena">
+          <h4>Dejar tu reseña</h4>
+          <select [(ngModel)]="nuevaEstrellas">
+            <option [ngValue]="5">⭐⭐⭐⭐⭐</option>
+            <option [ngValue]="4">⭐⭐⭐⭐</option>
+            <option [ngValue]="3">⭐⭐⭐</option>
+            <option [ngValue]="2">⭐⭐</option>
+            <option [ngValue]="1">⭐</option>
+          </select>
+          <textarea [(ngModel)]="nuevoComentario" placeholder="Comentario corto..." maxlength="200"></textarea>
+          @if (errorResena()) {
+            <p class="error">{{ errorResena() }}</p>
+          }
+          <button (click)="enviarResena()" [disabled]="enviandoResena()">
+            {{ enviandoResena() ? 'Enviando...' : 'Publicar reseña' }}
+          </button>
+        </div>
+      } @else {
+        <p><a routerLink="/login">Iniciá sesión</a> para dejar tu reseña.</p>
+      }
+
+
+    </div>
+  </div>
+}

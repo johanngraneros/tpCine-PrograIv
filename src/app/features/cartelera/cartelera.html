@@ -1,0 +1,28 @@
+<h2>Cartelera</h2>
+
+<div class="filtros">
+  <app-search-bar [(termino)]="textoBusqueda" />
+
+  <select (change)="generoSeleccionado.set($any($event.target).value || null)">
+    <option value="">Todos los géneros</option>
+    @for (genero of generos(); track genero.id) {
+      <option [value]="genero.id">{{ genero.nombre }}</option>
+    }
+  </select>
+</div>
+
+@if (cargando()) {
+  <p>Cargando...</p>
+} @else if (peliculas().length === 0) {
+  <p>No se encontraron películas.</p>
+} @else {
+  <div class="grid">
+    @for (peli of peliculas(); track peli.id) {
+      <a [routerLink]="['/pelicula', peli.id]" class="card">
+        <img [src]="peli.imagen_url" [alt]="peli.titulo" />
+        <h3>{{ peli.titulo }}</h3>
+        <p>⭐ {{ peli.puntuacion_promedio }}</p>
+      </a>
+    }
+  </div>
+}

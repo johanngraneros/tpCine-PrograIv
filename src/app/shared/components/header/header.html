@@ -1,0 +1,14 @@
+<header class="header">
+  <a routerLink="/home" class="logo">🎬 Cine</a>
+  <a routerLink="/cartelera">Cartelera</a>
+
+  <div class="sesion">
+    @if (auth.currentUser()) {
+      <span>Hola, {{ auth.currentUser()?.email }}</span>
+      <button (click)="cerrarSesion()">Cerrar sesión</button>
+    } @else {
+      <a routerLink="/login">Iniciar sesión</a>
+      <a routerLink="/register">Registrarme</a>
+    }
+  </div>
+</header>

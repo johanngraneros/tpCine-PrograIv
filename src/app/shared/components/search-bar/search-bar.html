@@ -1,0 +1,12 @@
+<div class="search-container">
+  <input 
+    type="text" 
+    [value]="termino()" 
+    (input)="termino.set($any($event.target).value)"
+    placeholder="🔍 Buscar película..."
+    class="search-input"
+  >
+  @if (termino()) {
+    <button (click)="limpiar()" class="clear-btn">✕</button>
+  }
+</div>
