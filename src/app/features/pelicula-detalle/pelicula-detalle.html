@@ -22,17 +22,19 @@
         <ul>
           @for (funcion of funciones(); track funcion.id) {
             <li>
-              {{ funcion.fecha_hora | date: 'short' }} —
-              {{ funcion.salas.nombre }} —
-              {{ funcion.formato }} —
-              {{ funcion.idioma }} —
-              ${{ funcion.precio }}
+              <a [routerLink]="['/funcion', funcion.id, 'butacas']">
+                {{ funcion.fecha_hora | date: 'short' }} —
+                {{ funcion.salas.nombre }} —
+                {{ funcion.formato }} —
+                {{ funcion.idioma }} —
+                ${{ funcion.precio }}
+              </a>
             </li>
           }
         </ul>
       }
 
-            <h3>Reseñas</h3>
+      <h3>Reseñas</h3>
 
       @if (resenas().length === 0) {
         <p>Todavía no hay reseñas.</p>
@@ -68,7 +70,6 @@
       } @else {
         <p><a routerLink="/login">Iniciá sesión</a> para dejar tu reseña.</p>
       }
-
 
     </div>
   </div>

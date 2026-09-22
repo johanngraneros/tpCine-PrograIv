@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButacasService } from '../../core/services/butacas.service';
 import type { RealtimeChannel } from '@supabase/supabase-js';
@@ -9,7 +9,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
   styleUrl: './butacas.css',
   templateUrl: './butacas.html',
 })
-export class Butacas implements OnInit {
+export class Butacas implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private butacasService = inject(ButacasService);
   private canal: RealtimeChannel | null = null;
@@ -60,9 +60,21 @@ export class Butacas implements OnInit {
       this.cargando.set(false);
     }
 
-      private async recargarOcupadas() {
+    private async recargarOcupadas() {
       const { data: ocupadasData } = await this.butacasService.getButacasOcupadas(this.funcionId);
       this.butacasOcupadas.set(new Set((ocupadasData ?? []).map(e => e.butaca_id)));
+    }
+    
+    toggleButaca(butaca: any) {
+    if (this.butacasOcupadas().has(butaca.id)) return;
+
+      const seleccion = new Set(this.butacasElegidas());
+      if (seleccion.has(butaca.id)) {
+        seleccion.delete(butaca.id);
+      } else {
+        seleccion.add(butaca.id);
+      }
+      this.butacasElegidas.set(seleccion);
     }
 
   ngOnDestroy() {
