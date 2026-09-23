@@ -1,8 +1,10 @@
-import { Injectable, inject, Service } from '@angular/core';
+import { Injectable, inject} from '@angular/core';
 import { Supabase } from '../supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-@Service()
+@Injectable({  
+  providedIn: 'root'
+})
 export class ButacasService {
     private supabase = inject(Supabase);
     

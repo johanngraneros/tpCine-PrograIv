@@ -1,7 +1,9 @@
-import { Injectable, Service, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Supabase } from '../supabase';
 
-@Service()
+@Injectable({  
+  providedIn: 'root'
+})
 export class PeliculasService {
   private supabase = inject(Supabase) ;
 
