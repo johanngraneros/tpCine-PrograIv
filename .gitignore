@@ -44,5 +44,5 @@ __screenshots__/
 Thumbs.db
 
 # Configuración local
-/src/environments/environment.ts
+
 /src/environments/environment.development.ts
