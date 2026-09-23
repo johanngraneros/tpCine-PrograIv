@@ -42,7 +42,8 @@
         <ul class="resenas">
           @for (r of resenas(); track r.id) {
             <li>
-              <strong>{{ r.perfiles.nombre }}</strong> — ⭐ {{ r.estrellas }}
+              <strong>{{ r.perfiles?.nombre ?? 'Usuario' }}</strong>
+                  — ⭐ {{ r.estrellas }}
               <p>{{ r.comentario }}</p>
             </li>
           }

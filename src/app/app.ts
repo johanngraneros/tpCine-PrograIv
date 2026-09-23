@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Supabase } from './core/supabase';
+import { Supabase } from './core/services/supabase.service';
 import { Header } from './shared/components/header/header';
 
 @Component({
