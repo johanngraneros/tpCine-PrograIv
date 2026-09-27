@@ -1,0 +1,55 @@
+<h2>Resumen de compra</h2>
+
+@if (compraConfirmada()) {
+  <h3>¡Compra confirmada!</h3>
+
+  <p>
+    Número de compra: {{ compraConfirmada() }}
+  </p>
+
+  <p>Las entradas fueron generadas correctamente.</p>
+} @else if (datosFuncion()) {
+  <p>Película: {{ datosFuncion().peliculas.titulo }}</p>
+
+  <p>
+    Cantidad de butacas:
+    {{ carrito.butacasParaComprar().size }}
+  </p>
+
+  <ul>
+    @for (butaca of carrito.butacasSeleccionadas(); track butaca.id) {
+      <li>
+        Fila {{ butaca.fila }} —
+        Asiento {{ butaca.numero }} —
+        {{ butaca.tipo }}
+      </li>
+    }
+  </ul>
+
+  <p>
+    Total: ${{
+      carrito.calcularTotal(
+        datosFuncion().precio,
+        datosFuncion().precio_vip
+      )
+    }}
+  </p>
+
+  @if (mensajeError()) {
+    <p>{{ mensajeError() }}</p>
+  }
+
+  <button
+    type="button"
+    [disabled]="procesando()"
+    (click)="confirmarCompra()"
+  >
+    {{ procesando() ? 'Procesando...' : 'Confirmar compra' }}
+  </button>
+} @else {
+  <p>Cargando datos de la función...</p>
+
+  @if (mensajeError()) {
+    <p>{{ mensajeError() }}</p>
+  }
+}

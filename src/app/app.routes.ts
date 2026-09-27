@@ -7,6 +7,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { PeliculaDetalle } from './features/pelicula-detalle/pelicula-detalle';
 import { Butacas } from './features/butacas/butacas';
 
+
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'register', component: Register },
@@ -14,5 +15,10 @@ export const routes: Routes = [
   { path: 'cartelera', component: Cartelera },  // público
   { path: 'pelicula/:id', component: PeliculaDetalle },
   { path: 'funcion/:funcionId/butacas', component: Butacas },
+  {
+    path: 'compra/:funcionId',
+    loadComponent: () =>
+      import('./features/compra/compra').then(c => c.Compra)
+  },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 ];
