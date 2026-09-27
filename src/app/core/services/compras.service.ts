@@ -18,8 +18,7 @@ export class ComprasService {
     // p_funcion_id: funcionId,
     // p_butaca_ids: butacaIds
     // }
-    //A la izquierda están los nombres definidos en PostgreSQL; a la derecha, los valores recibidos en TypeScript:
-    
+    //A la izquierda están los nombres definidos en PostgreSQL; a la derecha, los valores recibidos en TypeScript:    
     //rpc Remote Procedure Call.
     });
   }
