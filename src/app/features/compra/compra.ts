@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ButacasService } from '../../core/services/butacas.service';
 import { CarritoService } from '../../core/services/carrito.service';
 import { ComprasService } from '../../core/services/compras.service';
+import { FuncionDetalle} from '../../core/models/funcion.interface';
 
 @Component({
   imports: [],
@@ -19,7 +20,7 @@ export class Compra implements OnInit {
   private comprasService = inject(ComprasService);
 
   funcionId = '';
-  datosFuncion = signal<any>(null);
+  datosFuncion = signal<FuncionDetalle | null>(null);
 
   procesando = signal(false);
   mensajeError = signal('');
@@ -46,9 +47,11 @@ export class Compra implements OnInit {
       return;
     }
 
-    if (data) {
-      this.datosFuncion.set(data);
-    }
+  if (data) {
+    this.datosFuncion.set(
+      data as unknown as FuncionDetalle
+    );
+  }
   }
 
   async confirmarCompra() {

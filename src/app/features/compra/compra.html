@@ -1,15 +1,19 @@
 <h2>Resumen de compra</h2>
 
-@if (compraConfirmada()) {
+@if (compraConfirmada(); as compraId) {
   <h3>¡Compra confirmada!</h3>
 
   <p>
-    Número de compra: {{ compraConfirmada() }}
+    Número de compra: {{ compraId }}
   </p>
 
-  <p>Las entradas fueron generadas correctamente.</p>
-} @else if (datosFuncion()) {
-  <p>Película: {{ datosFuncion().peliculas.titulo }}</p>
+  <p>
+    Las entradas fueron generadas correctamente.
+  </p>
+} @else if (datosFuncion(); as funcion) {
+  <p>
+    Película: {{ funcion.peliculas.titulo }}
+  </p>
 
   <p>
     Cantidad de butacas:
@@ -17,7 +21,10 @@
   </p>
 
   <ul>
-    @for (butaca of carrito.butacasSeleccionadas(); track butaca.id) {
+    @for (
+      butaca of carrito.butacasSeleccionadas();
+      track butaca.id
+    ) {
       <li>
         Fila {{ butaca.fila }} —
         Asiento {{ butaca.numero }} —
@@ -29,14 +36,16 @@
   <p>
     Total: ${{
       carrito.calcularTotal(
-        datosFuncion().precio,
-        datosFuncion().precio_vip
+        funcion.precio,
+        funcion.precio_vip
       )
     }}
   </p>
 
   @if (mensajeError()) {
-    <p>{{ mensajeError() }}</p>
+    <p>
+      {{ mensajeError() }}
+    </p>
   }
 
   <button
@@ -44,12 +53,18 @@
     [disabled]="procesando()"
     (click)="confirmarCompra()"
   >
-    {{ procesando() ? 'Procesando...' : 'Confirmar compra' }}
+    {{
+      procesando()
+        ? 'Procesando...'
+        : 'Confirmar compra'
+    }}
   </button>
 } @else {
   <p>Cargando datos de la función...</p>
 
   @if (mensajeError()) {
-    <p>{{ mensajeError() }}</p>
+    <p>
+      {{ mensajeError() }}
+    </p>
   }
 }
