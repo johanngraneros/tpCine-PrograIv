@@ -1,32 +1,48 @@
-import { signal, Injectable, inject } from '@angular/core';
+import {computed, Injectable, signal } from '@angular/core';
+import { Butaca } from '../models/butaca.interface';
 
-@Injectable({  
+@Injectable({
   providedIn: 'root'
 })
+
 export class CarritoService {
-    butacasParaComprar = signal<Map<string, any>>(new Map());
+  butacasParaComprar = signal<Map<string, Butaca>>(new Map());
 
-    toggleButacaComprada(butaca: any) {
+  butacasSeleccionadas = computed(() =>
+    Array.from(this.butacasParaComprar().values())
+  );
 
-        const seleccion = new Map(this.butacasParaComprar());
-        if (seleccion.has(butaca.id)) {
-            seleccion.delete(butaca.id);
-        } else {
-            seleccion.set(butaca.id, butaca);
-        }
-        this.butacasParaComprar.set(seleccion);
+  toggleButacaComprada(butaca: Butaca) {
+    const seleccion =
+      new Map(this.butacasParaComprar());
+
+    if (seleccion.has(butaca.id)) {
+      seleccion.delete(butaca.id);
+    } else {
+      seleccion.set(butaca.id, butaca);
     }
 
-    calcularTotal (precioNormal : number , precioVip : number) : number {
-        let total = 0;
-          this.butacasParaComprar().forEach((butaca) => {
-            if (butaca.tipo === 'vip') {
-            total += precioVip;
-            } else {
-            total += precioNormal;
-            }
-        });
+    this.butacasParaComprar.set(seleccion);
+  }
 
-        return total;
-    }
+  calcularTotal(
+    precioNormal: number,
+    precioVip: number | null
+  ): number {
+    let total = 0;
+
+    this.butacasParaComprar().forEach(butaca => {
+      if (butaca.tipo === 'vip') {
+        total += precioVip ?? precioNormal;
+      } else {
+        total += precioNormal;
+      }
+    });
+
+    return total;
+  }
+
+  vaciarCarrito() {
+    this.butacasParaComprar.set(new Map());
+  }
 }

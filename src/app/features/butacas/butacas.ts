@@ -1,7 +1,12 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ButacasService } from '../../core/services/butacas.service';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { ButacasService } from '../../core/services/butacas.service';
+import { CarritoService } from '../../core/services/carrito.service';
+
+import { Butaca, ButacaOcupada, FilaButacas } from '../../core/models/butaca.interface';
+
+import {FuncionDetalle} from '../../core/models/funcion.interface';
 
 @Component({
   imports: [RouterLink],
@@ -12,75 +17,145 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 export class Butacas implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private butacasService = inject(ButacasService);
+
+  carrito = inject(CarritoService);
+
   private canal: RealtimeChannel | null = null;
 
   funcionId = '';
-  datosFuncion = signal<any>(null);
-  filasAgrupadas = signal<any[]>([]);
-  cargando = signal(true);
 
+  datosFuncion = signal<FuncionDetalle | null>(null);
+  filasAgrupadas = signal<FilaButacas[]>([]);
   butacasOcupadas = signal<Set<string>>(new Set());
 
-  butacasElegidas = signal<Set<string>>(new Set());
+  cargando = signal(true);
 
   async ngOnInit() {
-    this.funcionId = this.route.snapshot.paramMap.get('funcionId')!;
+    this.carrito.vaciarCarrito();
+
+    this.funcionId =
+      this.route.snapshot.paramMap.get('funcionId')!;
+
     await this.cargarTodo();
-    this.canal = this.butacasService.suscribirCambios(this.funcionId, () => {
-    this.recargarOcupadas();
-    });
+
+    this.canal = this.butacasService.suscribirCambios(
+      this.funcionId,
+      () => {
+        void this.recargarOcupadas();
+      }
+    );
   }
 
   private async cargarTodo() {
-      this.cargando.set(true);
+    this.cargando.set(true);
 
-      const { data: funcionData } = await this.butacasService.getFuncion(this.funcionId);
-      if (funcionData) {
-        this.datosFuncion.set(funcionData);
+    const {
+      data: funcionData,
+      error: funcionError
+    } = await this.butacasService.getFuncion(this.funcionId);
 
-        const { data: butacasData } = await this.butacasService.getButacasDeSalas(funcionData.salas.id);
+    if (funcionError) {
+      console.error(
+        'Error al cargar la función:',
+        funcionError
+      );
 
-        const mapaButacas = new Map<string, any[]>();
-
-        if (butacasData) {
-          butacasData.forEach(butaca => {
-            if(!mapaButacas.has(butaca.fila)){
-              mapaButacas.set(butaca.fila, [])
-            }
-            mapaButacas.get(butaca.fila)!.push(butaca);  
-          }
-        );
-        
-
-          this.filasAgrupadas.set(Array.from(mapaButacas.entries()).map(([fila, butacas]) => ({ fila, butacas })) )      
-        } 
-        
-        await this.recargarOcupadas();
-      } 
       this.cargando.set(false);
+      return;
     }
 
-    private async recargarOcupadas() {
-      const { data: ocupadasData } = await this.butacasService.getButacasOcupadas(this.funcionId);
-      this.butacasOcupadas.set(new Set((ocupadasData ?? []).map(e => e.butaca_id)));
+    if (!funcionData) {
+      this.cargando.set(false);
+      return;
     }
-    
-    toggleButaca(butaca: any) {
-    if (this.butacasOcupadas().has(butaca.id)) return;
 
-      const seleccion = new Set(this.butacasElegidas());
-      if (seleccion.has(butaca.id)) {
-        seleccion.delete(butaca.id);
-      } else {
-        seleccion.add(butaca.id);
+    const funcion =
+      funcionData as unknown as FuncionDetalle;
+
+    this.datosFuncion.set(funcion);
+
+    const {
+      data: butacasData,
+      error: butacasError
+    } = await this.butacasService.getButacasDeSalas(
+      funcion.salas.id
+    );
+
+    if (butacasError) {
+      console.error(
+        'Error al cargar las butacas:',
+        butacasError
+      );
+
+      this.cargando.set(false);
+      return;
+    }
+
+    const mapaButacas =
+      new Map<string, Butaca[]>();
+
+    (butacasData ?? []).forEach((butaca: Butaca) => {
+      if (!mapaButacas.has(butaca.fila)) {
+        mapaButacas.set(butaca.fila, []);
       }
-      this.butacasElegidas.set(seleccion);
+
+      mapaButacas.get(butaca.fila)!.push(butaca);
+    });
+
+    const filas: FilaButacas[] =
+      Array.from(mapaButacas.entries()).map(
+        ([fila, butacas]) => ({
+          fila,
+          butacas
+        })
+      );
+
+    this.filasAgrupadas.set(filas);
+
+    await this.recargarOcupadas();
+
+    this.cargando.set(false);
+  }
+
+  private async recargarOcupadas() {
+    const {
+      data: ocupadasData,
+      error
+    } = await this.butacasService.getButacasOcupadas(
+      this.funcionId
+    );
+
+    if (error) {
+      console.error(
+        'Error al cargar las butacas ocupadas:',
+        error
+      );
+      return;
     }
+
+    const idsOcupados = (ocupadasData ?? []).map(
+      (entrada: ButacaOcupada) =>
+        entrada.butaca_id
+    );
+
+    this.butacasOcupadas.set(
+      new Set(idsOcupados)
+    );
+  }
+
+  toggleButaca(butaca: Butaca) {
+    if (this.butacasOcupadas().has(butaca.id)) {
+      return;
+    }
+
+    this.carrito.toggleButacaComprada(butaca);
+  }
 
   ngOnDestroy() {
     if (this.canal) {
-      this.butacasService.cerrarCanal(this.canal);
+      void this.butacasService.cerrarCanal(
+        this.canal
+      );
     }
   }
-  
 }

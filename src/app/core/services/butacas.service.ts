@@ -28,28 +28,32 @@ export class ButacasService {
   }
 
     async getButacasOcupadas(funcionId: string) {
-        const { data, error } = await this.supabase.instance
-        .from('entradas')
-        .select(' butaca_id ') 
-        .neq('estado', 'cancelada') //where estado != 'cancelada'
-        .eq('funcion_id', funcionId) //where funcion_id  = funcionId      
-        return { data, error };
-  }
+        return this.supabase.instance.rpc(
+            'obtener_butacas_ocupadas',
+            {
+            p_funcion_id: funcionId
+            }
+        );
+    }
 
-  suscribirCambios(funcionId: string, onCambio: () => void) {
-    
-    const canal = this.supabase.instance.channel(`butacas-funcion-${funcionId}`).on('postgres_changes', { //"quiero escuchar cambios de la base de datos"
-        event: '*', //que cambios te interesan
-        schema: 'public',
-        table: 'entradas',
-        filter: `funcion_id=eq.${funcionId}`
-        }, () => { //función que se ejecuta cada vez que pasa un cambio que matchea el filtro.
-        onCambio();
-        })
-        .subscribe();
+  suscribirCambios(
+    funcionId: string,
+    onCambio: () => void
+        ): RealtimeChannel {
+        const canal = this.supabase.instance
+            .channel(`funcion:${funcionId}`)
+            .on(
+            'broadcast',
+            {
+                event: 'ocupacion_cambio'
+            },
+            () => {
+                onCambio();
+            }
+            )
+            .subscribe();
 
-    return canal;
-    
+        return canal;
     }
 
     cerrarCanal(canal: RealtimeChannel) {

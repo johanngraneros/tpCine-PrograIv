@@ -1,23 +1,41 @@
 @if (cargando()) {
   <p>Cargando...</p>
-} @else if (datosFuncion()) {
-  <h2>{{ datosFuncion().peliculas.titulo }}</h2>
-  <p>{{ datosFuncion().salas.nombre }} — {{ datosFuncion().formato }} — {{ datosFuncion().idioma }}</p>
+} @else if (datosFuncion(); as funcion) {
+  <h2>{{ funcion.peliculas.titulo }}</h2>
 
-  <div class="pantalla">PANTALLA</div>
+  <p>
+    {{ funcion.salas.nombre }} —
+    {{ funcion.formato }} —
+    {{ funcion.idioma }}
+  </p>
+
+  <div class="pantalla">
+    PANTALLA
+  </div>
 
   <div class="mapa">
     @for (f of filasAgrupadas(); track f.fila) {
       <div class="fila">
-        <span class="etiqueta-fila">{{ f.fila }}</span>
+        <span class="etiqueta-fila">
+          {{ f.fila }}
+        </span>
+
         @for (butaca of f.butacas; track butaca.id) {
           <button
             class="butaca"
-            [class.ocupada]="butacasOcupadas().has(butaca.id)"
-            [class.seleccionada]="butacasElegidas().has(butaca.id)"
+            [class.ocupada]="
+              butacasOcupadas().has(butaca.id)
+            "
+            [class.seleccionada]="
+              carrito.butacasParaComprar().has(butaca.id)
+            "
             [class.vip]="butaca.tipo === 'vip'"
-            [class.accesible]="butaca.tipo === 'accesible'"
-            [disabled]="butacasOcupadas().has(butaca.id)"
+            [class.accesible]="
+              butaca.tipo === 'accesible'
+            "
+            [disabled]="
+              butacasOcupadas().has(butaca.id)
+            "
             (click)="toggleButaca(butaca)"
           >
             {{ butaca.numero }}
@@ -28,12 +46,46 @@
   </div>
 
   <div class="referencias">
-    <span class="butaca"></span> Normal
-    <span class="butaca accesible"></span> Accesible
-    <span class="butaca vip"></span> VIP
-    <span class="butaca ocupada"></span> Ocupada
-    <span class="butaca seleccionada"></span> Seleccionada
+    <span class="butaca"></span>
+    Normal
+
+    <span class="butaca accesible"></span>
+    Accesible
+
+    <span class="butaca vip"></span>
+    VIP
+
+    <span class="butaca ocupada"></span>
+    Ocupada
+
+    <span class="butaca seleccionada"></span>
+    Seleccionada
   </div>
 
-  <p>Seleccionaste {{ butacasElegidas().size }} butaca(s).</p>
+  <p>
+    Seleccionaste
+    {{ carrito.butacasParaComprar().size }}
+    butaca(s).
+  </p>
+
+  <p>
+    Total: ${{
+      carrito.calcularTotal(
+        funcion.precio,
+        funcion.precio_vip
+      )
+    }}
+  </p>
+
+  <button
+    type="button"
+    [disabled]="
+      carrito.butacasParaComprar().size === 0
+    "
+    [routerLink]="['/compra', funcionId]"
+  >
+    Continuar compra
+  </button>
+} @else {
+  <p>No se pudo cargar la función.</p>
 }
