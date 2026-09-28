@@ -7,8 +7,22 @@
   </a>
 
   <nav class="navegacion">
-    <a routerLink="/home">Inicio</a>
-    <a routerLink="/cartelera">Cartelera</a>
+    <a routerLink="/home">
+      Inicio
+    </a>
+
+    <a routerLink="/cartelera">
+      Cartelera
+    </a>
+
+    @if (esAdmin()) {
+      <a
+        routerLink="/admin"
+        class="enlace-admin"
+      >
+        Administración
+      </a>
+    }
   </nav>
 
   <div class="sesion">
@@ -25,7 +39,9 @@
         Cerrar sesión
       </button>
     } @else {
-      <a routerLink="/login">Iniciar sesión</a>
+      <a routerLink="/login">
+        Iniciar sesión
+      </a>
 
       <a
         routerLink="/register"

@@ -105,6 +105,19 @@
   background: var(--rojo-hover);
 }
 
+.enlace-admin {
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem !important;
+  border: 1px solid rgba(255, 221, 0, 0.35) !important;
+  background: rgba(255, 221, 0, 0.07);
+  color: var(--amarillo) !important;
+}
+
+.enlace-admin:hover {
+  border-color: var(--amarillo) !important;
+  background: rgba(255, 221, 0, 0.13);
+}
+
 @media (max-width: 760px) {
   .header {
     flex-wrap: wrap;
