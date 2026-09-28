@@ -49,25 +49,75 @@ export class PeliculaDetalle implements OnInit {
   }
 
   async enviarResena() {
-    const usuario = this.auth.currentUser();
-    if (!usuario) return; // el botón no debería mostrarse sin login, pero por las dudas
+  const usuario = this.auth.currentUser();
 
-    this.errorResena.set('');
-    this.enviandoResena.set(true);
+  if (!usuario) {
+    this.errorResena.set(
+      'Tenés que iniciar sesión para publicar una reseña.'
+    );
+    return;
+  }
 
-    const { error } = await this.peliculasService.crearResena(
-      this.peliculaId, usuario.id, this.nuevaEstrellas, this.nuevoComentario
+  const comentario = this.nuevoComentario.trim();
+
+  if (comentario.length === 0) {
+    this.errorResena.set(
+      'Escribí un comentario antes de publicar la reseña.'
+    );
+    return;
+  }
+
+  if (comentario.length < 5) {
+    this.errorResena.set(
+      'El comentario debe tener al menos 5 caracteres.'
+    );
+    return;
+  }
+
+  if (
+    this.nuevaEstrellas < 1 ||
+    this.nuevaEstrellas > 5
+  ) {
+    this.errorResena.set(
+      'Seleccioná una puntuación entre 1 y 5 estrellas.'
+    );
+    return;
+  }
+
+  if (this.enviandoResena()) {
+    return;
+  }
+
+  this.errorResena.set('');
+  this.enviandoResena.set(true);
+
+  const { error } =
+    await this.peliculasService.crearResena(
+      this.peliculaId,
+      usuario.id,
+      this.nuevaEstrellas,
+      comentario
     );
 
-    this.enviandoResena.set(false);
+  this.enviandoResena.set(false);
 
-    if (error) {
-      this.errorResena.set(error.message);
+  if (error) {
+    if (error.code === '23505') {
+      this.errorResena.set(
+        'Ya publicaste una reseña para esta película.'
+      );
       return;
     }
 
-    this.nuevoComentario = '';
-    this.nuevaEstrellas = 5;
-    await this.cargarTodo(); // refresca reseñas + puntuación promedio
+    this.errorResena.set(
+      'No se pudo publicar la reseña. Intentá nuevamente.'
+    );
+    return;
+  }
+
+  this.nuevoComentario = '';
+  this.nuevaEstrellas = 5;
+
+  await this.cargarTodo();
   }
 }
