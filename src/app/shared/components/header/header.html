@@ -1,14 +1,38 @@
 <header class="header">
-  <a routerLink="/home" class="logo">🎬 Cine</a>
-  <a routerLink="/cartelera">Cartelera</a>
+  <a routerLink="/home" class="logo">
+    <span class="logo-icono">🎬</span>
+
+    <span class="logo-azul">CINE</span>
+    <span class="logo-amarillo">IZE</span>
+  </a>
+
+  <nav class="navegacion">
+    <a routerLink="/home">Inicio</a>
+    <a routerLink="/cartelera">Cartelera</a>
+  </nav>
 
   <div class="sesion">
     @if (auth.currentUser()) {
-      <span>Hola, {{ auth.currentUser()?.email }}</span>
-      <button (click)="cerrarSesion()">Cerrar sesión</button>
+      <span class="usuario">
+        {{ auth.currentUser()?.email }}
+      </span>
+
+      <button
+        type="button"
+        class="boton-sesion"
+        (click)="cerrarSesion()"
+      >
+        Cerrar sesión
+      </button>
     } @else {
       <a routerLink="/login">Iniciar sesión</a>
-      <a routerLink="/register">Registrarme</a>
+
+      <a
+        routerLink="/register"
+        class="boton-registro"
+      >
+        Registrarme
+      </a>
     }
   </div>
 </header>

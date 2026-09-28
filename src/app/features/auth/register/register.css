@@ -1,0 +1,110 @@
+.register-container {
+  width: min(760px, 100%);
+  margin: 1rem auto;
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+
+.register-container::before {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--rojo);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  content: "Sumate a CINEIZE";
+}
+
+.register-container h2 {
+  margin-bottom: 2rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1;
+}
+
+form {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+label {
+  align-self: end;
+  margin-top: 0.5rem;
+  color: #d7d4d0;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+input,
+select {
+  min-height: 48px;
+}
+
+/*
+Cada label y su input ocupan actualmente elementos
+separados dentro del grid. Con estas reglas cada control
+queda en una fila completa, evitando que se desordenen.
+*/
+form label,
+form input,
+form select,
+form .error,
+form .success,
+form button {
+  grid-column: 1 / -1;
+}
+
+button[type="submit"] {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  text-transform: uppercase;
+}
+
+.register-container > p {
+  margin: 1.5rem 0 0;
+  color: var(--texto-suave);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.register-container > p a {
+  color: var(--amarillo);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.register-container > p a:hover {
+  text-decoration: underline;
+}
+
+.error,
+.success {
+  margin: 0;
+  border-radius: 7px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.error {
+  background: rgba(229, 9, 20, 0.1);
+  color: #ff9da2;
+}
+
+.success {
+  background: rgba(57, 200, 148, 0.1);
+  color: #81e0bd;
+}
+
+@media (max-width: 600px) {
+  .register-container {
+    border-radius: 14px;
+    padding: 1.3rem;
+  }
+}

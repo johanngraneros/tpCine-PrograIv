@@ -1,16 +1,73 @@
-<h2>Las más vistas</h2>
+<section class="hero">
+  <div class="hero-contenido">
+    <span class="hero-etiqueta">La mitad + 1</span>
 
-@if (cargando()) {
-  <p>Cargando...</p>
-} @else {
-  <div class="grid">
-    @for (peli of peliculasDestacadas(); track peli.id) {
-      <div class="card">
-        <img [src]="peli.imagen_url" [alt]="peli.titulo" />
-        <h3>{{ peli.titulo }}</h3>
-        <p>⭐ {{ peli.puntuacion_promedio }} ({{ peli.cantidad_resenas }} reseñas)</p>
-        <p>{{ peli.entradas_vendidas }} entradas vendidas</p>
-      </div>
-    }
+    <h1>Historias que merecen la pantalla GRANDE</h1>
+
+    <p>
+      Descubrí las películas más vistas, elegí tu función
+      y reservá tus butacas desde un solo lugar.
+    </p>
+
+    <a routerLink="/cartelera" class="hero-boton">
+      Ver cartelera
+    </a>
   </div>
-}
+</section>
+
+<section class="seccion-destacadas">
+  <div class="titulo-seccion">
+    <div>
+      <span class="subtitulo">Recomendadas</span>
+      <h2>Las más vistas</h2>
+    </div>
+
+    <a routerLink="/cartelera" class="ver-todas">
+      Ver cartelera →
+    </a>
+  </div>
+
+  @if (cargando()) {
+    <div class="estado">
+      <span class="cargador"></span>
+      <p>Cargando películas...</p>
+    </div>
+  } @else if (peliculasDestacadas().length === 0) {
+    <div class="estado">
+      <p>No hay películas destacadas por ahora.</p>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (
+        peli of peliculasDestacadas();
+        track peli.id
+      ) {
+        <article class="card">
+          <div class="poster">
+            <img
+              [src]="peli.imagen_url"
+              [alt]="peli.titulo"
+            />
+
+            <span class="puntuacion">
+              ★ {{ peli.puntuacion_promedio }}
+            </span>
+          </div>
+
+          <div class="card-contenido">
+            <h3>{{ peli.titulo }}</h3>
+
+            <p>
+              {{ peli.cantidad_resenas }} reseñas
+            </p>
+
+            <p class="vendidas">
+              {{ peli.entradas_vendidas }}
+              entradas vendidas
+            </p>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

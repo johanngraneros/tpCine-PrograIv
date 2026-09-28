@@ -1,0 +1,134 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  min-height: 74px;
+  padding: 0.75rem max(1rem, calc((100vw - 1180px) / 2));
+
+  border-bottom: 1px solid var(--borde);
+  background: rgba(18, 16, 13, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+.header a {
+  color: var(--texto);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  font-size: 1.55rem;
+  font-weight: 950 !important;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.logo-icono {
+  margin-right: 0.6rem;
+  font-size: 1.65rem;
+}
+
+.logo-azul {
+  color: #1683e8;
+}
+
+.logo-amarillo {
+  color: #ffdd00;
+}
+
+.navegacion {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navegacion a {
+  padding: 0.75rem 0;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.navegacion a:hover {
+  color: white;
+  border-color: var(--rojo);
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-left: auto;
+
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+.usuario {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.boton-sesion {
+  padding: 0.65rem 0.9rem;
+  background: var(--superficie-clara);
+}
+
+.boton-sesion:hover {
+  background: #303036 !important;
+}
+
+.boton-registro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+  padding: 0.65rem 1rem;
+  background: var(--rojo);
+  color: white !important;
+}
+
+.boton-registro:hover {
+  background: var(--rojo-hover);
+}
+
+@media (max-width: 760px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .logo {
+    font-size: 1.15rem;
+  }
+
+  .navegacion {
+    margin-left: auto;
+    gap: 1rem;
+  }
+
+  .sesion {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--borde);
+  }
+
+  .usuario {
+    max-width: 55vw;
+  }
+}

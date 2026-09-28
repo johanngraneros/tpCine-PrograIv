@@ -1,0 +1,492 @@
+.detalle {
+  display: grid;
+  grid-template-columns:
+    minmax(260px, 380px)
+    minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.columna-poster {
+  position: sticky;
+  top: 105px;
+}
+
+.poster {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+
+.poster img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+.restriccion {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+
+  display: grid;
+  place-items: center;
+
+  min-width: 48px;
+  min-height: 48px;
+  border: 2px solid white;
+  border-radius: 12px;
+  padding: 0.4rem;
+
+  background: rgba(229, 9, 20, 0.92);
+  color: white;
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+}
+
+.datos-rapidos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+}
+
+.datos-rapidos div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+
+.datos-rapidos div:not(:last-child) {
+  border-right: 1px solid var(--borde);
+}
+
+.datos-rapidos span {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+}
+
+.datos-rapidos strong {
+  font-size: 0.9rem;
+}
+
+.datos-rapidos .puntuacion {
+  color: var(--amarillo);
+}
+
+.informacion {
+  padding-top: 1rem;
+}
+
+.subtitulo {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  color: var(--rojo);
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.informacion h1 {
+  max-width: 800px;
+  margin: 0 0 1.25rem;
+  font-size: clamp(2.7rem, 6vw, 5rem);
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+.aviso-edad {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(229, 9, 20, 0.42);
+  border-radius: 9px;
+  padding: 0.7rem 0.9rem;
+  background: rgba(229, 9, 20, 0.1);
+  color: #ffb3b7;
+  font-size: 0.85rem;
+}
+
+.sinopsis {
+  max-width: 760px;
+  margin-bottom: 3rem;
+  color: #c5c2be;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.funciones {
+  padding-top: 2rem;
+  border-top: 1px solid var(--borde);
+}
+
+.titulo-bloque h2 {
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+}
+
+.lista-funciones {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.funcion-card {
+  display: grid;
+  grid-template-columns:
+    70px minmax(120px, 1fr)
+    auto auto 32px;
+  gap: 1rem;
+  align-items: center;
+
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+
+  background: var(--superficie);
+  color: var(--texto);
+  text-decoration: none;
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.funcion-card:hover {
+  transform: translateX(5px);
+  border-color: var(--rojo);
+  background: var(--superficie-clara);
+}
+
+.funcion-fecha {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+
+  min-height: 58px;
+  border-radius: 9px;
+  background: #29282a;
+
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.funcion-fecha .dia {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.funcion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.funcion-info strong {
+  font-size: 1.25rem;
+}
+
+.funcion-info span {
+  color: var(--texto-suave);
+  font-size: 0.86rem;
+}
+
+.funcion-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.funcion-etiquetas span {
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 0.35rem 0.6rem;
+  color: #d2cfcb;
+  font-size: 0.75rem;
+}
+
+.funcion-precio {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.funcion-precio span {
+  color: var(--texto-suave);
+  font-size: 0.7rem;
+}
+
+.funcion-precio strong {
+  color: white;
+  font-size: 1.05rem;
+}
+
+.funcion-flecha {
+  color: var(--rojo);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.seccion-resenas {
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--borde);
+}
+
+.encabezado-resenas {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.encabezado-resenas h2 {
+  margin-bottom: 0;
+}
+
+.promedio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  background: var(--superficie);
+}
+
+.promedio span {
+  color: var(--amarillo);
+}
+
+.promedio strong {
+  font-size: 1.2rem;
+}
+
+.contenido-resenas {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(280px, 360px);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.lista-resenas {
+  display: grid;
+  gap: 1rem;
+}
+
+.resena {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.2rem;
+  background: var(--superficie);
+}
+
+.resena-encabezado {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background:
+    linear-gradient(
+      135deg,
+      var(--rojo),
+      #781016
+    );
+  color: white;
+  font-weight: 900;
+}
+
+.estrellas {
+  margin-top: 0.2rem;
+  color: var(--amarillo);
+  font-size: 0.82rem;
+}
+
+.resena p {
+  margin-bottom: 0;
+  color: #c8c5c2;
+  line-height: 1.65;
+}
+
+.panel-resena {
+  position: sticky;
+  top: 105px;
+}
+
+.nueva-resena,
+.iniciar-sesion {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.4rem;
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+
+.nueva-resena h3,
+.iniciar-sesion h3 {
+  margin-bottom: 1.3rem;
+  font-size: 1.5rem;
+}
+
+.nueva-resena label {
+  display: block;
+  margin: 1rem 0 0.45rem;
+  color: #d7d4d0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.nueva-resena textarea {
+  resize: vertical;
+}
+
+.nueva-resena button {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.error {
+  margin: 0.8rem 0 0;
+  border-radius: 8px;
+  padding: 0.7rem;
+  background: rgba(229, 9, 20, 0.12);
+  color: #ff989e;
+  font-size: 0.85rem;
+}
+
+.iniciar-sesion p {
+  color: var(--texto-suave);
+  line-height: 1.6;
+}
+
+.iniciar-sesion a {
+  display: flex;
+  justify-content: center;
+  border-radius: 9px;
+  padding: 0.85rem 1rem;
+  background: var(--rojo);
+  color: white;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.mensaje-vacio,
+.estado {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  border: 1px dashed var(--borde);
+  border-radius: var(--radio);
+  padding: 1.5rem;
+  background: var(--superficie);
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.estado {
+  min-height: 320px;
+}
+
+.cargador {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+  border: 4px solid var(--borde);
+  border-top-color: var(--rojo);
+  border-radius: 50%;
+  animation: girar 800ms linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 950px) {
+  .detalle {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .funcion-card {
+    grid-template-columns:
+      65px minmax(100px, 1fr) auto 25px;
+  }
+
+  .funcion-etiquetas {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .detalle {
+    grid-template-columns: 1fr;
+  }
+
+  .columna-poster,
+  .panel-resena {
+    position: static;
+  }
+
+  .columna-poster {
+    width: min(360px, 100%);
+    margin: 0 auto;
+  }
+
+  .informacion h1 {
+    font-size: 2.7rem;
+  }
+
+  .contenido-resenas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .funcion-card {
+    grid-template-columns:
+      55px minmax(0, 1fr) auto;
+    gap: 0.7rem;
+    padding: 0.7rem;
+  }
+
+  .funcion-precio {
+    display: none;
+  }
+
+  .funcion-flecha {
+    font-size: 1.1rem;
+  }
+
+  .encabezado-resenas {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

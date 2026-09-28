@@ -1,91 +1,258 @@
 @if (cargando()) {
-  <p>Cargando...</p>
-} @else if (datosFuncion(); as funcion) {
-  <h2>{{ funcion.peliculas.titulo }}</h2>
-
-  <p>
-    {{ funcion.salas.nombre }} —
-    {{ funcion.formato }} —
-    {{ funcion.idioma }}
-  </p>
-
-  <div class="pantalla">
-    PANTALLA
+  <div class="estado-pagina">
+    <span class="cargador"></span>
+    <p>Cargando sala...</p>
   </div>
+} @else if (datosFuncion(); as funcion) {
+  <header class="encabezado">
+    <div>
+      <span class="subtitulo">
+        Selección de butacas
+      </span>
 
-  <div class="mapa">
-    @for (f of filasAgrupadas(); track f.fila) {
-      <div class="fila">
-        <span class="etiqueta-fila">
-          {{ f.fila }}
+      <h1>{{ funcion.peliculas.titulo }}</h1>
+
+      <div class="datos-funcion">
+        <span>{{ funcion.salas.nombre }}</span>
+
+        <span>
+          {{
+            funcion.fecha_hora
+              | date: 'dd/MM/yyyy'
+          }}
         </span>
 
-        @for (butaca of f.butacas; track butaca.id) {
-          <button
-            class="butaca"
-            [class.ocupada]="
-              butacasOcupadas().has(butaca.id)
-            "
-            [class.seleccionada]="
-              carrito.butacasParaComprar().has(butaca.id)
-            "
-            [class.vip]="butaca.tipo === 'vip'"
-            [class.accesible]="
-              butaca.tipo === 'accesible'
-            "
-            [disabled]="
-              butacasOcupadas().has(butaca.id)
-            "
-            (click)="toggleButaca(butaca)"
-          >
-            {{ butaca.numero }}
-          </button>
+        <span>
+          {{
+            funcion.fecha_hora
+              | date: 'HH:mm'
+          }} hs
+        </span>
+
+        <span>{{ funcion.formato }}</span>
+        <span>{{ funcion.idioma }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="distribucion">
+    <main class="sector-sala">
+      <div class="pantalla-contenedor">
+        <div class="pantalla"></div>
+        <span>Pantalla</span>
+      </div>
+
+      <div class="mapa-contenedor">
+        <div class="mapa">
+          @for (
+            f of filasAgrupadas();
+            track f.fila
+          ) {
+            <div class="fila">
+              <span class="etiqueta-fila">
+                {{ f.fila }}
+              </span>
+
+              <div class="butacas-fila"  [class.fila-corta]="f.butacas.length <= 14">
+                @for (
+                  butaca of f.butacas;
+                  track butaca.id
+                ) {
+                  <button
+                    type="button"
+                    class="butaca"
+                    [class.ocupada]="
+                      butacasOcupadas().has(
+                        butaca.id
+                      )
+                    "
+                    [class.seleccionada]="
+                      carrito
+                        .butacasParaComprar()
+                        .has(butaca.id)
+                    "
+                    [class.vip]="
+                      butaca.tipo === 'vip'
+                    "
+                    [class.accesible]="
+                      butaca.tipo === 'accesible'
+                    "
+                    [disabled]="
+                      butacasOcupadas().has(
+                        butaca.id
+                      )
+                    "
+                    [attr.aria-label]="
+                      'Fila ' +
+                      butaca.fila +
+                      ', asiento ' +
+                      butaca.numero +
+                      ', tipo ' +
+                      butaca.tipo
+                    "
+                    (click)="toggleButaca(butaca)"
+                  >
+                    {{ butaca.numero }}
+                  </button>
+                }
+              </div>
+
+              <span
+                class="etiqueta-fila etiqueta-final"
+              >
+                {{ f.fila }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="referencias">
+        <div class="referencia">
+          <span class="muestra normal"></span>
+          <span>Disponible</span>
+        </div>
+
+        <div class="referencia">
+          <span class="muestra accesible"></span>
+          <span>Accesible</span>
+        </div>
+
+        <div class="referencia">
+          <span class="muestra vip"></span>
+          <span>VIP</span>
+        </div>
+
+        <div class="referencia">
+          <span class="muestra ocupada"></span>
+          <span>Ocupada</span>
+        </div>
+
+        <div class="referencia">
+          <span class="muestra seleccionada"></span>
+          <span>Seleccionada</span>
+        </div>
+      </div>
+    </main>
+
+    <aside class="resumen">
+      <span class="subtitulo">Tu selección</span>
+      <h2>Resumen</h2>
+
+      <div class="resumen-bloque">
+        <span class="resumen-etiqueta">
+          Película
+        </span>
+
+        <strong>
+          {{ funcion.peliculas.titulo }}
+        </strong>
+      </div>
+
+      <div class="resumen-bloque">
+        <span class="resumen-etiqueta">
+          Función
+        </span>
+
+      <div class="detalle-funcion">
+        <strong>
+          {{
+            funcion.fecha_hora
+              | date: 'dd/MM/yyyy'
+          }}
+          ·
+          {{
+            funcion.fecha_hora
+              | date: 'HH:mm'
+          }}
+          hs
+        </strong>
+
+        <span>
+          {{ funcion.salas.nombre }} ·
+          {{ funcion.formato }} ·
+          {{ funcion.idioma }}
+        </span>
+      </div>
+      </div>
+
+      <div class="resumen-bloque">
+        <div class="resumen-linea">
+          <span class="resumen-etiqueta">
+            Butacas
+          </span>
+
+          <strong class="cantidad">
+            {{
+              carrito
+                .butacasParaComprar()
+                .size
+            }}
+          </strong>
+        </div>
+
+        @if (
+          carrito.butacasParaComprar().size === 0
+        ) {
+          <p class="sin-seleccion">
+            Elegí una o más butacas en el mapa.
+          </p>
+        } @else {
+          <div class="butacas-elegidas">
+            @for (
+              butaca of carrito
+                .butacasSeleccionadas();
+              track butaca.id
+            ) {
+              <div class="butaca-elegida">
+                <span>
+                  Fila {{ butaca.fila }}
+                </span>
+
+                <strong>
+                  Asiento {{ butaca.numero }}
+                </strong>
+
+                <small>
+                  {{ butaca.tipo }}
+                </small>
+              </div>
+            }
+          </div>
         }
       </div>
-    }
+
+      <div class="resumen-total">
+        <span>Total</span>
+
+        <strong>
+          ${{
+            carrito.calcularTotal(
+              funcion.precio,
+              funcion.precio_vip
+            )
+          }}
+        </strong>
+      </div>
+
+      <button
+        type="button"
+        class="continuar"
+        [disabled]="
+          carrito.butacasParaComprar().size === 0
+        "
+        [routerLink]="[
+          '/compra',
+          funcionId
+        ]"
+      >
+        Continuar compra
+        <span>→</span>
+      </button>
+    </aside>
   </div>
-
-  <div class="referencias">
-    <span class="butaca"></span>
-    Normal
-
-    <span class="butaca accesible"></span>
-    Accesible
-
-    <span class="butaca vip"></span>
-    VIP
-
-    <span class="butaca ocupada"></span>
-    Ocupada
-
-    <span class="butaca seleccionada"></span>
-    Seleccionada
-  </div>
-
-  <p>
-    Seleccionaste
-    {{ carrito.butacasParaComprar().size }}
-    butaca(s).
-  </p>
-
-  <p>
-    Total: ${{
-      carrito.calcularTotal(
-        funcion.precio,
-        funcion.precio_vip
-      )
-    }}
-  </p>
-
-  <button
-    type="button"
-    [disabled]="
-      carrito.butacasParaComprar().size === 0
-    "
-    [routerLink]="['/compra', funcionId]"
-  >
-    Continuar compra
-  </button>
 } @else {
-  <p>No se pudo cargar la función.</p>
+  <div class="estado-pagina">
+    <p>No se pudo cargar la función.</p>
+  </div>
 }

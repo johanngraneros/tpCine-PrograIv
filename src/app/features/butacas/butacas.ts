@@ -3,13 +3,14 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { ButacasService } from '../../core/services/butacas.service';
 import { CarritoService } from '../../core/services/carrito.service';
+import { DatePipe } from '@angular/common';
 
 import { Butaca, ButacaOcupada, FilaButacas } from '../../core/models/butaca.interface';
 
 import {FuncionDetalle} from '../../core/models/funcion.interface';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe  ],
   selector: 'app-butacas',
   styleUrl: './butacas.css',
   templateUrl: './butacas.html',

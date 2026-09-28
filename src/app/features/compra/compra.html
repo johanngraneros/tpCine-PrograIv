@@ -1,70 +1,298 @@
-<h2>Resumen de compra</h2>
+<section class="encabezado-compra">
+  <span class="subtitulo">
+    Último paso
+  </span>
+
+  <h1>Resumen de compra</h1>
+
+  <p>
+    Revisá los datos antes de confirmar tus entradas.
+  </p>
+</section>
 
 @if (compraConfirmada(); as compraId) {
-  <h3>¡Compra confirmada!</h3>
+  <section class="compra-exitosa">
+    <div class="icono-exito">
+      ✓
+    </div>
 
-  <p>
-    Número de compra: {{ compraId }}
-  </p>
+    <span class="subtitulo">
+      Operación completada
+    </span>
 
-  <p>
-    Las entradas fueron generadas correctamente.
-  </p>
+    <h2>¡Compra confirmada!</h2>
+
+    <p class="mensaje-exito">
+      Tus entradas fueron generadas correctamente.
+      Ya podés encontrarlas asociadas a tu cuenta.
+    </p>
+
+    <div class="numero-compra">
+      <span>Número de compra</span>
+
+      <strong>{{ compraId }}</strong>
+    </div>
+
+    <div class="aviso-entradas">
+      <span class="aviso-icono">🎟️</span>
+
+      <div>
+        <strong>Entradas generadas</strong>
+
+        <p>
+          Presentá el código correspondiente
+          al ingresar a la sala.
+        </p>
+      </div>
+    </div>
+  </section>
 } @else if (datosFuncion(); as funcion) {
-  <p>
-    Película: {{ funcion.peliculas.titulo }}
-  </p>
+  <div class="distribucion-compra">
+    <main class="detalle-compra">
+      <section class="bloque">
+        <div class="titulo-bloque">
+          <span class="numero-paso">1</span>
 
-  <p>
-    Cantidad de butacas:
-    {{ carrito.butacasParaComprar().size }}
-  </p>
+          <div>
+            <span class="etiqueta">
+              Película
+            </span>
 
-  <ul>
-    @for (
-      butaca of carrito.butacasSeleccionadas();
-      track butaca.id
-    ) {
-      <li>
-        Fila {{ butaca.fila }} —
-        Asiento {{ butaca.numero }} —
-        {{ butaca.tipo }}
-      </li>
-    }
-  </ul>
+            <h2>
+              {{ funcion.peliculas.titulo }}
+            </h2>
+          </div>
+        </div>
 
-  <p>
-    Total: ${{
-      carrito.calcularTotal(
-        funcion.precio,
-        funcion.precio_vip
-      )
-    }}
-  </p>
+        <div class="datos-funcion">
+          <div class="dato">
+            <span>Sala</span>
 
-  @if (mensajeError()) {
-    <p>
-      {{ mensajeError() }}
-    </p>
-  }
+            <strong>
+              {{ funcion.salas.nombre }}
+            </strong>
+          </div>
 
-  <button
-    type="button"
-    [disabled]="procesando()"
-    (click)="confirmarCompra()"
-  >
-    {{
-      procesando()
-        ? 'Procesando...'
-        : 'Confirmar compra'
-    }}
-  </button>
+          <div class="dato">
+            <span>Fecha</span>
+
+            <strong>
+              {{
+                funcion.fecha_hora
+                  | date: 'dd/MM/yyyy'
+              }}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Horario</span>
+
+            <strong>
+              {{
+                funcion.fecha_hora
+                  | date: 'HH:mm'
+              }}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Formato e idioma</span>
+
+            <strong>
+              {{ funcion.formato }} ·
+              {{ funcion.idioma }}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <div class="titulo-bloque">
+          <span class="numero-paso">2</span>
+
+          <div>
+            <span class="etiqueta">
+              Ubicaciones
+            </span>
+
+            <h2>Butacas seleccionadas</h2>
+          </div>
+        </div>
+
+        <div class="lista-butacas">
+          @for (
+            butaca of carrito
+              .butacasSeleccionadas();
+            track butaca.id
+          ) {
+            <article class="butaca-item">
+              <div class="icono-butaca">
+                🎟
+              </div>
+
+              <div class="butaca-datos">
+                <strong>
+                  Fila {{ butaca.fila }} ·
+                  Asiento {{ butaca.numero }}
+                </strong>
+
+                <span>
+                  Entrada {{ butaca.tipo }}
+                </span>
+              </div>
+
+              <span
+                class="tipo-butaca"
+                [class.tipo-vip]="
+                  butaca.tipo === 'vip'
+                "
+                [class.tipo-accesible]="
+                  butaca.tipo === 'accesible'
+                "
+              >
+                {{ butaca.tipo }}
+              </span>
+            </article>
+          }
+        </div>
+      </section>
+
+      <div class="aviso-confirmacion">
+        <span>ℹ</span>
+
+        <p>
+          Al confirmar, las butacas quedarán ocupadas
+          para esta función y se generará una entrada
+          por cada ubicación seleccionada.
+        </p>
+      </div>
+    </main>
+
+    <aside class="panel-total">
+      <span class="subtitulo">
+        Tu compra
+      </span>
+
+      <h2>Resumen</h2>
+
+      <div class="resumen-seccion">
+        <span class="resumen-etiqueta">
+          Película
+        </span>
+
+        <strong>
+          {{ funcion.peliculas.titulo }}
+        </strong>
+      </div>
+
+      <div class="resumen-seccion">
+        <span class="resumen-etiqueta">
+          Función
+        </span>
+
+      <div class="funcion-resumida">
+        <strong>
+          {{
+            funcion.fecha_hora
+              | date: 'dd/MM/yyyy'
+          }}
+          ·
+          {{
+            funcion.fecha_hora
+              | date: 'HH:mm'
+          }}
+        </strong>
+
+        <span>
+          {{ funcion.salas.nombre }} ·
+          {{ funcion.formato }} ·
+          {{ funcion.idioma }}
+        </span>
+      </div>
+    </div>
+
+      <div class="resumen-seccion">
+        <div class="linea-resumen">
+          <span>Entradas</span>
+
+          <strong>
+            {{
+              carrito
+                .butacasParaComprar()
+                .size
+            }}
+          </strong>
+        </div>
+
+        <div class="butacas-resumidas">
+          @for (
+            butaca of carrito
+              .butacasSeleccionadas();
+            track butaca.id
+          ) {
+            <span>
+              {{ butaca.fila }}{{ butaca.numero }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="total">
+        <span>Total</span>
+
+        <strong>
+          ${{
+            carrito.calcularTotal(
+              funcion.precio,
+              funcion.precio_vip
+            )
+          }}
+        </strong>
+      </div>
+
+      @if (mensajeError()) {
+        <div class="mensaje-error">
+          <strong>
+            No pudimos confirmar la compra
+          </strong>
+
+          <p>{{ mensajeError() }}</p>
+        </div>
+      }
+
+      <button
+        type="button"
+        class="confirmar"
+        [disabled]="procesando()"
+        (click)="confirmarCompra()"
+      >
+        <span>
+          {{
+            procesando()
+              ? 'Procesando...'
+              : 'Confirmar compra'
+          }}
+        </span>
+
+        @if (!procesando()) {
+          <span>→</span>
+        }
+      </button>
+
+      <p class="texto-seguridad">
+        🔒 La operación se procesa de forma segura.
+      </p>
+    </aside>
+  </div>
 } @else {
-  <p>Cargando datos de la función...</p>
+  <div class="estado-pagina">
+    <span class="cargador"></span>
+    <p>Cargando datos de la función...</p>
 
-  @if (mensajeError()) {
-    <p>
-      {{ mensajeError() }}
-    </p>
-  }
+    @if (mensajeError()) {
+      <div class="mensaje-error">
+        <p>{{ mensajeError() }}</p>
+      </div>
+    }
+  </div>
 }

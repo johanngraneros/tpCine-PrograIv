@@ -1,1 +1,149 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --fondo: #12100d;
+  --superficie: #191816;
+  --superficie-clara: #25231f;
+  --borde: #38352f;
+  --texto: #f7f7f8;
+  --texto-suave: #aaa69f;
+
+  --rojo: #e50914;
+  --rojo-hover: #ff2430;
+
+  --azul: #1683e8;
+  --azul-oscuro: #003b78;
+  --amarillo: #ffdd00;
+
+  --verde: #39c894;
+  --radio: 14px;
+  --sombra: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    var(--fondo);
+  color: var(--texto);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 0.8rem 1.15rem;
+  background: var(--rojo);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    opacity 160ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--rojo-hover);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--borde);
+  border-radius: 9px;
+  padding: 0.85rem 1rem;
+  background: var(--superficie-clara);
+  color: var(--texto);
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.18);
+}
+
+app-home,
+app-cartelera,
+app-pelicula-detalle,
+app-butacas,
+app-compra,
+app-login,
+app-register {
+  display: block;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 5rem;
+}
+
+@media (max-width: 640px) {
+  app-home,
+  app-cartelera,
+  app-pelicula-detalle,
+  app-butacas,
+  app-compra,
+  app-login,
+  app-register {
+    width: min(100% - 1rem, 1180px);
+    padding-top: 1.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+}

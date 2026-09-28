@@ -1,77 +1,291 @@
 @if (cargando()) {
-  <p>Cargando...</p>
-} @else if (pelicula()) {
-  <div class="ficha">
-    <img [src]="pelicula().imagen_url" [alt]="pelicula().titulo" />
+  <div class="estado">
+    <span class="cargador"></span>
+    <p>Cargando película...</p>
+  </div>
+} @else if (pelicula(); as peli) {
+  <section class="detalle">
+    <div class="columna-poster">
+      <div class="poster">
+        <img
+          [src]="peli.imagen_url"
+          [alt]="peli.titulo"
+        />
 
-    <div class="info">
-      <h2>{{ pelicula().titulo }}</h2>
+        @if (peli.restriccion_edad) {
+          <span class="restriccion">
+            +{{ peli.restriccion_edad }}
+          </span>
+        }
+      </div>
 
-      @if (pelicula().restriccion_edad) {
-        <span class="restriccion">+{{ pelicula().restriccion_edad }} — debe ir acompañado de un adulto</span>
-      }
-
-      <p>{{ pelicula().sinopsis }}</p>
-      <p>Duración: {{ pelicula().duracion_min }} min</p>
-      <p>⭐ {{ pelicula().puntuacion_promedio }} ({{ pelicula().cantidad_resenas }} reseñas)</p>
-
-      <h3>Funciones disponibles</h3>
-      @if (funciones().length === 0) {
-        <p>No hay funciones programadas por ahora.</p>
-      } @else {
-        <ul>
-          @for (funcion of funciones(); track funcion.id) {
-            <li>
-              <a [routerLink]="['/funcion', funcion.id, 'butacas']">
-                {{ funcion.fecha_hora | date: 'short' }} —
-                {{ funcion.salas.nombre }} —
-                {{ funcion.formato }} —
-                {{ funcion.idioma }} —
-                ${{ funcion.precio }}
-              </a>
-            </li>
-          }
-        </ul>
-      }
-
-      <h3>Reseñas</h3>
-
-      @if (resenas().length === 0) {
-        <p>Todavía no hay reseñas.</p>
-      } @else {
-        <ul class="resenas">
-          @for (r of resenas(); track r.id) {
-            <li>
-              <strong>{{ r.perfiles?.nombre ?? 'Usuario' }}</strong>
-                  — ⭐ {{ r.estrellas }}
-              <p>{{ r.comentario }}</p>
-            </li>
-          }
-        </ul>
-      }
-
-      @if (auth.currentUser()) {
-        <div class="nueva-resena">
-          <h4>Dejar tu reseña</h4>
-          <select [(ngModel)]="nuevaEstrellas">
-            <option [ngValue]="5">⭐⭐⭐⭐⭐</option>
-            <option [ngValue]="4">⭐⭐⭐⭐</option>
-            <option [ngValue]="3">⭐⭐⭐</option>
-            <option [ngValue]="2">⭐⭐</option>
-            <option [ngValue]="1">⭐</option>
-          </select>
-          <textarea [(ngModel)]="nuevoComentario" placeholder="Comentario corto..." maxlength="200"></textarea>
-          @if (errorResena()) {
-            <p class="error">{{ errorResena() }}</p>
-          }
-          <button (click)="enviarResena()" [disabled]="enviandoResena()">
-            {{ enviandoResena() ? 'Enviando...' : 'Publicar reseña' }}
-          </button>
+      <div class="datos-rapidos">
+        <div>
+          <span>Duración</span>
+          <strong>{{ peli.duracion_min }} min</strong>
         </div>
-      } @else {
-        <p><a routerLink="/login">Iniciá sesión</a> para dejar tu reseña.</p>
+
+        <div>
+          <span>Puntuación</span>
+          <strong class="puntuacion">
+            ★ {{ peli.puntuacion_promedio }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Reseñas</span>
+          <strong>{{ peli.cantidad_resenas }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="informacion">
+      <span class="subtitulo">Ahora en cartelera</span>
+
+      <h1>{{ peli.titulo }}</h1>
+
+      @if (peli.restriccion_edad) {
+        <p class="aviso-edad">
+          Apta para mayores de
+          {{ peli.restriccion_edad }} años.
+          Los menores deben asistir acompañados
+          por un adulto.
+        </p>
       }
 
+      <p class="sinopsis">
+        {{ peli.sinopsis }}
+      </p>
+
+      <section class="funciones">
+        <div class="titulo-bloque">
+          <div>
+            <span class="subtitulo">
+              Elegí tu horario
+            </span>
+
+            <h2>Funciones disponibles</h2>
+          </div>
+        </div>
+
+        @if (funciones().length === 0) {
+          <div class="mensaje-vacio">
+            <p>
+              No hay funciones programadas por ahora.
+            </p>
+          </div>
+        } @else {
+          <div class="lista-funciones">
+            @for (
+              funcion of funciones();
+              track funcion.id
+            ) {
+              <a
+                [routerLink]="[
+                  '/funcion',
+                  funcion.id,
+                  'butacas'
+                ]"
+                class="funcion-card"
+              >
+                <div class="funcion-fecha">
+                  <span class="dia">
+                    {{
+                      funcion.fecha_hora
+                        | date: 'dd'
+                    }}
+                  </span>
+
+                  <span>
+                    {{
+                      funcion.fecha_hora
+                        | date: 'MMM'
+                    }}
+                  </span>
+                </div>
+
+                <div class="funcion-info">
+                  <strong>
+                    {{
+                      funcion.fecha_hora
+                        | date: 'HH:mm'
+                    }}
+                  </strong>
+
+                  <span>
+                    {{ funcion.salas.nombre }}
+                  </span>
+                </div>
+
+                <div class="funcion-etiquetas">
+                  <span>{{ funcion.formato }}</span>
+                  <span>{{ funcion.idioma }}</span>
+                </div>
+
+                <div class="funcion-precio">
+                  <span>Desde</span>
+                  <strong>
+                    ${{ funcion.precio }}
+                  </strong>
+                </div>
+
+                <span class="funcion-flecha">
+                  →
+                </span>
+              </a>
+            }
+          </div>
+        }
+      </section>
     </div>
+  </section>
+
+  <section class="seccion-resenas">
+    <div class="encabezado-resenas">
+      <div>
+        <span class="subtitulo">
+          Opiniones
+        </span>
+
+        <h2>Reseñas</h2>
+      </div>
+
+      <div class="promedio">
+        <span>★</span>
+        <strong>
+          {{ peli.puntuacion_promedio }}
+        </strong>
+      </div>
+    </div>
+
+    <div class="contenido-resenas">
+      <div class="lista-resenas">
+        @if (resenas().length === 0) {
+          <div class="mensaje-vacio">
+            <p>Todavía no hay reseñas.</p>
+          </div>
+        } @else {
+          @for (r of resenas(); track r.id) {
+            <article class="resena">
+              <div class="resena-encabezado">
+                <div class="avatar">
+                  {{
+                    (r.perfiles?.nombre ?? 'U')
+                      .charAt(0)
+                      .toUpperCase()
+                  }}
+                </div>
+
+                <div>
+                  <strong>
+                    {{
+                      r.perfiles?.nombre
+                        ?? 'Usuario'
+                    }}
+                  </strong>
+
+                  <div class="estrellas">
+                    ★ {{ r.estrellas }} / 5
+                  </div>
+                </div>
+              </div>
+
+              <p>{{ r.comentario }}</p>
+            </article>
+          }
+        }
+      </div>
+
+      <aside class="panel-resena">
+        @if (auth.currentUser()) {
+          <div class="nueva-resena">
+            <span class="subtitulo">
+              Tu opinión
+            </span>
+
+            <h3>Dejá tu reseña</h3>
+
+            <label for="estrellas">
+              Puntuación
+            </label>
+
+            <select
+              id="estrellas"
+              [(ngModel)]="nuevaEstrellas"
+            >
+              <option [ngValue]="5">
+                ⭐⭐⭐⭐⭐
+              </option>
+
+              <option [ngValue]="4">
+                ⭐⭐⭐⭐
+              </option>
+
+              <option [ngValue]="3">
+                ⭐⭐⭐
+              </option>
+
+              <option [ngValue]="2">
+                ⭐⭐
+              </option>
+
+              <option [ngValue]="1">
+                ⭐
+              </option>
+            </select>
+
+            <label for="comentario">
+              Comentario
+            </label>
+
+            <textarea
+              id="comentario"
+              [(ngModel)]="nuevoComentario"
+              placeholder="Contanos qué te pareció..."
+              maxlength="200"
+              rows="5"
+            ></textarea>
+
+            @if (errorResena()) {
+              <p class="error">
+                {{ errorResena() }}
+              </p>
+            }
+
+            <button
+              type="button"
+              (click)="enviarResena()"
+              [disabled]="enviandoResena()"
+            >
+              {{
+                enviandoResena()
+                  ? 'Enviando...'
+                  : 'Publicar reseña'
+              }}
+            </button>
+          </div>
+        } @else {
+          <div class="iniciar-sesion">
+            <span class="subtitulo">
+              Participá
+            </span>
+
+            <h3>¿Ya viste la película?</h3>
+
+            <p>
+              Iniciá sesión para compartir tu opinión.
+            </p>
+
+            <a routerLink="/login">
+              Iniciar sesión
+            </a>
+          </div>
+        }
+      </aside>
+    </div>
+  </section>
+} @else {
+  <div class="estado">
+    <p>No se pudo cargar la película.</p>
   </div>
 }

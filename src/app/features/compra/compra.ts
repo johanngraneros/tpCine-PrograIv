@@ -4,9 +4,10 @@ import { ButacasService } from '../../core/services/butacas.service';
 import { CarritoService } from '../../core/services/carrito.service';
 import { ComprasService } from '../../core/services/compras.service';
 import { FuncionDetalle} from '../../core/models/funcion.interface';
+import { DatePipe } from '@angular/common';
 
 @Component({
-  imports: [],
+  imports: [DatePipe],
   selector: 'app-compra',
   styleUrl: './compra.css',
   templateUrl: './compra.html',

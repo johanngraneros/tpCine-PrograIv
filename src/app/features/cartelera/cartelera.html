@@ -1,27 +1,69 @@
-<h2>Cartelera</h2>
+<section class="encabezado-cartelera">
+  <span class="subtitulo">Ahora en cines</span>
+  <h2>Cartelera</h2>
+
+  <p>
+    Buscá una película, elegí la función que más te convenga
+    y reservá tus butacas.
+  </p>
+</section>
 
 <div class="filtros">
   <app-search-bar [(termino)]="textoBusqueda" />
 
-  <select (change)="generoSeleccionado.set($any($event.target).value || null)">
+  <select
+    aria-label="Filtrar por género"
+    (change)="
+      generoSeleccionado.set(
+        $any($event.target).value || null
+      )
+    "
+  >
     <option value="">Todos los géneros</option>
+
     @for (genero of generos(); track genero.id) {
-      <option [value]="genero.id">{{ genero.nombre }}</option>
+      <option [value]="genero.id">
+        {{ genero.nombre }}
+      </option>
     }
   </select>
 </div>
 
 @if (cargando()) {
-  <p>Cargando...</p>
+  <div class="estado">
+    <span class="cargador"></span>
+    <p>Cargando cartelera...</p>
+  </div>
 } @else if (peliculas().length === 0) {
-  <p>No se encontraron películas.</p>
+  <div class="estado">
+    <p>No se encontraron películas.</p>
+  </div>
 } @else {
   <div class="grid">
     @for (peli of peliculas(); track peli.id) {
-      <a [routerLink]="['/pelicula', peli.id]" class="card">
-        <img [src]="peli.imagen_url" [alt]="peli.titulo" />
-        <h3>{{ peli.titulo }}</h3>
-        <p>⭐ {{ peli.puntuacion_promedio }}</p>
+      <a
+        [routerLink]="['/pelicula', peli.id]"
+        class="card"
+      >
+        <div class="poster">
+          <img
+            [src]="peli.imagen_url"
+            [alt]="peli.titulo"
+          />
+
+          <span class="puntuacion">
+            ★ {{ peli.puntuacion_promedio }}
+          </span>
+
+          <span class="ver-detalle">
+            Ver funciones
+          </span>
+        </div>
+
+        <div class="card-contenido">
+          <h3>{{ peli.titulo }}</h3>
+          <p>Ver horarios y entradas →</p>
+        </div>
       </a>
     }
   </div>
