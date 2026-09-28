@@ -1,0 +1,323 @@
+<main class="admin-peliculas">
+  <section class="encabezado">
+    <a routerLink="/admin" class="volver">
+      ← Volver al panel
+    </a>
+
+    <p class="etiqueta">ADMINISTRACIÓN</p>
+    <h1>PELÍCULAS</h1>
+    <p class="descripcion">
+      Creá, modificá y administrá las películas de CINEIZE.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  <section class="formulario-panel">
+    <div class="titulo-seccion">
+      <div>
+        <p class="etiqueta">
+          {{ peliculaEditandoId() ? 'EDICIÓN' : 'NUEVA PELÍCULA' }}
+        </p>
+
+        <h2>
+          {{
+            peliculaEditandoId()
+              ? 'Modificar película'
+              : 'Agregar película'
+          }}
+        </h2>
+      </div>
+
+      @if (peliculaEditandoId()) {
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cancelarEdicion()"
+        >
+          Cancelar edición
+        </button>
+      }
+    </div>
+
+    <form (ngSubmit)="guardar()">
+      <div class="campos-grid">
+        <div class="campo campo-ancho">
+          <label for="titulo">Título</label>
+
+          <input
+            id="titulo"
+            name="titulo"
+            type="text"
+            [(ngModel)]="formulario.titulo"
+            placeholder="Ejemplo: Horizonte Perdido"
+            [disabled]="guardando()"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="duracion">Duración en minutos</label>
+
+          <input
+            id="duracion"
+            name="duracion"
+            type="number"
+            min="1"
+            step="1"
+            [(ngModel)]="formulario.duracion_min"
+            placeholder="120"
+            [disabled]="guardando()"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="restriccion">Restricción de edad</label>
+
+          <select
+            id="restriccion"
+            name="restriccion"
+            [(ngModel)]="formulario.restriccion_edad"
+            [disabled]="guardando()"
+          >
+            <option [ngValue]="null">
+              Apta para todo público
+            </option>
+
+            <option [ngValue]="13">
+              Mayores de 13 años
+            </option>
+
+            <option [ngValue]="18">
+              Mayores de 18 años
+            </option>
+          </select>
+        </div>
+
+        <div class="campo campo-ancho">
+          <label for="imagen">URL de la imagen</label>
+
+          <input
+            id="imagen"
+            name="imagen"
+            type="url"
+            [(ngModel)]="formulario.imagen_url"
+            placeholder="https://..."
+            [disabled]="guardando()"
+          />
+        </div>
+
+        <div class="campo campo-ancho">
+          <label for="sinopsis">Sinopsis</label>
+
+          <textarea
+            id="sinopsis"
+            name="sinopsis"
+            rows="5"
+            [(ngModel)]="formulario.sinopsis"
+            placeholder="Escribí una descripción de la película..."
+            [disabled]="guardando()"
+          ></textarea>
+        </div>
+      </div>
+
+      <fieldset class="generos">
+        <legend>Géneros</legend>
+
+        <div class="generos-grid">
+          @for (genero of generos(); track genero.id) {
+            <label
+              class="genero-opcion"
+              [class.genero-seleccionado]="
+                generoSeleccionado(genero.id)
+              "
+            >
+              <input
+                type="checkbox"
+                [checked]="generoSeleccionado(genero.id)"
+                [disabled]="guardando()"
+                (change)="alternarGenero(genero.id)"
+              />
+
+              <span>{{ genero.nombre }}</span>
+            </label>
+          } @empty {
+            <p class="sin-resultados">
+              No hay géneros disponibles.
+            </p>
+          }
+        </div>
+      </fieldset>
+
+      <label class="estado-opcion">
+        <input
+          type="checkbox"
+          name="activa"
+          [(ngModel)]="formulario.activa"
+          [disabled]="guardando()"
+        />
+
+        <span>
+          Película activa y visible en la cartelera
+        </span>
+      </label>
+
+      <div class="acciones-formulario">
+        <button
+          type="submit"
+          class="boton-principal"
+          [disabled]="guardando()"
+        >
+          {{
+            guardando()
+              ? 'Guardando...'
+              : peliculaEditandoId()
+                ? 'Guardar cambios'
+                : 'Crear película'
+          }}
+          <span>→</span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="listado">
+    <div class="titulo-listado">
+      <div>
+        <p class="etiqueta">CATÁLOGO</p>
+        <h2>Películas registradas</h2>
+      </div>
+
+      <span class="contador">
+        {{ peliculas().length }}
+      </span>
+    </div>
+
+    @if (cargando()) {
+      <div class="estado-carga">
+        <span class="spinner"></span>
+        <p>Cargando películas...</p>
+      </div>
+    } @else {
+      <div class="peliculas-grid">
+        @for (pelicula of peliculas(); track pelicula.id) {
+          <article
+            class="pelicula-card"
+            [class.pelicula-inactiva]="!pelicula.activa"
+          >
+            <div class="poster">
+              @if (pelicula.imagen_url) {
+                <img
+                  [src]="pelicula.imagen_url"
+                  [alt]="'Póster de ' + pelicula.titulo"
+                />
+              } @else {
+                <div class="sin-poster">
+                  <span>🎬</span>
+                  <p>Sin imagen</p>
+                </div>
+              }
+
+              <span
+                class="estado"
+                [class.estado-activa]="pelicula.activa"
+                [class.estado-inactiva]="!pelicula.activa"
+              >
+                {{ pelicula.activa ? 'Activa' : 'Inactiva' }}
+              </span>
+            </div>
+
+            <div class="pelicula-contenido">
+              <h3>{{ pelicula.titulo }}</h3>
+
+              <div class="datos">
+                <span>
+                  {{ pelicula.duracion_min }} min
+                </span>
+
+                <span>
+                  @if (pelicula.restriccion_edad) {
+                    +{{ pelicula.restriccion_edad }}
+                  } @else {
+                    ATP
+                  }
+                </span>
+              </div>
+
+              <div class="generos-pelicula">
+                @for (
+                  relacion of pelicula.pelicula_generos;
+                  track relacion.genero_id
+                ) {
+                  @for (genero of generos(); track genero.id) {
+                    @if (genero.id === relacion.genero_id) {
+                      <span>{{ genero.nombre }}</span>
+                    }
+                  }
+                } @empty {
+                  <span class="sin-genero">
+                    Sin géneros
+                  </span>
+                }
+              </div>
+
+              <p class="sinopsis">
+                {{
+                  pelicula.sinopsis ||
+                    'Esta película todavía no tiene una sinopsis.'
+                }}
+              </p>
+
+              <div class="acciones-card">
+                <button
+                  type="button"
+                  class="boton-editar"
+                  (click)="editar(pelicula)"
+                >
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  class="boton-estado"
+                  (click)="cambiarEstado(pelicula)"
+                >
+                  {{
+                    pelicula.activa
+                      ? 'Desactivar'
+                      : 'Activar'
+                  }}
+                </button>
+
+                <button
+                  type="button"
+                  class="boton-eliminar"
+                  (click)="eliminar(pelicula)"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </article>
+        } @empty {
+          <div class="lista-vacia">
+            <span>🎬</span>
+            <h3>No hay películas registradas</h3>
+            <p>
+              Completá el formulario para agregar la primera.
+            </p>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</main>
