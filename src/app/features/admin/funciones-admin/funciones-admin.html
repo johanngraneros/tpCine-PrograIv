@@ -1,0 +1,449 @@
+<main class="admin-funciones">
+  <section class="encabezado">
+    <a routerLink="/admin" class="volver">
+      ← Volver al panel
+    </a>
+
+    <p class="etiqueta">ADMINISTRACIÓN</p>
+    <h1>FUNCIONES</h1>
+
+    <p class="descripcion">
+      Programá horarios y administrá las funciones de CINEIZE.
+      La sala se asigna automáticamente.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  <section class="formulario-panel">
+    <div class="titulo-seccion">
+      <div>
+        <p class="etiqueta">
+          {{
+            funcionEditandoId()
+              ? 'EDICIÓN'
+              : 'NUEVA FUNCIÓN'
+          }}
+        </p>
+
+        <h2>
+          {{
+            funcionEditandoId()
+              ? 'Modificar función'
+              : 'Programar función'
+          }}
+        </h2>
+      </div>
+
+      @if (funcionEditandoId()) {
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cancelarEdicion()"
+        >
+          Cancelar edición
+        </button>
+      }
+    </div>
+
+    <form (ngSubmit)="guardar()">
+      <div class="campos-grid">
+        <div class="campo campo-ancho">
+          <label for="pelicula">
+            Película
+          </label>
+
+          <select
+            id="pelicula"
+            name="pelicula"
+            [(ngModel)]="formulario.pelicula_id"
+            (ngModelChange)="seleccionarPelicula()"
+            [disabled]="guardando()"
+          >
+            <option value="">
+              Seleccioná una película
+            </option>
+
+            @for (
+              pelicula of peliculas();
+              track pelicula.id
+            ) {
+              <option [value]="pelicula.id">
+                {{ pelicula.titulo }}
+                — {{ pelicula.duracion_min }} min
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="fechaHora">
+            Fecha y horario
+          </label>
+
+          <input
+            id="fechaHora"
+            name="fechaHora"
+            type="datetime-local"
+            [(ngModel)]="formulario.fecha_hora"
+            [disabled]="guardando()"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="duracion">
+            Duración en minutos
+          </label>
+
+          <input
+            id="duracion"
+            name="duracion"
+            type="number"
+            min="1"
+            step="1"
+            [(ngModel)]="formulario.duracion_min"
+            [disabled]="guardando()"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="formato">
+            Formato
+          </label>
+
+          <select
+            id="formato"
+            name="formato"
+            [(ngModel)]="formulario.formato"
+            [disabled]="guardando()"
+          >
+            <option value="2D">2D</option>
+            <option value="3D">3D</option>
+            <option value="4D">4D</option>
+            <option value="5D">5D</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="idioma">
+            Idioma
+          </label>
+
+          <select
+            id="idioma"
+            name="idioma"
+            [(ngModel)]="formulario.idioma"
+            [disabled]="guardando()"
+          >
+            <option value="castellano">
+              Castellano
+            </option>
+
+            <option value="subtitulada">
+              Subtitulada
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="precio">
+            Precio normal
+          </label>
+
+          <input
+            id="precio"
+            name="precio"
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="formulario.precio"
+            [disabled]="guardando()"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="precioVip">
+            Precio VIP
+          </label>
+
+          <input
+            id="precioVip"
+            name="precioVip"
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="formulario.precio_vip"
+            placeholder="Opcional"
+            [disabled]="guardando()"
+          />
+        </div>
+      </div>
+
+      <fieldset class="preventa">
+        <legend>Preventa opcional</legend>
+
+        <p class="ayuda">
+          Si utilizás preventa, completá los dos campos.
+        </p>
+
+        <div class="campos-grid">
+          <div class="campo">
+            <label for="precioPreventa">
+              Precio de preventa
+            </label>
+
+            <input
+              id="precioPreventa"
+              name="precioPreventa"
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="
+                formulario.precio_preventa
+              "
+              placeholder="Opcional"
+              [disabled]="guardando()"
+            />
+          </div>
+
+          <div class="campo">
+            <label for="finPreventa">
+              Final de la preventa
+            </label>
+
+            <input
+              id="finPreventa"
+              name="finPreventa"
+              type="datetime-local"
+              [(ngModel)]="
+                formulario.fecha_fin_preventa
+              "
+              [disabled]="guardando()"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="acciones-formulario">
+        <button
+          type="submit"
+          class="boton-principal"
+          [disabled]="guardando()"
+        >
+          {{
+            guardando()
+              ? 'Guardando...'
+              : funcionEditandoId()
+                ? 'Guardar cambios'
+                : 'Crear función'
+          }}
+
+          <span>→</span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="listado">
+    <div class="titulo-listado">
+      <div>
+        <p class="etiqueta">PROGRAMACIÓN</p>
+        <h2>Funciones registradas</h2>
+      </div>
+
+      <span class="contador">
+        {{ funciones().length }}
+      </span>
+    </div>
+
+    @if (cargando()) {
+      <div class="estado-carga">
+        <span class="spinner"></span>
+        <p>Cargando funciones...</p>
+      </div>
+    } @else {
+      <div class="funciones-grid">
+        @for (
+          funcion of funciones();
+          track funcion.id
+        ) {
+          <article
+            class="funcion-card"
+            [class.funcion-inactiva]="
+              !funcion.activa
+            "
+          >
+            <div class="funcion-encabezado">
+              <div>
+                <span
+                  class="estado"
+                  [class.estado-activa]="
+                    funcion.activa
+                  "
+                  [class.estado-inactiva]="
+                    !funcion.activa
+                  "
+                >
+                  {{
+                    funcion.activa
+                      ? 'Activa'
+                      : 'Inactiva'
+                  }}
+                </span>
+
+                <h3>
+                  {{ funcion.peliculas.titulo }}
+                </h3>
+              </div>
+
+              <div class="fecha">
+                {{
+                  formatearFecha(
+                    funcion.fecha_hora
+                  )
+                }}
+              </div>
+            </div>
+
+            <div class="datos-funcion">
+              <div>
+                <span class="dato-etiqueta">
+                  Sala
+                </span>
+
+                <strong>
+                  {{ funcion.salas.nombre }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="dato-etiqueta">
+                  Formato
+                </span>
+
+                <strong>
+                  {{ funcion.formato }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="dato-etiqueta">
+                  Idioma
+                </span>
+
+                <strong>
+                  {{ funcion.idioma }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="dato-etiqueta">
+                  Duración
+                </span>
+
+                <strong>
+                  {{ funcion.duracion_min }} min
+                </strong>
+              </div>
+
+              <div>
+                <span class="dato-etiqueta">
+                  Precio
+                </span>
+
+                <strong>
+                  ${{ funcion.precio }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="dato-etiqueta">
+                  Precio VIP
+                </span>
+
+                <strong>
+                  @if (funcion.precio_vip !== null) {
+                    ${{ funcion.precio_vip }}
+                  } @else {
+                    No disponible
+                  }
+                </strong>
+              </div>
+            </div>
+
+            @if (
+              funcion.precio_preventa !== null &&
+              funcion.fecha_fin_preventa
+            ) {
+              <div class="datos-preventa">
+                <span>Preventa</span>
+
+                <strong>
+                  ${{ funcion.precio_preventa }}
+                </strong>
+
+                <small>
+                  Hasta
+                  {{
+                    formatearFecha(
+                      funcion.fecha_fin_preventa
+                    )
+                  }}
+                </small>
+              </div>
+            }
+
+            <div class="acciones-card">
+              <button
+                type="button"
+                class="boton-editar"
+                (click)="editar(funcion)"
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                class="boton-estado"
+                (click)="cambiarEstado(funcion)"
+              >
+                {{
+                  funcion.activa
+                    ? 'Desactivar'
+                    : 'Activar'
+                }}
+              </button>
+
+              <button
+                type="button"
+                class="boton-eliminar"
+                (click)="eliminar(funcion)"
+              >
+                Eliminar
+              </button>
+            </div>
+          </article>
+        } @empty {
+          <div class="lista-vacia">
+            <span>📅</span>
+            <h3>No hay funciones registradas</h3>
+
+            <p>
+              Completá el formulario para programar la primera.
+            </p>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</main>
