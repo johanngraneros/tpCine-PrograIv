@@ -1,0 +1,254 @@
+<main class="compras-admin">
+  <section class="encabezado">
+    <p class="etiqueta">ADMINISTRACIÓN</p>
+
+    <h1>COMPRAS</h1>
+
+    <p class="descripcion">
+      Consultá las operaciones realizadas y cancelá compras confirmadas.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  <section class="resumen">
+    <article class="resumen-item">
+      <span>Total de compras</span>
+      <strong>{{ compras().length }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Confirmadas</span>
+      <strong>{{ totalConfirmadas() }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Canceladas</span>
+      <strong>{{ totalCanceladas() }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Ingresos confirmados</span>
+      <strong>{{ formatearPrecio(ingresosConfirmados()) }}</strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-encabezado">
+      <div>
+        <p class="etiqueta">OPERACIONES</p>
+        <h2>COMPRAS REGISTRADAS</h2>
+      </div>
+
+      <span class="contador">
+        {{ comprasFiltradas().length }}
+      </span>
+    </div>
+
+    <div class="filtros">
+      <label class="campo">
+        <span>Buscar</span>
+
+        <input
+          type="search"
+          placeholder="Cliente, película, sala, QR o identificador"
+          [value]="busqueda()"
+          (input)="actualizarBusqueda($event)"
+        />
+      </label>
+
+      <label class="campo">
+        <span>Estado</span>
+
+        <select
+          [value]="estadoSeleccionado()"
+          (change)="actualizarEstado($event)"
+        >
+          <option value="todas">Todas</option>
+          <option value="confirmada">Confirmadas</option>
+          <option value="cancelada">Canceladas</option>
+        </select>
+      </label>
+    </div>
+
+    @if (cargando()) {
+      <div class="estado-vacio">
+        Cargando compras...
+      </div>
+    } @else if (comprasFiltradas().length === 0) {
+      <div class="estado-vacio">
+        No se encontraron compras.
+      </div>
+    } @else {
+      <div class="lista-compras">
+        @for (
+          compra of comprasFiltradas();
+          track compra.id
+        ) {
+          <article
+            class="compra"
+            [class.compra-cancelada]="
+              compra.estado === 'cancelada'
+            "
+          >
+            <header class="compra-encabezado">
+              <div>
+                <span
+                  class="estado"
+                  [class.estado-cancelada]="
+                    compra.estado === 'cancelada'
+                  "
+                >
+                  {{ compra.estado }}
+                </span>
+
+                <h3>
+                  {{ obtenerNombreCliente(compra) }}
+                </h3>
+
+                <p>
+                  {{ formatearFecha(compra.fecha) }}
+                </p>
+              </div>
+
+              <strong class="total">
+                {{ formatearPrecio(compra.total) }}
+              </strong>
+            </header>
+
+            <div class="datos-compra">
+              <div>
+                <span>Subtotal</span>
+                <strong>
+                  {{ formatearPrecio(compra.subtotal) }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Descuento</span>
+                <strong>
+                  {{ formatearPrecio(compra.descuento) }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Crédito usado</span>
+                <strong>
+                  {{ formatearPrecio(compra.credito_usado) }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Puntos ganados</span>
+                <strong>
+                  {{ compra.puntos_ganados }}
+                </strong>
+              </div>
+            </div>
+
+            <section class="entradas">
+              <div class="entradas-titulo">
+                <h4>Entradas</h4>
+
+                <span>
+                  {{ compra.entradas.length }}
+                </span>
+              </div>
+
+              @if (compra.entradas.length === 0) {
+                <p class="sin-entradas">
+                  Esta compra no tiene entradas asociadas.
+                </p>
+              } @else {
+                <div class="lista-entradas">
+                  @for (
+                    entrada of compra.entradas;
+                    track entrada.id
+                  ) {
+                    <div class="entrada">
+                      <div class="entrada-principal">
+                        <strong>
+                          {{
+                            entrada.funciones
+                              .peliculas
+                              .titulo
+                          }}
+                        </strong>
+
+                        <span>
+                          {{
+                            entrada.funciones
+                              .salas
+                              .nombre
+                          }}
+                          · Fila
+                          {{ entrada.butacas.fila }}
+                          · Butaca
+                          {{ entrada.butacas.numero }}
+                          · {{ entrada.butacas.tipo }}
+                        </span>
+
+                        <span>
+                          {{
+                            formatearFecha(
+                              entrada.funciones.fecha_hora
+                            )
+                          }}
+                        </span>
+                      </div>
+
+                      <div class="entrada-estado">
+                        <span
+                          [class.entrada-cancelada]="
+                            entrada.estado === 'cancelada'
+                          "
+                        >
+                          {{ entrada.estado }}
+                        </span>
+
+                        <small>
+                          QR: {{ entrada.qr_code }}
+                        </small>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+
+            <footer class="compra-acciones">
+              <small>
+                ID: {{ compra.id }}
+              </small>
+
+              @if (compra.estado === 'confirmada') {
+                <button
+                  type="button"
+                  class="boton-cancelar"
+                  [disabled]="cancelandoId() === compra.id"
+                  (click)="cancelarCompra(compra)"
+                >
+                  @if (cancelandoId() === compra.id) {
+                    Cancelando...
+                  } @else {
+                    Cancelar compra
+                  }
+                </button>
+              }
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main> 

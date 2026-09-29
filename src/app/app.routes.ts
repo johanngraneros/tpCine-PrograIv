@@ -65,6 +65,14 @@ export const routes: Routes = [
       ).then(component => component.FuncionesAdmin)
   },
   {
+    path: 'admin/compras',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import(
+        './features/admin/compras-admin/compras-admin'
+      ).then(component => component.ComprasAdmin)
+  },
+  {
     path: 'admin',
     canActivate: [authGuard, adminGuard],
     loadComponent: () =>
