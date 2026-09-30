@@ -1,5 +1,8 @@
 <header class="header">
-  <a routerLink="/home" class="logo">
+  <a
+    routerLink="/home"
+    class="logo"
+  >
     <span class="logo-icono">🎬</span>
 
     <span class="logo-azul">CINE</span>
@@ -14,29 +17,31 @@
     <a routerLink="/cartelera">
       Cartelera
     </a>
-
-    @if (esAdmin()) {
-      <a
-        routerLink="/admin"
-        class="enlace-admin"
-      >
-        Administración
-      </a>
-    }
   </nav>
 
   <div class="sesion">
     @if (auth.currentUser()) {
-      <span class="usuario">
-        {{ auth.currentUser()?.email }}
-      </span>
-
       <button
         type="button"
-        class="boton-sesion"
-        (click)="cerrarSesion()"
+        class="boton-perfil"
+        [attr.aria-expanded]="panelAbierto()"
+        aria-label="Abrir menú de usuario"
+        (click)="alternarPanel()"
       >
-        Cerrar sesión
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="7"
+            r="4"
+          ></circle>
+
+          <path
+            d="M4 21v-2c0-4.42 3.58-8 8-8s8 3.58 8 8v2H4Z"
+          ></path>
+        </svg>
       </button>
     } @else {
       <a routerLink="/login">
@@ -52,3 +57,217 @@
     }
   </div>
 </header>
+
+@if (panelAbierto()) {
+  <button
+    type="button"
+    class="fondo-panel"
+    aria-label="Cerrar menú de usuario"
+    (click)="cerrarPanel()"
+  ></button>
+
+  <aside
+    class="panel-perfil"
+    aria-label="Menú de usuario"
+  >
+    <header class="panel-cabecera">
+      <p>Perfil</p>
+
+      <button
+        type="button"
+        class="boton-cerrar"
+        aria-label="Cerrar menú"
+        (click)="cerrarPanel()"
+      >
+        ×
+      </button>
+    </header>
+
+    <section class="perfil-presentacion">
+      <div class="avatar">
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="7"
+            r="4"
+          ></circle>
+
+          <path
+            d="M4 21v-2c0-4.42 3.58-8 8-8s8 3.58 8 8v2H4Z"
+          ></path>
+        </svg>
+      </div>
+
+      <div>
+        <span>Hola,</span>
+
+        <h2>{{ nombreUsuario() }}</h2>
+
+        <p>
+          {{ auth.currentUser()?.email }}
+        </p>
+      </div>
+    </section>
+
+    <section class="resumen-puntos">
+      <div>
+        <span>Programa de beneficios</span>
+
+        <strong>
+          {{ puntos() }}
+          puntos
+        </strong>
+      </div>
+
+      <span class="icono-puntos">
+        ★
+      </span>
+    </section>
+
+    <nav class="menu-perfil">
+      <a
+        routerLink="/mis-entradas"
+        (click)="cerrarPanel()"
+      >
+        <span class="menu-icono">
+          🎟️
+        </span>
+
+        <span>
+          <strong>Mis entradas</strong>
+          <small>
+            Consultá tus QR y comprobantes
+          </small>
+        </span>
+
+        <span class="flecha">→</span>
+      </a>
+
+      <a
+        routerLink="/mis-compras"
+        (click)="cerrarPanel()"
+      >
+        <span class="menu-icono">
+          🛒
+        </span>
+
+        <span>
+          <strong>Mis compras</strong>
+          <small>
+            Consultá y cancelá tus operaciones
+          </small>
+        </span>
+
+        <span class="flecha">→</span>
+      </a>
+
+      <a
+        routerLink="/beneficios"
+        (click)="cerrarPanel()"
+      >
+        <span class="menu-icono">
+          ⭐
+        </span>
+
+        <span>
+          <strong>Beneficios</strong>
+          <small>
+            Canjeá tus puntos por premios
+          </small>
+        </span>
+
+        <span class="flecha">→</span>
+      </a>
+
+      <a
+        routerLink="/cartelera"
+        (click)="cerrarPanel()"
+      >
+        <span class="menu-icono">
+          🎬
+        </span>
+
+        <span>
+          <strong>Cartelera</strong>
+          <small>
+            Buscá tu próxima película
+          </small>
+        </span>
+
+        <span class="flecha">→</span>
+      </a>
+
+      @if (esStaff()) {
+        <a
+          routerLink="/control-acceso"
+          class="opcion-staff"
+          (click)="cerrarPanel()"
+        >
+          <span class="menu-icono">
+            📷
+          </span>
+
+          <span>
+            <strong>Control de acceso</strong>
+            <small>
+              Escaneá y validá entradas
+            </small>
+          </span>
+
+          <span class="flecha">→</span>
+        </a>
+
+        <a
+          routerLink="/control-canjes"
+          class="opcion-staff"
+          (click)="cerrarPanel()"
+        >
+          <span class="menu-icono">
+            🎁
+          </span>
+
+          <span>
+            <strong>Control de canjes</strong>
+            <small>
+              Verificá y entregá productos
+            </small>
+          </span>
+
+          <span class="flecha">→</span>
+        </a>
+      }
+
+      @if (esAdmin()) {
+        <a
+          routerLink="/admin"
+          class="opcion-admin"
+          (click)="cerrarPanel()"
+        >
+          <span class="menu-icono">
+            ⚙️
+          </span>
+
+          <span>
+            <strong>Administración</strong>
+            <small>
+              Gestioná el cine
+            </small>
+          </span>
+
+          <span class="flecha">→</span>
+        </a>
+      }
+    </nav>
+
+    <button
+      type="button"
+      class="cerrar-sesion"
+      (click)="cerrarSesion()"
+    >
+      Cerrar sesión
+    </button>
+  </aside>
+}

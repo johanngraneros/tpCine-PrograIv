@@ -6,7 +6,7 @@
   <h1>Resumen de compra</h1>
 
   <p>
-    Revisá los datos antes de confirmar tus entradas.
+    Revisá los datos antes de confirmar tu compra.
   </p>
 </section>
 
@@ -23,8 +23,9 @@
     <h2>¡Compra confirmada!</h2>
 
     <p class="mensaje-exito">
-      Tus entradas fueron generadas correctamente.
-      Ya podés encontrarlas asociadas a tu cuenta.
+      Tu compra fue generada correctamente.
+      Ya podés encontrar las entradas y los productos
+      asociados a tu cuenta.
     </p>
 
     <div class="numero-compra">
@@ -37,11 +38,11 @@
       <span class="aviso-icono">🎟️</span>
 
       <div>
-        <strong>Entradas generadas</strong>
+        <strong>Compra generada</strong>
 
         <p>
-          Presentá el código correspondiente
-          al ingresar a la sala.
+          Encontrarás tus entradas y productos
+          dentro del detalle de la compra.
         </p>
       </div>
     </div>
@@ -157,13 +158,146 @@
         </div>
       </section>
 
+      <section class="bloque">
+        <div class="titulo-bloque">
+          <span class="numero-paso">3</span>
+
+          <div>
+            <span class="etiqueta">
+              Candy Bar
+            </span>
+
+            <h2>Sumá algo para disfrutar</h2>
+          </div>
+        </div>
+
+        <p class="descripcion-candy">
+          Este paso es opcional. Elegí los productos
+          y las cantidades que quieras agregar.
+        </p>
+
+        @if (productosCandy().length > 0) {
+          <form
+            class="productos-candy"
+            [formGroup]="formularioProductos"
+          >
+            @for (
+              producto of productosCandy();
+              track producto.id
+            ) {
+              <article
+                class="producto-candy"
+                [class.producto-seleccionado]="
+                  cantidadProducto(
+                    producto.id
+                  ) > 0
+                "
+              >
+                <div class="imagen-producto">
+                  @if (producto.imagen_url) {
+                    <img
+                      [src]="producto.imagen_url"
+                      [alt]="producto.nombre"
+                    >
+                  } @else {
+                    <span>🍿</span>
+                  }
+                </div>
+
+                <div class="datos-producto">
+                  <span class="categoria-producto">
+                    {{
+                      producto
+                        .categorias_productos
+                        ?.nombre
+                    }}
+                  </span>
+
+                  <h3>
+                    {{ producto.nombre }}
+                  </h3>
+
+                  @if (producto.descripcion) {
+                    <p>
+                      {{ producto.descripcion }}
+                    </p>
+                  }
+
+                  <strong class="precio-producto">
+                    {{
+                      formatearPrecio(
+                        producto.precio
+                      )
+                    }}
+                  </strong>
+                </div>
+
+                <div class="selector-cantidad">
+                  <button
+                    type="button"
+                    aria-label="Quitar una unidad"
+                    [disabled]="
+                      cantidadProducto(
+                        producto.id
+                      ) === 0 ||
+                      procesando()
+                    "
+                    (click)="
+                      disminuirProducto(
+                        producto.id
+                      )
+                    "
+                  >
+                    −
+                  </button>
+
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    readonly
+                    [formControlName]="producto.id"
+                    [attr.aria-label]="
+                      'Cantidad de ' +
+                      producto.nombre
+                    "
+                  >
+
+                  <button
+                    type="button"
+                    aria-label="Agregar una unidad"
+                    [disabled]="
+                      cantidadProducto(
+                        producto.id
+                      ) === 20 ||
+                      procesando()
+                    "
+                    (click)="
+                      aumentarProducto(
+                        producto.id
+                      )
+                    "
+                  >
+                    +
+                  </button>
+                </div>
+              </article>
+            }
+          </form>
+        } @else {
+          <div class="sin-productos">
+            No hay productos disponibles actualmente.
+          </div>
+        }
+      </section>
+
       <div class="aviso-confirmacion">
         <span>ℹ</span>
 
         <p>
           Al confirmar, las butacas quedarán ocupadas
-          para esta función y se generará una entrada
-          por cada ubicación seleccionada.
+          y se generarán los códigos correspondientes
+          para las entradas y los productos comprados.
         </p>
       </div>
     </main>
@@ -190,26 +324,26 @@
           Función
         </span>
 
-      <div class="funcion-resumida">
-        <strong>
-          {{
-            funcion.fecha_hora
-              | date: 'dd/MM/yyyy'
-          }}
-          ·
-          {{
-            funcion.fecha_hora
-              | date: 'HH:mm'
-          }}
-        </strong>
+        <div class="funcion-resumida">
+          <strong>
+            {{
+              funcion.fecha_hora
+                | date: 'dd/MM/yyyy'
+            }}
+            ·
+            {{
+              funcion.fecha_hora
+                | date: 'HH:mm'
+            }}
+          </strong>
 
-        <span>
-          {{ funcion.salas.nombre }} ·
-          {{ funcion.formato }} ·
-          {{ funcion.idioma }}
-        </span>
+          <span>
+            {{ funcion.salas.nombre }} ·
+            {{ funcion.formato }} ·
+            {{ funcion.idioma }}
+          </span>
+        </div>
       </div>
-    </div>
 
       <div class="resumen-seccion">
         <div class="linea-resumen">
@@ -237,14 +371,146 @@
         </div>
       </div>
 
+      @if (subtotalProductos() > 0) {
+        <div class="resumen-seccion">
+          <span class="resumen-etiqueta">
+            Candy Bar
+          </span>
+
+          <div class="productos-resumidos">
+            @for (
+              producto of productosCandy();
+              track producto.id
+            ) {
+              @if (
+                cantidadProducto(
+                  producto.id
+                ) > 0
+              ) {
+                <div class="producto-resumido">
+                  <span>
+                    {{
+                      cantidadProducto(
+                        producto.id
+                      )
+                    }}
+                    ×
+                    {{ producto.nombre }}
+                  </span>
+
+                  <strong>
+                    {{
+                      formatearPrecio(
+                        producto.precio *
+                        cantidadProducto(
+                          producto.id
+                        )
+                      )
+                    }}
+                  </strong>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <div class="resumen-pago">
+        <div class="linea-pago">
+          <span>Entradas</span>
+
+          <strong>
+            {{
+              formatearPrecio(
+                subtotalEntradas()
+              )
+            }}
+          </strong>
+        </div>
+
+        @if (subtotalProductos() > 0) {
+          <div class="linea-pago">
+            <span>Productos Candy Bar</span>
+
+            <strong>
+              {{
+                formatearPrecio(
+                  subtotalProductos()
+                )
+              }}
+            </strong>
+          </div>
+        }
+
+        <div class="linea-pago linea-subtotal">
+          <span>Subtotal</span>
+
+          <strong>
+            {{
+              formatearPrecio(
+                subtotalCompra()
+              )
+            }}
+          </strong>
+        </div>
+
+        @if (creditoDisponible() > 0) {
+          <label class="opcion-credito">
+            <input
+              type="checkbox"
+              [checked]="usarCredito()"
+              [disabled]="procesando()"
+              (change)="cambiarUsoCredito()"
+            >
+
+            <span class="control-check"></span>
+
+            <span class="datos-credito">
+              <strong>
+                Usar crédito disponible
+              </strong>
+
+              <small>
+                Tenés
+                {{
+                  formatearPrecio(
+                    creditoDisponible()
+                  )
+                }}
+                en tu cuenta
+              </small>
+            </span>
+          </label>
+        }
+
+        @if (creditoAplicado() > 0) {
+          <div
+            class="
+              linea-pago
+              credito-aplicado
+            "
+          >
+            <span>Crédito aplicado</span>
+
+            <strong>
+              −
+              {{
+                formatearPrecio(
+                  creditoAplicado()
+                )
+              }}
+            </strong>
+          </div>
+        }
+      </div>
+
       <div class="total">
-        <span>Total</span>
+        <span>Total a pagar</span>
 
         <strong>
-          ${{
-            carrito.calcularTotal(
-              funcion.precio,
-              funcion.precio_vip
+          {{
+            formatearPrecio(
+              totalAPagar()
             )
           }}
         </strong>
@@ -287,7 +553,10 @@
 } @else {
   <div class="estado-pagina">
     <span class="cargador"></span>
-    <p>Cargando datos de la función...</p>
+
+    <p>
+      Cargando datos de la función...
+    </p>
 
     @if (mensajeError()) {
       <div class="mensaje-error">

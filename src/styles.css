@@ -131,6 +131,10 @@ app-register {
   padding: 3rem 0 5rem;
 }
 
+body:has(.panel-perfil) {
+  overflow: hidden;
+}
+
 @media (max-width: 640px) {
   app-home,
   app-cartelera,

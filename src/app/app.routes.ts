@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { staffGuard } from './core/guards/staff.guard';
 
 export const routes: Routes = [
   {
@@ -49,6 +50,46 @@ export const routes: Routes = [
         .then(component => component.Compra)
   },
   {
+    path: 'mis-entradas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/mis-entradas/mis-entradas'
+      ).then(component => component.MisEntradas)
+  },
+  {
+    path: 'mis-compras',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/mis-compras/mis-compras'
+      ).then(component => component.MisCompras)
+  },
+  {
+    path: 'beneficios',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/beneficios/beneficios'
+      ).then(component => component.Beneficios)
+  },
+  {
+    path: 'control-acceso',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import(
+        './features/control-acceso/control-acceso'
+      ).then(component => component.ControlAcceso)
+  },
+  {
+    path: 'control-canjes',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import(
+        './features/control-canjes/control-canjes'
+      ).then(component => component.ControlCanjes)
+  },
+  {
     path: 'admin/peliculas',
     canActivate: [authGuard, adminGuard],
     loadComponent: () =>
@@ -71,6 +112,22 @@ export const routes: Routes = [
       import(
         './features/admin/compras-admin/compras-admin'
       ).then(component => component.ComprasAdmin)
+  },
+  {
+    path: 'admin/entradas',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import(
+        './features/admin/entradas-admin/entradas-admin'
+      ).then(component => component.EntradasAdmin)
+  },
+  {
+    path: 'admin/productos',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import(
+        './features/admin/productos-admin/productos-admin'
+      ).then(component => component.ProductosAdmin)
   },
   {
     path: 'admin',

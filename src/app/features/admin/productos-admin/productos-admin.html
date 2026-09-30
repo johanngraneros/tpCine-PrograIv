@@ -1,0 +1,490 @@
+<main class="admin-productos">
+  <header class="encabezado">
+    <div>
+      <a
+        routerLink="/admin"
+        class="volver"
+      >
+        ← Volver al panel
+      </a>
+
+      <p class="etiqueta">
+        ADMINISTRACIÓN
+      </p>
+
+      <h1>PRODUCTOS</h1>
+
+      <p class="descripcion">
+        Administrá los productos, precios, puntos e imágenes
+        del programa de beneficios.
+      </p>
+    </div>
+
+    <div class="contador">
+      <span>PRODUCTOS</span>
+      <strong>{{ productos().length }}</strong>
+    </div>
+  </header>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  <section class="panel-formulario">
+    <div class="titulo-seccion">
+      <div>
+        <p class="etiqueta">
+          {{
+            productoEditandoId()
+              ? 'EDITANDO PRODUCTO'
+              : 'NUEVO PRODUCTO'
+          }}
+        </p>
+
+        <h2>
+          {{
+            productoEditandoId()
+              ? 'MODIFICAR PRODUCTO'
+              : 'CREAR PRODUCTO'
+          }}
+        </h2>
+      </div>
+
+      @if (productoEditandoId()) {
+        <button
+          type="button"
+          class="boton-cancelar-superior"
+          (click)="cancelarEdicion()"
+        >
+          Cancelar edición
+        </button>
+      }
+    </div>
+
+    <form
+      [formGroup]="formulario"
+      (ngSubmit)="guardar()"
+      class="formulario"
+    >
+      <div class="campos-principales">
+        <div class="campo">
+          <label for="categoria">
+            Categoría
+          </label>
+
+          <select
+            id="categoria"
+            formControlName="categoria_id"
+          >
+            <option value="">
+              Seleccionar categoría
+            </option>
+
+            @for (
+              categoria of categorias();
+              track categoria.id
+            ) {
+              <option [value]="categoria.id">
+                {{ categoria.nombre }}
+              </option>
+            }
+          </select>
+
+          @if (
+            formulario.controls.categoria_id.touched &&
+            formulario.controls.categoria_id.invalid
+          ) {
+            <small class="campo-error">
+              Seleccioná una categoría.
+            </small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="nombre">
+            Nombre
+          </label>
+
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Ejemplo: Pochoclo mediano"
+          >
+
+          @if (
+            formulario.controls.nombre.touched &&
+            formulario.controls.nombre.hasError('required')
+          ) {
+            <small class="campo-error">
+              El nombre es obligatorio.
+            </small>
+          }
+
+          @if (
+            formulario.controls.nombre.touched &&
+            formulario.controls.nombre.hasError('maxlength')
+          ) {
+            <small class="campo-error">
+              El nombre no puede superar los 80 caracteres.
+            </small>
+          }
+        </div>
+
+        <div class="campo campo-completo">
+          <label for="descripcion">
+            Descripción
+          </label>
+
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="4"
+            placeholder="Describí el producto y qué incluye"
+          ></textarea>
+
+          <div class="ayuda-campo">
+            <span>
+              Máximo 300 caracteres
+            </span>
+
+            <span>
+              {{
+                formulario.controls.descripcion.value.length
+              }}/300
+            </span>
+          </div>
+
+          @if (
+            formulario.controls.descripcion.touched &&
+            formulario.controls.descripcion.hasError('maxlength')
+          ) {
+            <small class="campo-error">
+              La descripción no puede superar los 300 caracteres.
+            </small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="precio">
+            Precio habitual
+          </label>
+
+          <div class="input-con-prefijo">
+            <span>$</span>
+
+            <input
+              id="precio"
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="precio"
+            >
+          </div>
+
+          @if (
+            formulario.controls.precio.touched &&
+            formulario.controls.precio.invalid
+          ) {
+            <small class="campo-error">
+              El precio debe ser igual o mayor a cero.
+            </small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="costo-puntos">
+            Costo en puntos
+          </label>
+
+          <div class="input-con-prefijo">
+            <span>★</span>
+
+            <input
+              id="costo-puntos"
+              type="number"
+              min="1"
+              step="1"
+              formControlName="costo_puntos"
+            >
+          </div>
+
+          @if (
+            formulario.controls.costo_puntos.touched &&
+            formulario.controls.costo_puntos.invalid
+          ) {
+            <small class="campo-error">
+              El costo debe ser de al menos un punto.
+            </small>
+          }
+        </div>
+      </div>
+
+      <section class="seccion-imagen">
+        <div class="campo-imagen">
+          <label for="imagen">
+            Imagen del producto
+          </label>
+
+          <label
+            for="imagen"
+            class="selector-imagen"
+          >
+            <span class="icono-subida">
+              ↑
+            </span>
+
+            <strong>
+              Seleccionar imagen
+            </strong>
+
+            <small>
+              JPG, PNG o WEBP · Máximo 5 MB
+            </small>
+          </label>
+
+          <input
+            id="imagen"
+            type="file"
+            accept="image/*"
+            (change)="seleccionarImagen($event)"
+          >
+        </div>
+
+        <div class="vista-imagen">
+          @if (vistaPrevia()) {
+            <img
+              [src]="vistaPrevia()"
+              alt="Vista previa del producto"
+            >
+
+            <button
+              type="button"
+              class="quitar-imagen"
+              (click)="quitarImagen()"
+            >
+              Quitar imagen
+            </button>
+          } @else {
+            <div class="sin-imagen">
+              <span>🖼️</span>
+              <p>Vista previa</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <label class="campo-checkbox">
+        <input
+          type="checkbox"
+          formControlName="activo"
+        >
+
+        <span class="checkbox-personalizado">
+          ✓
+        </span>
+
+        <span>
+          <strong>Producto activo</strong>
+
+          <small>
+            Los productos activos aparecen en la pantalla
+            de beneficios.
+          </small>
+        </span>
+      </label>
+
+      <div class="acciones-formulario">
+        @if (productoEditandoId()) {
+          <button
+            type="button"
+            class="boton-secundario"
+            [disabled]="guardando()"
+            (click)="cancelarEdicion()"
+          >
+            Cancelar
+          </button>
+        }
+
+        <button
+          type="submit"
+          class="boton-principal"
+          [disabled]="guardando()"
+        >
+          @if (guardando()) {
+            GUARDANDO...
+          } @else if (productoEditandoId()) {
+            GUARDAR CAMBIOS
+          } @else {
+            CREAR PRODUCTO
+          }
+
+          <span>→</span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="listado">
+    <div class="titulo-listado">
+      <div>
+        <p class="etiqueta">
+          CATÁLOGO
+        </p>
+
+        <h2>PRODUCTOS CARGADOS</h2>
+      </div>
+
+      <span class="cantidad">
+        {{ productos().length }}
+      </span>
+    </div>
+
+    @if (cargando()) {
+      <div class="estado">
+        <div class="spinner"></div>
+        <p>Cargando productos...</p>
+      </div>
+    } @else if (productos().length === 0) {
+      <div class="estado">
+        <span class="estado-icono">
+          🍿
+        </span>
+
+        <h3>No hay productos cargados</h3>
+
+        <p>
+          Utilizá el formulario para crear el primero.
+        </p>
+      </div>
+    } @else {
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Puntos</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              producto of productos();
+              track producto.id
+            ) {
+              <tr>
+                <td>
+                  <div class="producto-tabla">
+                    <div class="miniatura">
+                      @if (producto.imagen_url) {
+                        <img
+                          [src]="producto.imagen_url"
+                          [alt]="producto.nombre"
+                        >
+                      } @else {
+                        <span>🎁</span>
+                      }
+                    </div>
+
+                    <div>
+                      <strong>
+                        {{ producto.nombre }}
+                      </strong>
+
+                      <small>
+                        {{
+                          producto.descripcion ||
+                          'Sin descripción'
+                        }}
+                      </small>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="categoria">
+                    {{
+                      producto.categorias_productos?.nombre ??
+                      'Sin categoría'
+                    }}
+                  </span>
+                </td>
+
+                <td>
+                  <strong>
+                    {{ formatearPrecio(producto.precio) }}
+                  </strong>
+                </td>
+
+                <td>
+                  <strong class="puntos">
+                    {{ producto.costo_puntos ?? 0 }}
+                    pts.
+                  </strong>
+                </td>
+
+                <td>
+                  <span
+                    class="estado-producto"
+                    [class.activo]="producto.activo"
+                    [class.inactivo]="!producto.activo"
+                  >
+                    {{
+                      producto.activo
+                        ? 'ACTIVO'
+                        : 'INACTIVO'
+                    }}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="acciones-tabla">
+                    <button
+                      type="button"
+                      class="boton-tabla editar"
+                      (click)="editar(producto)"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="boton-tabla estado-boton"
+                      (click)="cambiarEstado(producto)"
+                    >
+                      {{
+                        producto.activo
+                          ? 'Desactivar'
+                          : 'Activar'
+                      }}
+                    </button>
+
+                    <button
+                      type="button"
+                      class="boton-tabla eliminar"
+                      (click)="eliminar(producto)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</main>

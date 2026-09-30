@@ -1,0 +1,300 @@
+<main class="mis-compras">
+  <section class="encabezado">
+    <p class="etiqueta">
+      MI CUENTA
+    </p>
+
+    <h1>MIS COMPRAS</h1>
+
+    <p class="descripcion">
+      Consultá tus operaciones y cancelá una compra
+      hasta dos horas antes de la función.
+    </p>
+  </section>
+
+  <section class="resumen">
+    <article class="tarjeta-credito">
+      <div>
+        <span>Crédito disponible</span>
+
+        <strong>
+          {{ formatearPrecio(credito()) }}
+        </strong>
+      </div>
+
+      <p>
+        Podés utilizarlo como parte de pago en una
+        próxima compra.
+      </p>
+    </article>
+
+    <article class="tarjeta-regla">
+      <span>Política de cancelación</span>
+
+      <strong>
+        Hasta 2 horas antes
+      </strong>
+
+      <p>
+        El importe se devuelve como crédito dentro
+        de tu cuenta.
+      </p>
+    </article>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  @if (cargando()) {
+    <section class="estado-vacio">
+      Cargando tus compras...
+    </section>
+  } @else if (compras().length === 0) {
+    <section class="estado-vacio">
+      <h2>Todavía no realizaste compras</h2>
+
+      <p>
+        Cuando compres entradas aparecerán en esta
+        sección.
+      </p>
+    </section>
+  } @else {
+    <section class="lista-compras">
+      @for (
+        compra of compras();
+        track compra.id
+      ) {
+        <article
+          class="compra"
+          [class.compra-cancelada]="
+            compra.estado === 'cancelada'
+          "
+        >
+          <header class="compra-encabezado">
+            <div>
+              <span
+                class="estado"
+                [class.estado-cancelada]="
+                  compra.estado === 'cancelada'
+                "
+              >
+                {{ compra.estado }}
+              </span>
+
+              <h2>
+                Compra del
+                {{ formatearFecha(compra.fecha) }}
+              </h2>
+
+              <p>
+                ID: {{ compra.id }}
+              </p>
+            </div>
+
+            <strong class="total">
+              {{ formatearPrecio(compra.total) }}
+            </strong>
+          </header>
+
+          @if (
+            entradaPrincipal(compra);
+            as entrada
+          ) {
+            <section class="funcion">
+              @if (
+                entrada.funciones
+                  .peliculas
+                  .imagen_url
+              ) {
+                <img
+                  [src]="
+                    entrada.funciones
+                      .peliculas
+                      .imagen_url
+                  "
+                  [alt]="
+                    entrada.funciones
+                      .peliculas
+                      .titulo
+                  "
+                />
+              } @else {
+                <div class="sin-imagen">
+                  🎬
+                </div>
+              }
+
+              <div class="funcion-informacion">
+                <span>Película</span>
+
+                <h3>
+                  {{
+                    entrada.funciones
+                      .peliculas
+                      .titulo
+                  }}
+                </h3>
+
+                <p>
+                  {{
+                    formatearFecha(
+                      entrada.funciones
+                        .fecha_hora
+                    )
+                  }}
+                </p>
+
+                <p>
+                  {{
+                    entrada.funciones
+                      .salas
+                      .nombre
+                  }}
+                </p>
+              </div>
+            </section>
+          }
+
+          <section class="detalle-pago">
+            <div>
+              <span>Subtotal</span>
+
+              <strong>
+                {{
+                  formatearPrecio(
+                    compra.subtotal
+                  )
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Descuento</span>
+
+              <strong>
+                {{
+                  formatearPrecio(
+                    compra.descuento
+                  )
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Crédito usado</span>
+
+              <strong>
+                {{
+                  formatearPrecio(
+                    compra.credito_usado
+                  )
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Puntos ganados</span>
+
+              <strong>
+                {{ compra.puntos_ganados }}
+              </strong>
+            </div>
+          </section>
+
+          <section class="entradas-compra">
+            <div class="entradas-titulo">
+              <h3>Entradas</h3>
+
+              <span>
+                {{ compra.entradas.length }}
+              </span>
+            </div>
+
+            <div class="lista-entradas">
+              @for (
+                entrada of compra.entradas;
+                track entrada.id
+              ) {
+                <article class="entrada">
+                  <div>
+                    <span>
+                      Fila
+                      {{ entrada.butacas.fila }}
+                      · Butaca
+                      {{ entrada.butacas.numero }}
+                    </span>
+
+                    <strong>
+                      {{ entrada.butacas.tipo }}
+                    </strong>
+                  </div>
+
+                  <span
+                    class="estado-entrada"
+                    [class.entrada-usada]="
+                      entrada.estado === 'usada'
+                    "
+                    [class.entrada-cancelada]="
+                      entrada.estado ===
+                      'cancelada'
+                    "
+                  >
+                    {{ entrada.estado }}
+                  </span>
+                </article>
+              }
+            </div>
+          </section>
+
+          <footer class="acciones">
+            @if (puedeCancelar(compra)) {
+              <div class="credito-cancelacion">
+                <span>
+                  Crédito a recibir
+                </span>
+
+                <strong>
+                  {{
+                    formatearPrecio(
+                      creditoARecibir(compra)
+                    )
+                  }}
+                </strong>
+              </div>
+
+              <button
+                type="button"
+                class="boton-cancelar"
+                [disabled]="
+                  cancelandoId() === compra.id
+                "
+                (click)="cancelarCompra(compra)"
+              >
+                @if (
+                  cancelandoId() === compra.id
+                ) {
+                  Cancelando...
+                } @else {
+                  Cancelar compra
+                }
+              </button>
+            } @else {
+              <p class="motivo">
+                {{ motivoNoCancelable(compra) }}
+              </p>
+            }
+          </footer>
+        </article>
+      }
+    </section>
+  }
+</main>

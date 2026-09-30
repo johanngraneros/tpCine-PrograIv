@@ -1,0 +1,278 @@
+<main class="control-canjes">
+  <section class="encabezado">
+    <p class="etiqueta">
+      PERSONAL DEL CINE
+    </p>
+
+    <h1>CONTROL DE CANJES</h1>
+
+    <p class="descripcion">
+      Ingresá el código presentado por el cliente
+      para comprobar y confirmar la entrega del producto.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  <section class="panel-busqueda">
+    <div class="informacion-busqueda">
+      <p class="etiqueta-panel">
+        VERIFICACIÓN
+      </p>
+
+      <h2>BUSCAR CANJE</h2>
+
+      <p>
+        Copiá el código que aparece en el historial
+        de canjes del cliente.
+      </p>
+    </div>
+
+    <form
+      [formGroup]="formulario"
+      (ngSubmit)="buscarCanje()"
+      class="formulario"
+    >
+      <label for="codigo-canje">
+        Código del canje
+      </label>
+
+      <div class="campo-codigo">
+        <input
+          id="codigo-canje"
+          type="text"
+          formControlName="codigo"
+          autocomplete="off"
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          [class.input-error]="
+            formulario.controls.codigo.invalid &&
+            formulario.controls.codigo.touched
+          "
+        >
+
+        <button
+          type="submit"
+          [disabled]="buscando()"
+        >
+          @if (buscando()) {
+            BUSCANDO...
+          } @else {
+            BUSCAR CANJE
+          }
+        </button>
+      </div>
+
+      @if (
+        formulario.controls.codigo.touched &&
+        formulario.controls.codigo.hasError('required')
+      ) {
+        <small class="campo-error">
+          Ingresá el código del canje.
+        </small>
+      }
+
+      @if (
+        formulario.controls.codigo.touched &&
+        formulario.controls.codigo.hasError('minlength')
+      ) {
+        <small class="campo-error">
+          El código ingresado es demasiado corto.
+        </small>
+      }
+    </form>
+  </section>
+
+  @if (canjeEncontrado(); as canje) {
+    <section
+      class="resultado-canje"
+      [class.resultado-pendiente]="
+        canje.estado === 'pendiente'
+      "
+      [class.resultado-utilizado]="
+        canje.estado === 'utilizado'
+      "
+      [class.resultado-cancelado]="
+        canje.estado === 'cancelado'
+      "
+    >
+      <header class="resultado-encabezado">
+        <div>
+          <p class="etiqueta-panel">
+            RESULTADO DE LA VERIFICACIÓN
+          </p>
+
+          <span
+            class="estado-canje"
+            [class.estado-pendiente]="
+              canje.estado === 'pendiente'
+            "
+            [class.estado-utilizado]="
+              canje.estado === 'utilizado'
+            "
+            [class.estado-cancelado]="
+              canje.estado === 'cancelado'
+            "
+          >
+            @if (canje.estado === 'pendiente') {
+              Canje pendiente
+            } @else if (
+              canje.estado === 'utilizado'
+            ) {
+              Canje utilizado
+            } @else {
+              Canje cancelado
+            }
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="boton-limpiar"
+          (click)="limpiarResultado()"
+        >
+          Nueva consulta
+        </button>
+      </header>
+
+      <div class="producto-principal">
+        <div class="imagen-producto">
+          @if (canje.productos.imagen_url) {
+            <img
+              [src]="canje.productos.imagen_url"
+              [alt]="canje.productos.nombre"
+            >
+          } @else {
+            <span>🎁</span>
+          }
+        </div>
+
+        <div class="datos-producto">
+          <span class="categoria">
+            {{
+              canje.productos
+                .categorias_productos
+                ?.nombre ?? 'Producto'
+            }}
+          </span>
+
+          <h2>
+            {{ canje.productos.nombre }}
+          </h2>
+
+          <p>
+            {{
+              canje.productos.descripcion ||
+              'Producto del programa de beneficios.'
+            }}
+          </p>
+        </div>
+
+        <div class="indicador-estado">
+          @if (canje.estado === 'pendiente') {
+            <span class="icono-resultado">✓</span>
+            <strong>Disponible para entregar</strong>
+          } @else if (
+            canje.estado === 'utilizado'
+          ) {
+            <span class="icono-resultado">!</span>
+            <strong>Producto ya entregado</strong>
+          } @else {
+            <span class="icono-resultado">×</span>
+            <strong>Entrega no autorizada</strong>
+          }
+        </div>
+      </div>
+
+      <div class="datos-canje">
+        <div>
+          <span>Cliente</span>
+
+          <strong>
+            {{ obtenerNombreCliente(canje) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Puntos utilizados</span>
+
+          <strong class="puntos">
+            {{ canje.puntos_utilizados }} puntos
+          </strong>
+        </div>
+
+        <div>
+          <span>Fecha del canje</span>
+
+          <strong>
+            {{ formatearFecha(canje.created_at) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Estado</span>
+
+          <strong>
+            {{ canje.estado }}
+          </strong>
+        </div>
+
+        @if (canje.utilizado_at) {
+          <div>
+            <span>Fecha de entrega</span>
+
+            <strong>
+              {{ formatearFecha(canje.utilizado_at) }}
+            </strong>
+          </div>
+        }
+      </div>
+
+      <div class="codigo-verificado">
+        <span>Código verificado</span>
+
+        <strong>
+          {{ canje.codigo }}
+        </strong>
+      </div>
+
+      <footer class="acciones-resultado">
+        @if (canje.estado === 'pendiente') {
+          <button
+            type="button"
+            class="boton-validar"
+            [disabled]="validando()"
+            (click)="validarCanje()"
+          >
+            @if (validando()) {
+              CONFIRMANDO ENTREGA...
+            } @else {
+              CONFIRMAR ENTREGA
+            }
+          </button>
+        } @else if (
+          canje.estado === 'utilizado'
+        ) {
+          <p class="aviso-resultado aviso-utilizado">
+            Este producto ya fue entregado y el código
+            no puede utilizarse nuevamente.
+          </p>
+        } @else {
+          <p class="aviso-resultado aviso-cancelado">
+            Este canje fue cancelado y no permite
+            entregar el producto.
+          </p>
+        }
+      </footer>
+    </section>
+  }
+</main>

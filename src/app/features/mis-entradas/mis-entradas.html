@@ -1,0 +1,300 @@
+<main class="mis-entradas">
+  <section class="encabezado">
+    <p class="etiqueta">
+      MI CUENTA
+    </p>
+
+    <h1>MIS ENTRADAS</h1>
+
+    <p class="descripcion">
+      Consultá tus entradas, mostrá el código QR al ingresar
+      y descargá tu comprobante.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  <section class="resumen">
+    <article class="resumen-item">
+      <span>Total</span>
+      <strong>{{ entradas().length }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Vigentes</span>
+      <strong>{{ totalVigentes() }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Utilizadas</span>
+      <strong>{{ totalUtilizadas() }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Canceladas</span>
+      <strong>{{ totalCanceladas() }}</strong>
+    </article>
+  </section>
+
+  <nav
+    class="filtros"
+    aria-label="Filtros de entradas"
+  >
+    <button
+      type="button"
+      [class.activo]="filtro() === 'vigentes'"
+      (click)="cambiarFiltro('vigentes')"
+    >
+      Vigentes
+    </button>
+
+    <button
+      type="button"
+      [class.activo]="filtro() === 'todas'"
+      (click)="cambiarFiltro('todas')"
+    >
+      Todas
+    </button>
+
+    <button
+      type="button"
+      [class.activo]="filtro() === 'utilizadas'"
+      (click)="cambiarFiltro('utilizadas')"
+    >
+      Utilizadas
+    </button>
+
+    <button
+      type="button"
+      [class.activo]="filtro() === 'canceladas'"
+      (click)="cambiarFiltro('canceladas')"
+    >
+      Canceladas
+    </button>
+  </nav>
+
+  @if (cargando()) {
+    <section class="estado-vacio">
+      <h2>Cargando entradas...</h2>
+
+      <p>
+        Estamos consultando tus compras.
+      </p>
+    </section>
+  } @else if (entradasFiltradas().length === 0) {
+    <section class="estado-vacio">
+      <span class="estado-icono">🎟️</span>
+
+      <h2>No hay entradas en esta sección</h2>
+
+      <p>
+        Cuando compres una entrada aparecerá acá junto
+        con su código QR.
+      </p>
+
+      <a href="/cartelera">
+        Ver cartelera
+      </a>
+    </section>
+  } @else {
+    <section class="lista-entradas">
+      @for (
+        entrada of entradasFiltradas();
+        track entrada.id
+      ) {
+        <article
+          class="entrada"
+          [class.entrada-utilizada]="
+            entrada.estado === 'usada'
+          "
+          [class.entrada-cancelada]="
+            entrada.estado === 'cancelada'
+          "
+        >
+          <div class="poster">
+            @if (
+              entrada.funciones
+                .peliculas
+                .imagen_url
+            ) {
+              <img
+                [src]="
+                  entrada.funciones
+                    .peliculas
+                    .imagen_url
+                "
+                [alt]="
+                  'Póster de ' +
+                  entrada.funciones
+                    .peliculas
+                    .titulo
+                "
+              />
+            } @else {
+              <div class="poster-vacio">
+                🎬
+              </div>
+            }
+
+            <span
+              class="estado"
+              [class.estado-utilizada]="
+                entrada.estado === 'usada'
+              "
+              [class.estado-cancelada]="
+                entrada.estado === 'cancelada'
+              "
+            >
+              {{ entrada.estado }}
+            </span>
+          </div>
+
+          <div class="informacion">
+            <div class="informacion-principal">
+              <p class="subtitulo">
+                ENTRADA DIGITAL
+              </p>
+
+              <h2>
+                {{
+                  entrada.funciones
+                    .peliculas
+                    .titulo
+                }}
+              </h2>
+
+              <p class="fecha">
+                {{
+                  formatearFecha(
+                    entrada.funciones.fecha_hora
+                  )
+                }}
+              </p>
+            </div>
+
+            <div class="datos">
+              <div>
+                <span>Sala</span>
+
+                <strong>
+                  {{
+                    entrada.funciones
+                      .salas
+                      .nombre
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Fila</span>
+
+                <strong>
+                  {{ entrada.butacas.fila }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Butaca</span>
+
+                <strong>
+                  {{ entrada.butacas.numero }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Tipo</span>
+
+                <strong>
+                  {{ entrada.butacas.tipo }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="compra">
+              <span>Compra</span>
+              <strong>{{ entrada.compra_id }}</strong>
+            </div>
+
+            <div class="acciones">
+              @if (
+                entrada.estado !== 'cancelada'
+              ) {
+                <button
+                  type="button"
+                  class="boton-pdf"
+                  [disabled]="
+                    generandoPdfId() ===
+                    entrada.id
+                  "
+                  (click)="descargarPdf(entrada)"
+                >
+                  @if (
+                    generandoPdfId() ===
+                    entrada.id
+                  ) {
+                    Generando PDF...
+                  } @else {
+                    Descargar PDF
+                  }
+                </button>
+              }
+
+              @if (entrada.estado === 'usada') {
+                <p class="aviso aviso-utilizada">
+                  Esta entrada ya fue utilizada.
+                </p>
+              }
+
+              @if (
+                entrada.estado === 'cancelada'
+              ) {
+                <p class="aviso aviso-cancelada">
+                  Esta entrada fue cancelada.
+                </p>
+              }
+            </div>
+          </div>
+
+          <aside class="codigo">
+            @if (
+              imagenesQr()[entrada.id]
+            ) {
+              <div
+                class="qr-contenedor"
+                [class.qr-inactivo]="
+                  entrada.estado !== 'valida'
+                "
+              >
+                <img
+                  [src]="
+                    imagenesQr()[entrada.id]
+                  "
+                  [alt]="
+                    'Código QR de ' +
+                    entrada.funciones
+                      .peliculas
+                      .titulo
+                  "
+                />
+              </div>
+            } @else {
+              <div class="qr-cargando">
+                Generando QR...
+              </div>
+            }
+
+            <p>Mostrá este código al ingresar</p>
+
+            <strong>
+              {{ entrada.qr_code }}
+            </strong>
+          </aside>
+        </article>
+      }
+    </section>
+  }
+</main>

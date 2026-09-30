@@ -1,0 +1,562 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #f8f7f5;
+  background: #12100d;
+}
+
+.mis-compras {
+  width: min(1500px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 42px 0 80px;
+}
+
+.encabezado {
+  margin-bottom: 35px;
+}
+
+.etiqueta {
+  margin: 0 0 18px;
+  color: #ff1635;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+
+.encabezado h1 {
+  margin: 0;
+  font-size: clamp(55px, 7vw, 100px);
+  line-height: 0.9;
+  letter-spacing: -4px;
+}
+
+.descripcion {
+  max-width: 850px;
+  margin: 28px 0 0;
+  color: #c9c0b5;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.tarjeta-credito,
+.tarjeta-regla {
+  min-height: 150px;
+  padding: 26px;
+  background: #1c1b18;
+  border: 1px solid #39362f;
+  border-radius: 18px;
+}
+
+.tarjeta-credito {
+  border-color: #276840;
+  background:
+    linear-gradient(
+      135deg,
+      #102d1c,
+      #1c1b18 65%
+    );
+}
+
+.tarjeta-credito div {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.tarjeta-credito span,
+.tarjeta-regla span {
+  color: #aaa196;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.tarjeta-credito strong {
+  color: #81edab;
+  font-size: clamp(28px, 4vw, 43px);
+}
+
+.tarjeta-regla strong {
+  display: block;
+  margin-top: 15px;
+  color: #ffe100;
+  font-size: 27px;
+}
+
+.tarjeta-credito p,
+.tarjeta-regla p {
+  margin: 20px 0 0;
+  color: #aaa196;
+  line-height: 1.5;
+}
+
+.mensaje {
+  margin-bottom: 26px;
+  padding: 19px 22px;
+  border: 1px solid;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.mensaje-error {
+  color: #ff8797;
+  background: #421217;
+  border-color: #8c2634;
+}
+
+.mensaje-exito {
+  color: #81edab;
+  background: #102d1c;
+  border-color: #276840;
+}
+
+.estado-vacio {
+  padding: 65px 25px;
+  color: #aaa196;
+  text-align: center;
+  background: #1a1916;
+  border: 1px dashed #48433b;
+  border-radius: 20px;
+}
+
+.estado-vacio h2 {
+  margin: 0 0 12px;
+  color: #f8f7f5;
+  font-size: 30px;
+}
+
+.estado-vacio p {
+  margin: 0;
+}
+
+.lista-compras {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.compra {
+  overflow: hidden;
+  background: #1a1916;
+  border: 1px solid #403c35;
+  border-radius: 21px;
+}
+
+.compra-cancelada {
+  opacity: 0.7;
+}
+
+.compra-encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 27px 30px;
+  border-bottom: 1px solid #39362f;
+}
+
+.compra-encabezado h2 {
+  margin: 13px 0 7px;
+  font-size: 25px;
+}
+
+.compra-encabezado p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #898279;
+  font-size: 13px;
+}
+
+.estado {
+  display: inline-flex;
+  min-height: 34px;
+  padding: 0 14px;
+  align-items: center;
+  color: #ffffff;
+  background: #1595eb;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.estado-cancelada {
+  color: #ff8797;
+  background: #421217;
+}
+
+.total {
+  flex-shrink: 0;
+  color: #ffe100;
+  font-size: 32px;
+}
+
+.funcion {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  min-height: 220px;
+  border-bottom: 1px solid #39362f;
+}
+
+.funcion img,
+.sin-imagen {
+  width: 170px;
+  height: 220px;
+}
+
+.funcion img {
+  object-fit: cover;
+}
+
+.sin-imagen {
+  display: grid;
+  place-items: center;
+  background: #292722;
+  font-size: 55px;
+}
+
+.funcion-informacion {
+  display: flex;
+  padding: 30px;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.funcion-informacion span {
+  color: #ff1635;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.funcion-informacion h3 {
+  margin: 10px 0 17px;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1;
+}
+
+.funcion-informacion p {
+  margin: 4px 0;
+  color: #c9c0b5;
+  font-size: 17px;
+}
+
+.detalle-pago {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  margin: 27px 30px;
+  overflow: hidden;
+  border: 1px solid #403c35;
+  border-radius: 13px;
+}
+
+.detalle-pago div {
+  display: flex;
+  min-height: 75px;
+  padding: 16px 18px;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid #403c35;
+}
+
+.detalle-pago div:last-child {
+  border-right: 0;
+}
+
+.detalle-pago span,
+.credito-cancelacion span {
+  color: #999187;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.detalle-pago strong {
+  font-size: 17px;
+}
+
+.entradas-compra {
+  margin: 0 30px 27px;
+}
+
+.entradas-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.entradas-titulo h3 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.entradas-titulo > span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  background: #292722;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.lista-entradas {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.entrada {
+  display: flex;
+  min-height: 65px;
+  padding: 14px 17px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  background: #25231f;
+  border: 1px solid #403c35;
+  border-radius: 11px;
+}
+
+.entrada div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.entrada div > span {
+  color: #c9c0b5;
+}
+
+.entrada div > strong {
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.estado-entrada {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  color: #ffffff;
+  background: #1595eb;
+  border-radius: 16px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.entrada-usada {
+  color: #81edab;
+  background: #174529;
+}
+
+.entrada-cancelada {
+  color: #ff8797;
+  background: #421217;
+}
+
+.acciones {
+  display: flex;
+  min-height: 105px;
+  padding: 23px 30px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 25px;
+  background: #211f1b;
+  border-top: 1px solid #39362f;
+}
+
+.credito-cancelacion {
+  display: flex;
+  margin-right: auto;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.credito-cancelacion strong {
+  color: #81edab;
+  font-size: 24px;
+}
+
+.boton-cancelar {
+  min-width: 210px;
+  min-height: 52px;
+  padding: 13px 20px;
+  color: #ff8797;
+  background: #421217;
+  border: 1px solid #8c2634;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.boton-cancelar:hover:not(:disabled) {
+  background: #56171f;
+  border-color: #b32f40;
+  transform: translateY(-1px);
+}
+
+.boton-cancelar:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.motivo {
+  width: 100%;
+  margin: 0;
+  color: #aaa196;
+  text-align: right;
+  font-size: 14px;
+}
+
+@media (max-width: 850px) {
+  .detalle-pago {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .detalle-pago div {
+    border-bottom: 1px solid #403c35;
+  }
+
+  .detalle-pago div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .detalle-pago div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .lista-entradas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .mis-compras {
+    width: min(100% - 28px, 1500px);
+    padding-top: 28px;
+  }
+
+  .encabezado h1 {
+    font-size: 52px;
+    letter-spacing: -2px;
+  }
+
+  .resumen {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjeta-credito div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .compra-encabezado {
+    flex-direction: column;
+  }
+
+  .total {
+    font-size: 27px;
+  }
+
+  .funcion {
+    grid-template-columns: 115px 1fr;
+    min-height: 175px;
+  }
+
+  .funcion img,
+  .sin-imagen {
+    width: 115px;
+    height: 175px;
+  }
+
+  .funcion-informacion {
+    padding: 22px 18px;
+  }
+
+  .funcion-informacion h3 {
+    font-size: 28px;
+  }
+
+  .acciones {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .credito-cancelacion {
+    margin-right: 0;
+  }
+
+  .boton-cancelar {
+    width: 100%;
+  }
+
+  .motivo {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .compra-encabezado,
+  .acciones {
+    padding: 21px 17px;
+  }
+
+  .funcion {
+    grid-template-columns: 1fr;
+  }
+
+  .funcion img,
+  .sin-imagen {
+    width: 100%;
+    height: 250px;
+  }
+
+  .detalle-pago {
+    grid-template-columns: 1fr;
+    margin: 22px 17px;
+  }
+
+  .detalle-pago div,
+  .detalle-pago div:nth-child(2n),
+  .detalle-pago div:nth-last-child(-n + 2) {
+    border-right: 0;
+    border-bottom: 1px solid #403c35;
+  }
+
+  .detalle-pago div:last-child {
+    border-bottom: 0;
+  }
+
+  .entradas-compra {
+    margin: 0 17px 22px;
+  }
+
+  .entrada {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

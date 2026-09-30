@@ -1,0 +1,334 @@
+<main class="control-acceso">
+  <section class="encabezado">
+    <p class="etiqueta">
+      PERSONAL DEL CINE
+    </p>
+
+    <h1>CONTROL DE ACCESO</h1>
+
+    <p class="descripcion">
+      Escaneá el código QR o ingresalo manualmente
+      para verificar y validar una entrada.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  <section class="panel-control">
+    <div class="opciones-control">
+      <article class="opcion-scanner">
+        <div>
+          <p class="opcion-etiqueta">
+            CÁMARA
+          </p>
+
+          <h2>ESCANEAR CÓDIGO QR</h2>
+
+          <p>
+            Apuntá la cámara al QR presentado por
+            el cliente.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="boton-scanner"
+          [class.boton-detener]="scannerActivo()"
+          (click)="alternarScanner()"
+        >
+          @if (scannerActivo()) {
+            Cerrar cámara
+          } @else {
+            Abrir cámara
+          }
+        </button>
+      </article>
+
+      <article class="opcion-manual">
+        <div>
+          <p class="opcion-etiqueta">
+            INGRESO MANUAL
+          </p>
+
+          <h2>BUSCAR POR CÓDIGO</h2>
+
+          <p>
+            Utilizá esta opción si la cámara no
+            puede leer el código.
+          </p>
+        </div>
+
+        <form
+          class="formulario-codigo"
+          (submit)="buscarCodigoManual($event)"
+        >
+          <label for="codigo-entrada">
+            Código de la entrada
+          </label>
+
+          <div class="campo-codigo">
+            <input
+              id="codigo-entrada"
+              type="text"
+              autocomplete="off"
+              placeholder="CINEIZE:xxxxxxxx-xxxx-xxxx..."
+              [value]="codigoManual()"
+              [disabled]="cargando()"
+              (input)="actualizarCodigoManual($event)"
+            />
+
+            <button
+              type="submit"
+              [disabled]="
+                cargando() ||
+                !codigoManual().trim()
+              "
+            >
+              Buscar
+            </button>
+          </div>
+        </form>
+      </article>
+    </div>
+
+    @if (scannerActivo()) {
+      <div class="scanner-camara">
+        <div class="video-contenedor">
+          <video
+            #videoScanner
+            class="scanner-video"
+            autoplay
+            muted
+            playsinline
+          ></video>
+
+          <div class="marco-qr">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <div class="scanner-instrucciones">
+          @if (iniciandoScanner()) {
+            <span class="scanner-cargando"></span>
+          }
+
+          <h3>
+            {{
+              iniciandoScanner()
+                ? 'Iniciando cámara...'
+                : 'Escaneando entrada'
+            }}
+          </h3>
+
+          <p>
+            {{ mensajeScanner() }}
+          </p>
+
+          <small>
+            El código QR debe comenzar con
+            <strong>CINEIZE:</strong>
+          </small>
+        </div>
+      </div>
+    }
+  </section>
+
+  @if (cargando()) {
+    <section class="estado-carga">
+      <span class="scanner-cargando"></span>
+
+      <p>Cargando información de entradas...</p>
+    </section>
+  }
+
+  @if (entradaEncontrada(); as entrada) {
+    <section
+      class="resultado-entrada"
+      [class.resultado-valido]="
+        entrada.estado === 'valida'
+      "
+      [class.resultado-usado]="
+        entrada.estado === 'usada'
+      "
+      [class.resultado-cancelado]="
+        entrada.estado === 'cancelada'
+      "
+    >
+      <header class="resultado-encabezado">
+        <div>
+          <p class="opcion-etiqueta">
+            RESULTADO DE LA VERIFICACIÓN
+          </p>
+
+          <span
+            class="estado-entrada"
+            [class.estado-valido]="
+              entrada.estado === 'valida'
+            "
+            [class.estado-usado]="
+              entrada.estado === 'usada'
+            "
+            [class.estado-cancelado]="
+              entrada.estado === 'cancelada'
+            "
+          >
+            @if (entrada.estado === 'valida') {
+              Entrada válida
+            } @else if (
+              entrada.estado === 'usada'
+            ) {
+              Entrada utilizada
+            } @else {
+              Entrada cancelada
+            }
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="boton-limpiar"
+          (click)="limpiarResultado()"
+        >
+          Nueva consulta
+        </button>
+      </header>
+
+      <div class="informacion-principal">
+        <div>
+          <span>Película</span>
+
+          <h2>
+            {{
+              entrada.funciones
+                .peliculas
+                .titulo
+            }}
+          </h2>
+
+          <p>
+            {{
+              formatearFecha(
+                entrada.funciones.fecha_hora
+              )
+            }}
+          </p>
+        </div>
+
+        <div class="indicador-estado">
+          @if (entrada.estado === 'valida') {
+            <span class="icono-resultado">✓</span>
+            <strong>Puede ingresar</strong>
+          } @else if (
+            entrada.estado === 'usada'
+          ) {
+            <span class="icono-resultado">!</span>
+            <strong>Ingreso ya registrado</strong>
+          } @else {
+            <span class="icono-resultado">×</span>
+            <strong>No puede ingresar</strong>
+          }
+        </div>
+      </div>
+
+      <div class="datos-entrada">
+        <div>
+          <span>Cliente</span>
+
+          <strong>
+            {{ obtenerNombreCliente(entrada) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Sala</span>
+
+          <strong>
+            {{ entrada.funciones.salas.nombre }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Fila</span>
+
+          <strong>
+            {{ entrada.butacas.fila }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Butaca</span>
+
+          <strong>
+            {{ entrada.butacas.numero }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Tipo</span>
+
+          <strong>
+            {{ entrada.butacas.tipo }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Estado</span>
+
+          <strong>
+            {{ entrada.estado }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="codigo-verificado">
+        <span>Código QR verificado</span>
+
+        <strong>
+          {{ entrada.qr_code }}
+        </strong>
+      </div>
+
+      <footer class="acciones-resultado">
+        @if (entrada.estado === 'valida') {
+          <button
+            type="button"
+            class="boton-validar"
+            [disabled]="validando()"
+            (click)="validarEntrada()"
+          >
+            @if (validando()) {
+              Validando entrada...
+            } @else {
+              Confirmar ingreso
+            }
+          </button>
+        } @else if (
+          entrada.estado === 'usada'
+        ) {
+          <p class="aviso-resultado aviso-usado">
+            Esta entrada ya fue utilizada y no
+            puede volver a validarse.
+          </p>
+        } @else {
+          <p class="aviso-resultado aviso-cancelado">
+            Esta entrada pertenece a una compra
+            cancelada.
+          </p>
+        }
+      </footer>
+    </section>
+  }
+</main>

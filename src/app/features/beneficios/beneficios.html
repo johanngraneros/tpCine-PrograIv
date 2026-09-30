@@ -1,0 +1,247 @@
+<main class="beneficios-page">
+  <section class="hero-beneficios">
+    <p class="etiqueta">PROGRAMA DE BENEFICIOS</p>
+
+    <div class="hero-contenido">
+      <div>
+        <h1>CANJEÁ TUS PUNTOS</h1>
+
+        <p class="hero-descripcion">
+          Elegí tu recompensa favorita y utilizá los puntos
+          que acumulaste con tus compras.
+        </p>
+      </div>
+
+      <article class="tarjeta-puntos">
+        <span>TUS PUNTOS</span>
+
+        <strong>
+          {{ puntos() }}
+        </strong>
+
+        <small>
+          Disponibles para canjear
+        </small>
+
+        <div class="estrella">
+          ★
+        </div>
+      </article>
+    </div>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  @if (mensajeExito()) {
+    <div class="mensaje mensaje-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
+
+  @if (cargando()) {
+    <section class="estado-carga">
+      <div class="spinner"></div>
+      <p>Cargando beneficios...</p>
+    </section>
+  } @else {
+    <section class="seccion-productos">
+      <div class="encabezado-seccion">
+        <div>
+          <p class="etiqueta">CATÁLOGO</p>
+          <h2>RECOMPENSAS DISPONIBLES</h2>
+        </div>
+
+        <span class="cantidad">
+          {{ productos().length }}
+        </span>
+      </div>
+
+      @if (productos().length === 0) {
+        <div class="estado-vacio">
+          <span>🎁</span>
+          <h3>No hay productos disponibles</h3>
+          <p>
+            Próximamente vas a encontrar nuevas recompensas.
+          </p>
+        </div>
+      } @else {
+        <div class="grilla-productos">
+          @for (producto of productos(); track producto.id) {
+            <article class="producto-card">
+              <div class="producto-imagen">
+                @if (producto.imagen_url) {
+                  <img
+                    [src]="producto.imagen_url"
+                    [alt]="producto.nombre"
+                  >
+                } @else {
+                  <span class="producto-placeholder">
+                    @if (
+                      producto.categorias_productos?.nombre ===
+                      'Entradas'
+                    ) {
+                      🎟️
+                    } @else if (
+                      producto.categorias_productos?.nombre ===
+                      'Pochoclos'
+                    ) {
+                      🍿
+                    } @else if (
+                      producto.categorias_productos?.nombre ===
+                      'Bebidas'
+                    ) {
+                      🥤
+                    } @else {
+                      🎬
+                    }
+                  </span>
+                }
+
+                <span class="categoria">
+                  {{
+                    producto.categorias_productos?.nombre ??
+                    'Producto'
+                  }}
+                </span>
+              </div>
+
+              <div class="producto-contenido">
+                <h3>
+                  {{ producto.nombre }}
+                </h3>
+
+                <p class="producto-descripcion">
+                  {{ producto.descripcion }}
+                </p>
+
+                <div class="producto-precio">
+                  <span>Precio habitual</span>
+
+                  <strong>
+                    {{ formatearPrecio(producto.precio) }}
+                  </strong>
+                </div>
+
+                <div class="producto-puntos">
+                  <div>
+                    <span>COSTO DEL CANJE</span>
+
+                    <strong>
+                      {{ producto.costo_puntos ?? 0 }}
+                      puntos
+                    </strong>
+                  </div>
+
+                  <span class="estrella-pequena">
+                    ★
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  class="boton-canjear"
+                  [disabled]="
+                    !puedeCanjear(producto) ||
+                    canjeandoId() !== null
+                  "
+                  (click)="canjearProducto(producto)"
+                >
+                  @if (canjeandoId() === producto.id) {
+                    CANJEANDO...
+                  } @else if (!puedeCanjear(producto)) {
+                    PUNTOS INSUFICIENTES
+                  } @else {
+                    CANJEAR PRODUCTO
+                    <span>→</span>
+                  }
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="seccion-historial">
+      <div class="encabezado-seccion">
+        <div>
+          <p class="etiqueta">TU ACTIVIDAD</p>
+          <h2>HISTORIAL DE CANJES</h2>
+        </div>
+
+        <span class="cantidad">
+          {{ canjes().length }}
+        </span>
+      </div>
+
+      @if (canjes().length === 0) {
+        <div class="estado-vacio historial-vacio">
+          <span>⭐</span>
+          <h3>Todavía no realizaste canjes</h3>
+          <p>
+            Tus productos canjeados aparecerán en esta sección.
+          </p>
+        </div>
+      } @else {
+        <div class="lista-canjes">
+          @for (canje of canjes(); track canje.id) {
+            <article class="canje-card">
+              <div class="canje-icono">
+                🎁
+              </div>
+
+              <div class="canje-informacion">
+                <span
+                    class="estado-canje"
+                    [class.estado-pendiente]="
+                        canje.estado === 'pendiente'
+                    "
+                    [class.estado-utilizado]="
+                        canje.estado === 'utilizado'
+                    "
+                    [class.estado-cancelado]="
+                        canje.estado === 'cancelado'
+                    "
+                    >
+                    {{ canje.estado }}
+                </span>
+
+                <h3>
+                  {{ canje.productos.nombre }}
+                </h3>
+
+                <p>
+                  Canjeado el
+                  {{ formatearFecha(canje.created_at) }}
+                </p>
+
+                @if (canje.utilizado_at) {
+                    <p class="fecha-entrega">
+                        Entregado el
+                        {{ formatearFecha(canje.utilizado_at) }}
+                    </p>
+                }
+
+                <small>
+                  Código: {{ canje.codigo }}
+                </small>
+              </div>
+
+              <div class="canje-puntos">
+                <span>PUNTOS UTILIZADOS</span>
+
+                <strong>
+                  - {{ canje.puntos_utilizados }}
+                </strong>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

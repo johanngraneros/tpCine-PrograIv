@@ -1,0 +1,296 @@
+<main class="entradas-admin">
+  <section class="encabezado">
+    <p class="etiqueta">
+      ADMINISTRACIÓN
+    </p>
+
+    <h1>ENTRADAS</h1>
+
+    <p class="descripcion">
+      Consultá todas las entradas emitidas,
+      sus datos y su estado actual.
+    </p>
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje mensaje-error">
+      {{ mensajeError() }}
+    </div>
+  }
+
+  <section class="resumen">
+    <article class="resumen-item">
+      <span>Total de entradas</span>
+      <strong>{{ entradas().length }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Válidas</span>
+      <strong>{{ totalValidas() }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Utilizadas</span>
+      <strong>{{ totalUsadas() }}</strong>
+    </article>
+
+    <article class="resumen-item">
+      <span>Canceladas</span>
+      <strong>{{ totalCanceladas() }}</strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-encabezado">
+      <div>
+        <p class="etiqueta">
+          REGISTRO
+        </p>
+
+        <h2>ENTRADAS REGISTRADAS</h2>
+      </div>
+
+      <span class="contador">
+        {{ entradasFiltradas().length }}
+      </span>
+    </div>
+
+    <div class="filtros">
+      <label class="campo">
+        <span>Buscar entrada</span>
+
+        <input
+          type="search"
+          placeholder="Código QR, cliente, película, sala o butaca"
+          [value]="busqueda()"
+          (input)="actualizarBusqueda($event)"
+        />
+      </label>
+
+      <label class="campo">
+        <span>Estado</span>
+
+        <select
+          [value]="estadoSeleccionado()"
+          (change)="actualizarEstado($event)"
+        >
+          <option value="todas">
+            Todas
+          </option>
+
+          <option value="valida">
+            Válidas
+          </option>
+
+          <option value="usada">
+            Utilizadas
+          </option>
+
+          <option value="cancelada">
+            Canceladas
+          </option>
+        </select>
+      </label>
+    </div>
+
+    @if (cargando()) {
+      <div class="estado-vacio">
+        Cargando entradas...
+      </div>
+    } @else if (
+      entradasFiltradas().length === 0
+    ) {
+      <div class="estado-vacio">
+        No se encontraron entradas.
+      </div>
+    } @else {
+      <div class="lista-entradas">
+        @for (
+          entrada of entradasFiltradas();
+          track entrada.id
+        ) {
+          <article
+            class="entrada"
+            [class.entrada-usada]="
+              entrada.estado === 'usada'
+            "
+            [class.entrada-cancelada]="
+              entrada.estado === 'cancelada'
+            "
+          >
+            <header class="entrada-encabezado">
+              <div>
+                <span
+                  class="estado"
+                  [class.estado-usada]="
+                    entrada.estado === 'usada'
+                  "
+                  [class.estado-cancelada]="
+                    entrada.estado === 'cancelada'
+                  "
+                >
+                  {{ entrada.estado }}
+                </span>
+
+                <h3>
+                  {{
+                    entrada.funciones
+                      .peliculas
+                      .titulo
+                  }}
+                </h3>
+
+                <p>
+                  {{
+                    formatearFecha(
+                      entrada.funciones.fecha_hora
+                    )
+                  }}
+                </p>
+              </div>
+
+              <div class="qr">
+                @if (
+                  imagenesQr()[entrada.id]
+                ) {
+                  <img
+                    class="qr-imagen"
+                    [src]="
+                      imagenesQr()[entrada.id]
+                    "
+                    [alt]="
+                      'Código QR de la entrada ' +
+                      entrada.id
+                    "
+                  />
+                } @else {
+                  <span>
+                    Generando QR...
+                  </span>
+                }
+
+                <span>Código QR</span>
+
+                <strong>
+                  {{ entrada.qr_code }}
+                </strong>
+              </div>
+            </header>
+
+            <div class="datos">
+              <div>
+                <span>Cliente</span>
+
+                <strong>
+                  {{
+                    obtenerNombreCliente(
+                      entrada
+                    )
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Sala</span>
+
+                <strong>
+                  {{
+                    entrada.funciones
+                      .salas
+                      .nombre
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Butaca</span>
+
+                <strong>
+                  Fila
+                  {{ entrada.butacas.fila }}
+                  ·
+                  {{ entrada.butacas.numero }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Tipo</span>
+
+                <strong>
+                  {{ entrada.butacas.tipo }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="referencias">
+              <p>
+                <span>Entrada:</span>
+                {{ entrada.id }}
+              </p>
+
+              <p>
+                <span>Compra:</span>
+                {{ entrada.compra_id }}
+              </p>
+            </div>
+
+            <footer class="acciones">
+              @if (
+                entrada.estado !== 'cancelada'
+              ) {
+                <button
+                  type="button"
+                  class="boton-pdf"
+                  [disabled]="
+                    generandoPdfId() ===
+                    entrada.id
+                  "
+                  (click)="
+                    descargarEntradaPdf(
+                      entrada
+                    )
+                  "
+                >
+                  @if (
+                    generandoPdfId() ===
+                    entrada.id
+                  ) {
+                    Generando PDF...
+                  } @else {
+                    Descargar PDF
+                  }
+                </button>
+              }
+
+              @if (
+                entrada.estado === 'usada'
+              ) {
+                <p
+                  class="
+                    resultado
+                    resultado-usada
+                  "
+                >
+                  Entrada utilizada
+                </p>
+              }
+
+              @if (
+                entrada.estado === 'cancelada'
+              ) {
+                <p
+                  class="
+                    resultado
+                    resultado-cancelada
+                  "
+                >
+                  Entrada cancelada
+                </p>
+              }
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>
