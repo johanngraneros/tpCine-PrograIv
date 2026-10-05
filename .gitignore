@@ -49,5 +49,4 @@ Thumbs.db
 .vercel
 .env*
 
-# Migraciones locales de Supabase (se aplican manualmente)
-/supabase/migrations/
+
