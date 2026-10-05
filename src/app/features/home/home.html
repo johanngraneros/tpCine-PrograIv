@@ -1,6 +1,6 @@
 <section class="hero">
   <div class="hero-contenido">
-    <span class="hero-etiqueta">La mitad + 1</span>
+    <span class="hero-etiqueta">Nuestro cine manda</span>
 
     <h1>Historias que merecen la pantalla GRANDE</h1>
 
@@ -13,6 +13,84 @@
       Ver cartelera
     </a>
   </div>
+</section>
+
+<section class="seccion-proximos">
+  <div class="titulo-seccion">
+    <div>
+      <span class="subtitulo">Muy pronto</span>
+      <h2>Próximos estrenos</h2>
+    </div>
+
+    <a routerLink="/cartelera" class="ver-todas">
+      Ver todas las funciones →
+    </a>
+  </div>
+
+  @if (cargando()) {
+    <div class="estado">
+      <span class="cargador"></span>
+      <p>Cargando próximos estrenos...</p>
+    </div>
+  } @else if (errorEstrenos()) {
+    <div class="estado estado-error">
+      <p>{{ errorEstrenos() }}</p>
+    </div>
+  } @else if (proximosEstrenos().length === 0) {
+    <div class="estado">
+      <p>No hay próximos estrenos programados.</p>
+    </div>
+  } @else {
+    <div class="grid-proximos">
+      @for (pelicula of proximosEstrenos(); track pelicula.id) {
+        <article class="estreno">
+          <a
+            class="estreno-poster"
+            [routerLink]="['/pelicula', pelicula.id]"
+          >
+            @if (pelicula.imagen_url) {
+              <img [src]="pelicula.imagen_url" [alt]="pelicula.titulo" />
+            } @else {
+              <span aria-hidden="true">🎬</span>
+            }
+
+            <span class="fecha-estreno">
+              {{ formatearFechaEstreno(pelicula.fecha_estreno) }}
+            </span>
+          </a>
+
+          <div class="estreno-contenido">
+            <h3>{{ pelicula.titulo }}</h3>
+
+            @if (pelicula.sinopsis) {
+              <p>{{ pelicula.sinopsis }}</p>
+            }
+
+            <a [routerLink]="['/pelicula', pelicula.id]">
+              Ver película →
+            </a>
+
+            <button
+              type="button"
+              class="boton-alerta"
+              [class.alerta-activa]="alertasActivas().has(pelicula.id)"
+              (click)="alternarAlerta(pelicula.id)"
+            >
+              {{
+                alertasActivas().has(pelicula.id)
+                  ? '🔔 Alerta activada'
+                  : '🔔 Avisarme cuando haya entradas'
+              }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (mensajeAlerta()) {
+    <p class="mensaje-alerta">{{ mensajeAlerta() }}</p>
+  }
 </section>
 
 <section class="seccion-destacadas">
@@ -42,7 +120,7 @@
         peli of peliculasDestacadas();
         track peli.id
       ) {
-        <article class="card">
+        <a class="card" [routerLink]="['/pelicula', peli.id]">
           <div class="poster">
             <img
               [src]="peli.imagen_url"
@@ -65,8 +143,18 @@
               {{ peli.entradas_vendidas }}
               entradas vendidas
             </p>
+
+            @if (formatosDe(peli.id).length > 0) {
+              <div class="formatos" aria-label="Formatos disponibles">
+                @for (formato of formatosDe(peli.id); track formato) {
+                  <span>{{ formato }}</span>
+                }
+              </div>
+            } @else {
+              <p class="sin-funciones">Sin funciones próximas</p>
+            }
           </div>
-        </article>
+        </a>
       }
     </div>
   }

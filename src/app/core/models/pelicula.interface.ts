@@ -14,6 +14,7 @@ export interface PeliculaAdmin {
   duracion_min: number;
   imagen_url: string | null;
   restriccion_edad: number | null;
+  fecha_estreno: string | null;
   activa: boolean;
   created_at: string;
   pelicula_generos: PeliculaGenero[];
@@ -25,5 +26,6 @@ export interface PeliculaFormulario {
   duracion_min: number;
   imagen_url: string;
   restriccion_edad: number | null;
+  fecha_estreno: string | null;
   activa: boolean;
 }

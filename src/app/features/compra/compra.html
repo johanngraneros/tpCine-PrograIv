@@ -24,8 +24,12 @@
 
     <p class="mensaje-exito">
       Tu compra fue generada correctamente.
-      Ya podés encontrar las entradas y los productos
-      asociados a tu cuenta.
+      @if (authService.currentUser()) {
+        Ya podés encontrar las entradas y los productos
+        asociados a tu cuenta.
+      } @else {
+        Guardá el número de compra para identificar tu operación.
+      }
     </p>
 
     <div class="numero-compra">
@@ -46,6 +50,21 @@
         </p>
       </div>
     </div>
+
+    @if (!authService.currentUser() && entradasInvitado().length > 0) {
+      <div class="entradas-invitado">
+        <h3>Descargá tus entradas</h3>
+        <p>Guardalas ahora: por seguridad sólo se muestran al finalizar la compra. El archivo incluye una página por entrada.</p>
+        <button
+          type="button"
+          class="confirmar"
+          [disabled]="generandoTodas()"
+          (click)="descargarEntradasInvitado()"
+        >
+          {{ generandoTodas() ? 'Generando PDF...' : 'Descargar todas las entradas' }}
+        </button>
+      </div>
+    }
   </section>
 } @else if (datosFuncion(); as funcion) {
   <div class="distribucion-compra">
@@ -62,6 +81,10 @@
             <h2>
               {{ funcion.peliculas.titulo }}
             </h2>
+
+            @if (preventaActiva()) {
+              <span class="etiqueta-preventa">PRECIO DE PREVENTA ACTIVO</span>
+            }
           </div>
         </div>
 
@@ -175,6 +198,35 @@
           Este paso es opcional. Elegí los productos
           y las cantidades que quieras agregar.
         </p>
+
+        @if (combos().length > 0) {
+          <div class="franja-combos">
+            <span>Combos del cine</span>
+            <strong>Precio especial junto con tu entrada</strong>
+          </div>
+
+          <form class="combos-candy" [formGroup]="formularioCombos">
+            @for (combo of combos(); track combo.id) {
+              <article class="combo-candy" [class.producto-seleccionado]="cantidadCombo(combo.id) > 0">
+                <div class="sello-combo">COMBO</div>
+                <div class="datos-combo">
+                  <h3>{{ combo.nombre }}</h3>
+                  <p>
+                    @for (item of combo.combo_productos; track item.producto_id; let ultimo = $last) {
+                      {{ item.cantidad }} × {{ item.productos.nombre }}{{ ultimo ? '.' : ' + ' }}
+                    }
+                  </p>
+                  <strong>{{ formatearPrecio(combo.precio_fijo) }}</strong>
+                </div>
+                <div class="selector-cantidad">
+                  <button type="button" [disabled]="cantidadCombo(combo.id) === 0 || procesando()" (click)="cambiarCantidadCombo(combo.id, -1)">−</button>
+                  <input type="number" min="0" max="10" readonly [formControlName]="combo.id" [attr.aria-label]="'Cantidad de ' + combo.nombre">
+                  <button type="button" [disabled]="cantidadCombo(combo.id) === 10 || procesando()" (click)="cambiarCantidadCombo(combo.id, 1)">+</button>
+                </div>
+              </article>
+            }
+          </form>
+        }
 
         @if (productosCandy().length > 0) {
           <form
@@ -309,6 +361,49 @@
 
       <h2>Resumen</h2>
 
+      @if (!authService.currentUser()) {
+        <form class="datos-invitado" [formGroup]="formularioInvitado">
+          <span class="resumen-etiqueta">Compra sin registrarse</span>
+
+          <label for="nombreInvitado">Nombre completo</label>
+          <input
+            id="nombreInvitado"
+            type="text"
+            formControlName="nombre"
+            maxlength="100"
+            placeholder="Ejemplo: Juan Pérez"
+          />
+
+          <label for="emailInvitado">Correo electrónico</label>
+          <input
+            id="emailInvitado"
+            type="email"
+            formControlName="email"
+            maxlength="160"
+            placeholder="nombre@correo.com"
+          />
+
+          <label for="fechaNacimientoInvitado">Fecha de nacimiento</label>
+          <input
+            id="fechaNacimientoInvitado"
+            type="date"
+            formControlName="fechaNacimiento"
+            min="1900-01-01"
+            [max]="fechaMaximaNacimiento"
+          />
+          @if (formularioInvitado.controls.fechaNacimiento.touched && formularioInvitado.controls.fechaNacimiento.hasError('required')) {
+            <small class="error-campo">La fecha de nacimiento es obligatoria.</small>
+          } @else if (formularioInvitado.controls.fechaNacimiento.touched && formularioInvitado.controls.fechaNacimiento.invalid) {
+            <small class="error-campo">Ingresá una fecha válida entre 1900 y hoy.</small>
+          }
+
+          <small>
+            Usaremos estos datos para identificar la compra y verificar
+            la clasificación por edad de la película.
+          </small>
+        </form>
+      }
+
       <div class="resumen-seccion">
         <span class="resumen-etiqueta">
           Película
@@ -348,6 +443,10 @@
       <div class="resumen-seccion">
         <div class="linea-resumen">
           <span>Entradas</span>
+
+          @if (preventaActiva()) {
+            <small>Precio especial de preventa</small>
+          }
 
           <strong>
             {{
@@ -415,7 +514,54 @@
         </div>
       }
 
+      @if (subtotalCombos() > 0) {
+        <div class="resumen-seccion">
+          <span class="resumen-etiqueta">Combos</span>
+          <div class="productos-resumidos">
+            @for (combo of combos(); track combo.id) {
+              @if (cantidadCombo(combo.id) > 0) {
+                <div class="producto-resumido">
+                  <span>{{ cantidadCombo(combo.id) }} × {{ combo.nombre }}</span>
+                  <strong>{{ formatearPrecio(combo.precio_fijo * cantidadCombo(combo.id)) }}</strong>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
       <div class="resumen-pago">
+        @if (canjesAplicables().length > 0) {
+          <div class="beneficios-disponibles">
+            <span class="resumen-etiqueta">Tus beneficios</span>
+            @for (canje of canjesAplicables(); track canje.id) {
+              <label class="opcion-beneficio" [class.seleccionado]="canjeSeleccionadoId() === canje.id">
+                <input
+                  type="checkbox"
+                  [checked]="canjeSeleccionadoId() === canje.id"
+                  [disabled]="procesando()"
+                  (change)="cambiarCanje(canje.id)"
+                >
+                <span>
+                  <strong>Usar {{ canje.productos.nombre }}</strong>
+                  <small>
+                    Incluye una entrada normal, una bebida grande y un pochoclo grande.
+                  </small>
+                </span>
+              </label>
+            }
+
+            @if (canjeSeleccionado()) {
+              <div class="items-beneficio">
+                <span>✓ 1 entrada normal</span>
+                <span>✓ 1 bebida grande</span>
+                <span>✓ 1 pochoclo grande</span>
+                <small>Incluidos sin costo. Podés sumar unidades adicionales desde Candy Bar.</small>
+              </div>
+            }
+          </div>
+        }
+
         <div class="linea-pago">
           <span>Entradas</span>
 
@@ -442,17 +588,44 @@
           </div>
         }
 
+
+        @if (subtotalCombos() > 0) {
+          <div class="linea-pago">
+            <span>Combos Candy Bar</span>
+            <strong>{{ formatearPrecio(subtotalCombos()) }}</strong>
+          </div>
+        }
+
         <div class="linea-pago linea-subtotal">
           <span>Subtotal</span>
 
           <strong>
             {{
               formatearPrecio(
-                subtotalCompra()
+                subtotalMostrado()
               )
             }}
           </strong>
         </div>
+
+        @if (descuentoAplicado() > 0) {
+          <div class="linea-pago descuento-cupon">
+            <span>
+              {{ cupon().tipo }} ({{ cupon().porcentaje }}%)
+            </span>
+
+            <strong>
+              − {{ formatearPrecio(descuentoAplicado()) }}
+            </strong>
+          </div>
+        }
+
+        @if (descuentoCanje() > 0) {
+          <div class="linea-pago descuento-beneficio">
+            <span>{{ canjeSeleccionado()?.productos?.nombre }} completo</span>
+            <strong>− {{ formatearPrecio(descuentoCanje()) }}</strong>
+          </div>
+        }
 
         @if (creditoDisponible() > 0) {
           <label class="opcion-credito">

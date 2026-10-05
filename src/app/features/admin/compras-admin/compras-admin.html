@@ -50,9 +50,29 @@
         <h2>COMPRAS REGISTRADAS</h2>
       </div>
 
-      <span class="contador">
-        {{ comprasFiltradas().length }}
-      </span>
+      <div class="acciones-reporte">
+        <button
+          type="button"
+          class="boton-exportar boton-pdf"
+          [disabled]="cargando() || comprasFiltradas().length === 0"
+          (click)="exportarPdf()"
+        >
+          Exportar PDF
+        </button>
+
+        <button
+          type="button"
+          class="boton-exportar boton-excel"
+          [disabled]="cargando() || comprasFiltradas().length === 0"
+          (click)="exportarExcel()"
+        >
+          Exportar Excel
+        </button>
+
+        <span class="contador">
+          {{ comprasFiltradas().length }}
+        </span>
+      </div>
     </div>
 
     <div class="filtros">
@@ -62,8 +82,7 @@
         <input
           type="search"
           placeholder="Cliente, película, sala, QR o identificador"
-          [value]="busqueda()"
-          (input)="actualizarBusqueda($event)"
+          [formControl]="busquedaControl"
         />
       </label>
 
@@ -71,8 +90,7 @@
         <span>Estado</span>
 
         <select
-          [value]="estadoSeleccionado()"
-          (change)="actualizarEstado($event)"
+          [formControl]="estadoControl"
         >
           <option value="todas">Todas</option>
           <option value="confirmada">Confirmadas</option>
@@ -251,4 +269,4 @@
       </div>
     }
   </section>
-</main> 
+</main>

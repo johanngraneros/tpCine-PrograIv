@@ -7,6 +7,6 @@
     class="search-input"
   >
   @if (termino()) {
-    <button (click)="limpiar()" class="clear-btn">✕</button>
+    <button type="button" (click)="limpiar()" class="clear-btn" aria-label="Limpiar búsqueda">✕</button>
   }
 </div>

@@ -31,7 +31,7 @@ export class ProductosService {
       });
   }
 
- obtenerProductosCandy() {
+  obtenerProductosCandy() {
     return this.supabase.instance
       .from('productos')
       .select(`
@@ -53,6 +53,10 @@ export class ProductosService {
       .neq(
         'categorias_productos.nombre',
         'Entradas'
+      )
+      .neq(
+        'categorias_productos.nombre',
+        'Combos'
       )
       .order('nombre', {
         ascending: true
@@ -93,6 +97,40 @@ export class ProductosService {
         ascending: false
         });
     }
+
+  obtenerCanjesAplicables(usuarioId: string) {
+    return this.supabase.instance
+      .from('canjes')
+      .select(`
+        id,
+        usuario_id,
+        producto_id,
+        puntos_utilizados,
+        codigo,
+        estado,
+        created_at,
+        utilizado_at,
+        validado_por,
+        productos!inner (
+          id,
+          categoria_id,
+          nombre,
+          descripcion,
+          precio,
+          costo_puntos,
+          activo,
+          imagen_url,
+          created_at,
+          categorias_productos!inner (
+            id,
+            nombre
+          )
+        )
+      `)
+      .eq('usuario_id', usuarioId)
+      .eq('estado', 'pendiente')
+      .order('created_at', { ascending: true });
+  }
 
   canjearProducto(productoId: string) {
     return this.supabase.instance.rpc(

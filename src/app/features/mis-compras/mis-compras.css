@@ -5,6 +5,39 @@
   background: #12100d;
 }
 
+.retiro-candy {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #746819;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #2a260b, #1b1916 62%);
+}
+
+.qr-retiro img {
+  display: block;
+  width: 120px;
+  border-radius: 10px;
+}
+
+.detalle-candy > span {
+  color: #ffe000;
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .14em;
+}
+
+.detalle-candy h3 { margin: .35rem 0 .6rem; }
+.detalle-candy p { margin: .2rem 0; color: #d1c5b7; }
+.detalle-candy code { display: block; margin-top: .65rem; color: #ffe000; overflow-wrap: anywhere; }
+
+@media (max-width: 560px) {
+  .retiro-candy { grid-template-columns: 1fr; }
+}
+
 .mis-compras {
   width: min(1500px, calc(100% - 40px));
   margin: 0 auto;
@@ -325,7 +358,8 @@
 }
 
 .entrada {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   min-height: 65px;
   padding: 14px 17px;
   align-items: center;
@@ -336,19 +370,70 @@
   border-radius: 11px;
 }
 
-.entrada div {
+.entrada-datos {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.entrada div > span {
+.entrada-datos > span {
   color: #c9c0b5;
 }
 
-.entrada div > strong {
+.entrada-datos > strong {
   font-size: 13px;
   text-transform: uppercase;
+}
+
+.entrada-codigo {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-top: 5px;
+  padding-top: 14px;
+  border-top: 1px solid #403c35;
+}
+
+.entrada-codigo img {
+  display: block;
+  width: 92px;
+  height: 92px;
+  border-radius: 7px;
+}
+
+.entrada-codigo > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.entrada-codigo span {
+  color: #aaa196;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.entrada-codigo code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #ffe100;
+}
+
+.entrada-codigo button {
+  padding: 8px 12px;
+  color: #12100d;
+  background: #ffe100;
+  border: 0;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .estado-entrada {

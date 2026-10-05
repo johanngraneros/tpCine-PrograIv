@@ -1,0 +1,232 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #f8f7f5;
+  background: #12100d;
+}
+
+.mis-peliculas {
+  width: min(1500px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 42px 0 80px;
+}
+
+.encabezado { margin-bottom: 32px; }
+
+.etiqueta {
+  margin: 0 0 18px;
+  color: #ff1635;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+
+.encabezado h1 {
+  margin: 0;
+  font-size: clamp(52px, 7vw, 96px);
+  line-height: .9;
+  letter-spacing: -4px;
+}
+
+.descripcion {
+  margin: 26px 0 0;
+  color: #c9c0b5;
+  font-size: 20px;
+}
+
+.barra-busqueda {
+  max-width: 620px;
+  margin-bottom: 28px;
+}
+
+.barra-busqueda label {
+  display: block;
+  margin-bottom: 9px;
+  color: #aaa196;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.barra-busqueda input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 17px;
+  color: #f8f7f5;
+  background: #1c1b18;
+  border: 1px solid #48433b;
+  border-radius: 11px;
+  font: inherit;
+}
+
+.barra-busqueda input:focus {
+  border-color: #ff1635;
+  outline: 2px solid rgb(255 22 53 / 22%);
+}
+
+.resumen-historial {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.resumen-historial strong {
+  color: #ffe100;
+  font-size: 32px;
+}
+
+.resumen-historial span { color: #aaa196; }
+
+.grilla-peliculas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.pelicula {
+  overflow: hidden;
+  background: #1a1916;
+  border: 1px solid #403c35;
+  border-radius: 18px;
+}
+
+.poster {
+  display: grid;
+  height: 380px;
+  place-items: center;
+  overflow: hidden;
+  color: inherit;
+  background: #292722;
+  font-size: 60px;
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 180ms ease;
+}
+
+.poster:hover img { transform: scale(1.025); }
+
+.contenido { padding: 22px; }
+
+.ultima-funcion {
+  margin: 0;
+  color: #ff7487;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.contenido h2 {
+  min-height: 58px;
+  margin: 10px 0 15px;
+  font-size: 25px;
+  line-height: 1.15;
+}
+
+.estadisticas {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 18px;
+}
+
+.estadisticas span {
+  padding: 7px 10px;
+  color: #c9c0b5;
+  background: #292722;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.resena-propia {
+  min-height: 116px;
+  padding: 15px;
+  background: #25231f;
+  border-left: 3px solid #ffe100;
+  border-radius: 8px;
+}
+
+.resena-propia div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resena-propia span {
+  color: #aaa196;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.resena-propia strong {
+  color: #ffe100;
+  letter-spacing: 2px;
+}
+
+.resena-propia p {
+  margin: 12px 0 0;
+  color: #d1c5b7;
+  line-height: 1.45;
+}
+
+.calificar,
+.estado-vacio a {
+  display: inline-flex;
+  min-height: 42px;
+  padding: 0 15px;
+  align-items: center;
+  color: #ffffff;
+  background: #e50924;
+  border-radius: 8px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.estado-vacio,
+.mensaje-error {
+  padding: 55px 24px;
+  text-align: center;
+  background: #1a1916;
+  border: 1px dashed #48433b;
+  border-radius: 18px;
+}
+
+.estado-vacio h2 { margin: 0 0 10px; }
+.estado-vacio p { color: #aaa196; }
+.estado-vacio a { margin-top: 12px; }
+
+.mensaje-error {
+  margin-bottom: 22px;
+  padding: 18px;
+  color: #ff8797;
+  background: #421217;
+  border: 1px solid #8c2634;
+}
+
+@media (max-width: 1050px) {
+  .grilla-peliculas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .mis-peliculas {
+    width: min(100% - 28px, 1500px);
+    padding-top: 28px;
+  }
+
+  .encabezado h1 {
+    font-size: 50px;
+    letter-spacing: -2px;
+  }
+
+  .grilla-peliculas { grid-template-columns: 1fr; }
+  .poster { height: 430px; }
+}

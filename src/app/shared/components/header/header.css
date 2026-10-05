@@ -445,6 +445,14 @@
   color: #ffffff;
 }
 
+.candy-movil {
+  display: none;
+  color: #ffffff;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
 @media (max-width: 760px) {
   .header {
     gap: 1rem;
@@ -493,6 +501,13 @@
 
   .navegacion {
     display: none;
+  }
+
+  .candy-movil {
+    display: inline-flex;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 2px solid #ff0a2f;
+    font-size: 0.78rem;
   }
 
   .panel-perfil {

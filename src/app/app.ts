@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Supabase } from './core/services/supabase.service';
 import { Header } from './shared/components/header/header';
+import { AuthService } from './core/services/auth.service';
+import { AlertasEstrenosService } from './core/services/alertas-estrenos.service';
 
 @Component({
   selector: 'app-root',
@@ -9,12 +10,18 @@ import { Header } from './shared/components/header/header';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class App {
   protected title = 'cine';
-  private supabase = inject(Supabase);
+  private auth = inject(AuthService);
+  private alertas = inject(AlertasEstrenosService);
+  private usuarioNotificado = signal<string | null>(null);
 
-  async ngOnInit() {
-    const { data, error } = await this.supabase.instance.auth.getSession();
-    console.log('Conexión Supabase:', error ? 'ERROR' : 'OK', data);
+  constructor() {
+    effect(() => {
+      const usuario = this.auth.currentUser();
+      if (!usuario || this.usuarioNotificado() === usuario.id) return;
+      this.usuarioNotificado.set(usuario.id);
+      void this.alertas.mostrarNotificacionesPendientes(usuario.id);
+    });
   }
 }

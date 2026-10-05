@@ -29,6 +29,13 @@ export const routes: Routes = [
         .then(component => component.Cartelera)
   },
   {
+    path: 'candy',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/candy/candy')
+        .then(component => component.Candy)
+  },
+  {
     path: 'pelicula/:id',
     loadComponent: () =>
       import(
@@ -37,14 +44,12 @@ export const routes: Routes = [
   },
   {
     path: 'funcion/:funcionId/butacas',
-    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/butacas/butacas')
         .then(component => component.Butacas)
   },
   {
     path: 'compra/:funcionId',
-    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/compra/compra')
         .then(component => component.Compra)
@@ -64,6 +69,14 @@ export const routes: Routes = [
       import(
         './features/mis-compras/mis-compras'
       ).then(component => component.MisCompras)
+  },
+  {
+    path: 'mis-peliculas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/mis-peliculas/mis-peliculas'
+      ).then(component => component.MisPeliculas)
   },
   {
     path: 'beneficios',
@@ -88,6 +101,14 @@ export const routes: Routes = [
       import(
         './features/control-canjes/control-canjes'
       ).then(component => component.ControlCanjes)
+  },
+  {
+    path: 'control-candy',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import(
+        './features/control-candy/control-candy'
+      ).then(component => component.ControlCandy)
   },
   {
     path: 'admin/peliculas',
@@ -128,6 +149,53 @@ export const routes: Routes = [
       import(
         './features/admin/productos-admin/productos-admin'
       ).then(component => component.ProductosAdmin)
+  },
+  {
+    path: 'admin/combos',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import(
+        './features/admin/combos-admin/combos-admin'
+      ).then(component => component.CombosAdmin)
+  },
+  {
+    path: 'admin/salas',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/admin/salas-admin/salas-admin')
+        .then(component => component.SalasAdmin)
+  },
+  {
+    path: 'admin/facturacion',
+    canActivate: [authGuard, adminGuard],
+    data: { seccion: 'facturacion' },
+    loadComponent: () =>
+      import('./features/admin/detalle-dashboard/detalle-dashboard')
+        .then(component => component.DetalleDashboard)
+  },
+  {
+    path: 'admin/estadisticas',
+    canActivate: [authGuard, adminGuard],
+    data: { seccion: 'estadisticas' },
+    loadComponent: () =>
+      import('./features/admin/detalle-dashboard/detalle-dashboard')
+        .then(component => component.DetalleDashboard)
+  },
+  {
+    path: 'admin/descuentos',
+    canActivate: [authGuard, adminGuard],
+    data: { seccion: 'descuentos' },
+    loadComponent: () =>
+      import('./features/admin/detalle-dashboard/detalle-dashboard')
+        .then(component => component.DetalleDashboard)
+  },
+  {
+    path: 'admin/actividad',
+    canActivate: [authGuard, adminGuard],
+    data: { seccion: 'actividad' },
+    loadComponent: () =>
+      import('./features/admin/detalle-dashboard/detalle-dashboard')
+        .then(component => component.DetalleDashboard)
   },
   {
     path: 'admin',

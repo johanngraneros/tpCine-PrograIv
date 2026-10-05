@@ -1,0 +1,63 @@
+<main class="control-candy">
+  <header>
+    <span>PERSONAL DEL CINE</span>
+    <h1>ENTREGAS CANDY</h1>
+    <p>Escaneá el QR de la compra o ingresá el código manualmente.</p>
+  </header>
+
+  <section class="buscador">
+    <div>
+      <span class="rotulo">VERIFICACIÓN</span>
+      <h2>BUSCAR PEDIDO</h2>
+    </div>
+    <form (submit)="$event.preventDefault()">
+      <label for="codigo-candy">Código de retiro</label>
+      <div class="fila-codigo">
+        <input id="codigo-candy" type="text" [formControl]="codigo" (keydown.enter)="$event.preventDefault(); buscar()" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+        <button type="button" [disabled]="buscando()" (click)="buscar()">{{ buscando() ? 'BUSCANDO...' : 'BUSCAR' }}</button>
+        <button type="button" class="camara" (click)="alternarScanner()">{{ scannerActivo() ? 'CERRAR' : 'QR' }}</button>
+      </div>
+      @if (codigo.touched && codigo.invalid) { <small>Ingresá un código.</small> }
+    </form>
+  </section>
+
+  @if (scannerActivo()) {
+    <section class="scanner"><video #videoScanner autoplay muted playsinline></video></section>
+  }
+
+  @if (mensajeError()) { <p class="aviso error">{{ mensajeError() }}</p> }
+  @if (mensajeExito()) { <p class="aviso exito">{{ mensajeExito() }}</p> }
+
+  @if (entrega(); as pedido) {
+    <section
+      class="pedido"
+      [class.usado]="estadoPedido(pedido) === 'entregado'"
+      [class.cancelado]="estadoPedido(pedido) === 'cancelado'"
+    >
+      <div class="pedido-cabecera">
+        <div>
+          <span class="rotulo">PEDIDO ENCONTRADO</span>
+          <h2>{{ pedido.perfiles?.nombre }} {{ pedido.perfiles?.apellido }}</h2>
+          <p>{{ pedido.fecha | date }}</p>
+        </div>
+        <span class="estado" [class.estado-cancelado]="estadoPedido(pedido) === 'cancelado'">
+          {{ estadoPedido(pedido) === 'pendiente' ? 'PENDIENTE' : estadoPedido(pedido) === 'cancelado' ? 'CANCELADO' : 'ENTREGADO' }}
+        </span>
+      </div>
+      <div class="items">
+        @for (item of items(pedido); track item.id) {
+          <article>
+            <span class="cantidad">{{ item.cantidad }}×</span>
+            <strong>{{ nombreItem(item) }}</strong>
+            @if (item.estado === 'valida') {
+              <span>pendiente</span>
+            }
+          </article>
+        }
+      </div>
+      <button class="entregar" type="button" [disabled]="!puedeEntregar(pedido) || entregando()" (click)="confirmarEntrega()">
+        {{ entregando() ? 'CONFIRMANDO...' : 'CONFIRMAR ENTREGA' }}
+      </button>
+    </section>
+  }
+</main>

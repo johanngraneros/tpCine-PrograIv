@@ -42,6 +42,7 @@ export class AdminPeliculasService {
         formulario.imagen_url.trim() || null,
       restriccion_edad:
         formulario.restriccion_edad,
+      fecha_estreno: formulario.fecha_estreno || null,
       activa: formulario.activa
     };
 
@@ -117,6 +118,7 @@ export class AdminPeliculasService {
         formulario.imagen_url.trim() || null,
       restriccion_edad:
         formulario.restriccion_edad,
+      fecha_estreno: formulario.fecha_estreno || null,
       activa: formulario.activa
     };
 

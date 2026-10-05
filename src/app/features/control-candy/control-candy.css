@@ -1,0 +1,35 @@
+:host { display: block; min-height: 100vh; color: #f8f5f0; background: #0d0c0b; }
+.control-candy { width: min(1180px, calc(100% - 2rem)); margin: auto; padding: 3rem 0 5rem; }
+header span, .rotulo { color: #ff1538; font-size: .76rem; font-weight: 950; letter-spacing: .24em; }
+header h1 { margin: .5rem 0; font-size: clamp(3rem, 7vw, 6rem); line-height: .88; }
+header p { color: #cdbca9; font-size: 1.05rem; }
+.buscador, .pedido, .scanner { margin-top: 1.5rem; padding: 1.5rem; border: 1px solid #403a33; border-radius: 22px; background: #191816; }
+.buscador { display: grid; grid-template-columns: .65fr 1.35fr; gap: 1.5rem; align-items: end; }
+.buscador h2, .pedido h2 { margin: .35rem 0 0; font-size: 2rem; }
+form label { display: block; margin-bottom: .45rem; font-weight: 800; }
+.fila-codigo { display: grid; grid-template-columns: 1fr auto auto; gap: .6rem; }
+input { min-width: 0; padding: .9rem 1rem; color: white; border: 1px solid #62574c; border-radius: 12px; outline: 0; background: #26231f; }
+input:focus { border-color: #ffe000; }
+button { padding: .85rem 1.1rem; border: 0; border-radius: 12px; font-weight: 950; cursor: pointer; }
+form button { background: #ffe000; }
+form .camara { color: white; background: #0d83dc; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+form small { display: block; margin-top: .35rem; color: #ff6b7e; }
+.scanner { max-width: 520px; padding: .5rem; }
+.scanner video { display: block; width: 100%; border-radius: 16px; }
+.aviso { margin-top: 1rem; padding: .9rem 1rem; border-radius: 12px; font-weight: 800; }
+.error { color: #ff9aaa; background: #44121a; }
+.exito { color: #61efad; background: #0c3a27; }
+.pedido { border-color: #0d83dc; }
+.pedido.usado { border-color: #1a995f; }
+.pedido.cancelado { border-color: #8c2634; }
+.pedido-cabecera { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; padding-bottom: 1rem; border-bottom: 1px solid #3e3933; }
+.pedido-cabecera p { margin-bottom: 0; color: #ae9f90; }
+.estado { padding: .5rem .8rem; color: #fff; border-radius: 99px; background: #0d83dc; font-size: .75rem; font-weight: 950; }
+.estado.estado-cancelado { color: #ff9aaa; background: #44121a; }
+.items { display: grid; grid-template-columns: repeat(2, 1fr); gap: .65rem; margin: 1rem 0; }
+.items article { display: grid; grid-template-columns: auto 1fr auto; gap: .7rem; align-items: center; padding: .85rem; border-radius: 12px; background: #26231f; }
+.cantidad { color: #ffe000; font-weight: 950; }
+.entregado { color: #61efad; }
+.entregar { display: block; margin-left: auto; color: white; background: #f4082c; }
+@media (max-width: 720px) { .buscador { grid-template-columns: 1fr; } .fila-codigo { grid-template-columns: 1fr 1fr; } .fila-codigo input { grid-column: 1 / -1; } .items { grid-template-columns: 1fr; } }

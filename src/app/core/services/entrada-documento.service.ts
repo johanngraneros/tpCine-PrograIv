@@ -35,14 +35,35 @@ export class EntradaDocumentoService {
   async descargarPdf(
     entrada: DatosEntradaPdf
   ) {
-    const qrImagen =
-      await this.generarQr(entrada.qrCode);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    await this.dibujarEntrada(pdf, entrada);
+    pdf.save(`entrada-${this.nombreSeguro(entrada.pelicula)}-${entrada.numeroButaca}.pdf`);
+  }
+
+  async descargarPdfMultiple(entradas: DatosEntradaPdf[]) {
+    if (!entradas.length) return;
 
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
     });
+
+    for (let indice = 0; indice < entradas.length; indice++) {
+      if (indice > 0) pdf.addPage();
+      await this.dibujarEntrada(pdf, entradas[indice]);
+    }
+
+    pdf.save(`entradas-${this.nombreSeguro(entradas[0].pelicula)}.pdf`);
+  }
+
+  private async dibujarEntrada(pdf: jsPDF, entrada: DatosEntradaPdf) {
+    const qrImagen = await this.generarQr(entrada.qrCode);
 
     pdf.setFillColor(18, 16, 13);
     pdf.rect(0, 0, 210, 297, 'F');
@@ -146,15 +167,14 @@ export class EntradaDocumentoService {
       }
     );
 
-    const nombreSeguro = entrada.pelicula
+  }
+
+  private nombreSeguro(pelicula: string) {
+    return pelicula
       .toLocaleLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-
-    pdf.save(
-      `entrada-${nombreSeguro}-${entrada.numeroButaca}.pdf`
-    );
   }
 }

@@ -1,0 +1,130 @@
+<main class="pagina-candy">
+  <section class="presentacion-candy">
+    <div>
+      <span class="eyebrow">CANDY BAR</span>
+      <h1>Tu película empieza acá</h1>
+      <p>Elegí tus favoritos, compralos online y retiralos mostrando el QR.</p>
+    </div>
+    <div class="bolsa-candy" aria-hidden="true">🍿</div>
+  </section>
+
+  @if (compraConfirmada()) {
+    <section class="compra-exitosa">
+      <span class="check">✓</span>
+      <div>
+        <strong>¡Compra confirmada!</strong>
+        <p>Ya generamos el QR para retirar tu pedido en el Candy Bar.</p>
+      </div>
+      <a routerLink="/mis-compras">Ver mi compra →</a>
+    </section>
+  } @else {
+    <nav class="categorias" aria-label="Categorías de Candy">
+      @for (seccion of secciones; track seccion) {
+        <button
+          type="button"
+          [class.activa]="seccionActiva() === seccion"
+          (click)="seccionActiva.set(seccion)"
+        >
+          {{ seccion }}
+        </button>
+      }
+    </nav>
+
+    @if (mensajeError()) {
+      <p class="mensaje-error">{{ mensajeError() }}</p>
+    }
+
+    <div class="contenido-candy">
+      <section class="catalogo">
+        @if (cargando()) {
+          <p class="estado-vacio">Cargando productos...</p>
+        } @else if (seccionActiva() === 'Combos') {
+          <form class="grilla-productos" [formGroup]="cantidadesCombos">
+            @for (combo of combos(); track combo.id) {
+              <article class="tarjeta-producto" [class.seleccionada]="cantidadCombo(combo.id) > 0">
+                <div class="imagen-producto combo-imagen">🍿 <span>+</span> 🥤</div>
+                <div class="info-producto">
+                  <span class="tipo">COMBO</span>
+                  <h2>{{ combo.nombre }}</h2>
+                  <p>
+                    @for (item of combo.combo_productos; track item.producto_id; let ultimo = $last) {
+                      {{ item.cantidad }} × {{ item.productos.nombre }}{{ ultimo ? '' : ' + ' }}
+                    }
+                  </p>
+                  <div class="pie-tarjeta">
+                    <strong>{{ formatearPrecio(combo.precio_fijo) }}</strong>
+                    <div class="cantidad">
+                      <button type="button" (click)="cambiarCombo(combo.id, -1)" [disabled]="cantidadCombo(combo.id) === 0">−</button>
+                      <input type="number" readonly [formControlName]="combo.id" [attr.aria-label]="'Cantidad de ' + combo.nombre">
+                      <button type="button" (click)="cambiarCombo(combo.id, 1)">+</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <p class="estado-vacio">Todavía no hay combos activos.</p>
+            }
+          </form>
+        } @else {
+          <form class="grilla-productos" [formGroup]="cantidadesProductos">
+            @for (producto of productosVisibles(); track producto.id) {
+              <article class="tarjeta-producto" [class.seleccionada]="cantidadProducto(producto.id) > 0">
+                <div class="imagen-producto">
+                  @if (producto.imagen_url) {
+                    <img [src]="producto.imagen_url" [alt]="producto.nombre">
+                  } @else {
+                    <span>{{ seccionActiva() === 'Bebidas' ? '🥤' : seccionActiva() === 'Snacks' ? '🍫' : '🍿' }}</span>
+                  }
+                </div>
+                <div class="info-producto">
+                  <span class="tipo">{{ seccionActiva() }}</span>
+                  <h2>{{ producto.nombre }}</h2>
+                  <p>{{ producto.descripcion || 'Disponible para retirar en el Candy Bar.' }}</p>
+                  <div class="pie-tarjeta">
+                    <strong>{{ formatearPrecio(producto.precio) }}</strong>
+                    <div class="cantidad">
+                      <button type="button" (click)="cambiarProducto(producto.id, -1)" [disabled]="cantidadProducto(producto.id) === 0">−</button>
+                      <input type="number" readonly [formControlName]="producto.id" [attr.aria-label]="'Cantidad de ' + producto.nombre">
+                      <button type="button" (click)="cambiarProducto(producto.id, 1)">+</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <p class="estado-vacio">Todavía no hay productos en esta categoría.</p>
+            }
+          </form>
+        }
+      </section>
+
+      <aside class="resumen-candy">
+        <span class="eyebrow">TU PEDIDO</span>
+        <h2>Resumen</h2>
+        <div class="resumen-linea"><span>Productos</span><strong>{{ cantidadTotal() }}</strong></div>
+        <div class="resumen-linea"><span>Subtotal</span><strong>{{ formatearPrecio(subtotal()) }}</strong></div>
+
+        @if (creditoDisponible() > 0) {
+          <label class="credito">
+            <input type="checkbox" [formControl]="usarCredito">
+            <span>Usar crédito disponible<br><small>{{ formatearPrecio(creditoDisponible()) }}</small></span>
+          </label>
+        }
+
+        @if (creditoAplicado() > 0) {
+          <div class="resumen-linea descuento"><span>Crédito</span><strong>− {{ formatearPrecio(creditoAplicado()) }}</strong></div>
+        }
+
+        <div class="total"><span>Total</span><strong>{{ formatearPrecio(total()) }}</strong></div>
+        <button
+          type="button"
+          class="confirmar"
+          [disabled]="cantidadTotal() === 0 || procesando()"
+          (click)="confirmarCompra()"
+        >
+          {{ procesando() ? 'PROCESANDO...' : 'CONFIRMAR COMPRA' }} <span>→</span>
+        </button>
+        <p class="nota">Recibís un único QR para retirar todo el pedido.</p>
+      </aside>
+    </div>
+  }
+</main>

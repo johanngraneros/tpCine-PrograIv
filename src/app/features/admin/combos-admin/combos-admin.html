@@ -1,0 +1,112 @@
+<a routerLink="/admin" class="volver">← Volver al panel</a>
+
+<header class="encabezado">
+  <div>
+    <span>Administración · Candy Bar</span>
+    <h1>Combos especiales</h1>
+    <p>Configurá entrada + pochoclos + bebida con un único precio.</p>
+  </div>
+  <strong>{{ combos().length }}</strong>
+</header>
+
+@if (mensajeError()) { <p class="mensaje error">{{ mensajeError() }}</p> }
+@if (mensajeExito()) { <p class="mensaje exito">{{ mensajeExito() }}</p> }
+
+<section class="panel-formulario">
+  <div class="titulo-panel">
+    <span>{{ editandoId() ? 'Edición' : 'Nuevo combo' }}</span>
+    <h2>{{ editandoId() ? 'Modificar combo' : 'Crear combo' }}</h2>
+  </div>
+
+  <form [formGroup]="formulario" (ngSubmit)="guardar()">
+    <label class="campo nombre">
+      <span>Nombre</span>
+      <input type="text" formControlName="nombre" placeholder="Ejemplo: Combo pareja">
+    </label>
+
+    <label class="campo">
+      <span>Precio fijo</span>
+      <input type="number" min="1" formControlName="precio_fijo">
+    </label>
+
+    <label class="campo">
+      <span>Pochoclo</span>
+      <select formControlName="pochoclo_id">
+        <option value="">Seleccionar</option>
+        @for (producto of pochoclos(); track producto.id) {
+          <option [value]="producto.id">{{ producto.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="campo cantidad">
+      <span>Cantidad</span>
+      <input type="number" min="1" max="10" formControlName="cantidad_pochoclo">
+    </label>
+
+    <label class="campo">
+      <span>Bebida</span>
+      <select formControlName="bebida_id">
+        <option value="">Seleccionar</option>
+        @for (producto of bebidas(); track producto.id) {
+          <option [value]="producto.id">{{ producto.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="campo cantidad">
+      <span>Cantidad</span>
+      <input type="number" min="1" max="10" formControlName="cantidad_bebida">
+    </label>
+
+    <label class="activo">
+      <input type="checkbox" formControlName="activo">
+      <span>Combo disponible</span>
+    </label>
+
+    <div class="acciones-formulario">
+      @if (editandoId()) {
+        <button type="button" class="secundario" (click)="cancelarEdicion()">Cancelar</button>
+      }
+      <button type="submit" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (editandoId() ? 'Guardar cambios' : 'Crear combo') }}
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="catalogo">
+  <div class="titulo-catalogo">
+    <div><span>Catálogo</span><h2>Combos configurados</h2></div>
+  </div>
+
+  @if (cargando()) {
+    <p class="vacio">Cargando...</p>
+  } @else if (combos().length === 0) {
+    <p class="vacio">Todavía no hay combos.</p>
+  } @else {
+    <div class="lista">
+      @for (combo of combos(); track combo.id) {
+        <article class="combo" [class.inactivo]="!combo.activo">
+          <div class="icono">🍿</div>
+          <div class="datos">
+            <span>{{ combo.activo ? 'Disponible' : 'Inactivo' }}</span>
+            <h3>{{ combo.nombre }}</h3>
+            <p>Incluye 1 entrada
+              @for (item of combo.combo_productos; track item.producto_id) {
+                · {{ item.cantidad }} {{ item.productos.nombre }}
+              }
+            </p>
+          </div>
+          <strong class="precio">{{ formatearPrecio(combo.precio_fijo) }}</strong>
+          <div class="acciones">
+            <button type="button" class="editar" (click)="editar(combo)">Editar</button>
+            <button type="button" class="estado" (click)="cambiarEstado(combo)">
+              {{ combo.activo ? 'Desactivar' : 'Activar' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

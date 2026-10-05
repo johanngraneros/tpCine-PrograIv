@@ -198,7 +198,11 @@
 
       <aside class="panel-resena">
         @if (auth.currentUser()) {
-          <div class="nueva-resena">
+          <form
+            class="nueva-resena"
+            [formGroup]="resenaForm"
+            (ngSubmit)="enviarResena()"
+          >
             <span class="subtitulo">
               Tu opinión
             </span>
@@ -211,7 +215,7 @@
 
             <select
               id="estrellas"
-              [(ngModel)]="nuevaEstrellas"
+              formControlName="estrellas"
             >
               <option [ngValue]="5">
                 ⭐⭐⭐⭐⭐
@@ -240,7 +244,7 @@
 
             <textarea
               id="comentario"
-              [(ngModel)]="nuevoComentario"
+              formControlName="comentario"
               placeholder="Contanos qué te pareció..."
               maxlength="200"
               rows="5"
@@ -253,8 +257,7 @@
             }
 
             <button
-              type="button"
-              (click)="enviarResena()"
+              type="submit"
               [disabled]="enviandoResena()"
             >
               {{
@@ -263,7 +266,7 @@
                   : 'Publicar reseña'
               }}
             </button>
-          </div>
+          </form>
         } @else {
           <div class="iniciar-sesion">
             <span class="subtitulo">

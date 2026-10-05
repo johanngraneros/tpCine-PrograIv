@@ -1,0 +1,98 @@
+<main class="mis-peliculas">
+  <section class="encabezado">
+    <p class="etiqueta">MI CUENTA</p>
+    <h1>MIS PELÍCULAS</h1>
+    <p class="descripcion">
+      Recordá las películas que viste y consultá tus calificaciones.
+    </p>
+  </section>
+
+  <section class="barra-busqueda" aria-label="Buscar en mi historial">
+    <label for="buscar-pelicula">Buscar en mi historial</label>
+    <input
+      id="buscar-pelicula"
+      type="search"
+      placeholder="Escribí el nombre de una película"
+      [formControl]="busquedaControl"
+    />
+  </section>
+
+  @if (mensajeError()) {
+    <div class="mensaje-error" role="alert">{{ mensajeError() }}</div>
+  }
+
+  @if (cargando()) {
+    <section class="estado-vacio">Cargando tu historial...</section>
+  } @else if (peliculas().length === 0) {
+    <section class="estado-vacio">
+      <h2>Todavía no tenés películas en tu historial</h2>
+      <p>
+        Cuando termine una función para la que compraste entradas,
+        aparecerá en esta sección.
+      </p>
+      <a routerLink="/cartelera">Ver cartelera</a>
+    </section>
+  } @else if (peliculasFiltradas().length === 0) {
+    <section class="estado-vacio">
+      <h2>No encontramos esa película</h2>
+      <p>Probá escribiendo otro título.</p>
+    </section>
+  } @else {
+    <section class="resumen-historial">
+      <strong>{{ peliculas().length }}</strong>
+      <span>{{ peliculas().length === 1 ? 'película vista' : 'películas vistas' }}</span>
+    </section>
+
+    <section class="grilla-peliculas">
+      @for (pelicula of peliculasFiltradas(); track pelicula.id) {
+        <article class="pelicula">
+          <a
+            class="poster"
+            [routerLink]="['/pelicula', pelicula.id]"
+            [attr.aria-label]="'Ver detalle de ' + pelicula.titulo"
+          >
+            @if (pelicula.imagenUrl) {
+              <img [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" />
+            } @else {
+              <span aria-hidden="true">🎬</span>
+            }
+          </a>
+
+          <div class="contenido">
+            <p class="ultima-funcion">
+              Última función · {{ formatearFecha(pelicula.ultimaFuncion) }}
+            </p>
+            <h2>{{ pelicula.titulo }}</h2>
+
+            <div class="estadisticas">
+              <span>
+                {{ pelicula.funcionesVistas.length }}
+                {{ pelicula.funcionesVistas.length === 1 ? 'función' : 'funciones' }}
+              </span>
+              <span>
+                {{ pelicula.cantidadEntradas }}
+                {{ pelicula.cantidadEntradas === 1 ? 'entrada' : 'entradas' }}
+              </span>
+            </div>
+
+            @if (pelicula.resena) {
+              <section class="resena-propia">
+                <div>
+                  <span>Tu calificación</span>
+                  <strong [attr.aria-label]="pelicula.resena.estrellas + ' de 5 estrellas'">
+                    {{ estrellas(pelicula.resena.estrellas) }}
+                  </strong>
+                </div>
+                <p>“{{ pelicula.resena.comentario }}”</p>
+              </section>
+            } @else {
+              <a class="calificar" [routerLink]="['/pelicula', pelicula.id]">
+                Calificar película
+              </a>
+            }
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>

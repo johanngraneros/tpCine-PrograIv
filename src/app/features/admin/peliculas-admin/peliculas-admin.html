@@ -50,19 +50,25 @@
       }
     </div>
 
-    <form (ngSubmit)="guardar()">
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <div class="campos-grid">
         <div class="campo campo-ancho">
           <label for="titulo">Título</label>
 
           <input
             id="titulo"
-            name="titulo"
             type="text"
-            [(ngModel)]="formulario.titulo"
+            formControlName="titulo"
             placeholder="Ejemplo: Horizonte Perdido"
+            [class.campo-invalido]="formulario.controls.titulo.touched && formulario.controls.titulo.invalid"
             [disabled]="guardando()"
           />
+
+          @if (formulario.controls.titulo.touched && formulario.controls.titulo.hasError('required')) {
+            <small class="error-campo">El título es obligatorio.</small>
+          } @else if (formulario.controls.titulo.touched && formulario.controls.titulo.hasError('maxlength')) {
+            <small class="error-campo">El título no puede superar los 120 caracteres.</small>
+          }
         </div>
 
         <div class="campo">
@@ -70,14 +76,22 @@
 
           <input
             id="duracion"
-            name="duracion"
             type="number"
             min="1"
             step="1"
-            [(ngModel)]="formulario.duracion_min"
+            formControlName="duracion_min"
             placeholder="120"
+            [class.campo-invalido]="formulario.controls.duracion_min.touched && formulario.controls.duracion_min.invalid"
             [disabled]="guardando()"
           />
+
+          @if (formulario.controls.duracion_min.touched && formulario.controls.duracion_min.hasError('required')) {
+            <small class="error-campo">La duración es obligatoria.</small>
+          } @else if (formulario.controls.duracion_min.touched && formulario.controls.duracion_min.hasError('min')) {
+            <small class="error-campo">La duración debe ser mayor a 0 minutos.</small>
+          } @else if (formulario.controls.duracion_min.touched && formulario.controls.duracion_min.hasError('max')) {
+            <small class="error-campo">La duración no puede superar los 600 minutos.</small>
+          }
         </div>
 
         <div class="campo">
@@ -85,8 +99,7 @@
 
           <select
             id="restriccion"
-            name="restriccion"
-            [(ngModel)]="formulario.restriccion_edad"
+            formControlName="restriccion_edad"
             [disabled]="guardando()"
           >
             <option [ngValue]="null">
@@ -103,17 +116,38 @@
           </select>
         </div>
 
+        <div class="campo">
+          <label for="fechaEstreno">Fecha de estreno</label>
+          <input
+            id="fechaEstreno"
+            type="date"
+            formControlName="fecha_estreno"
+            [class.campo-invalido]="formulario.controls.fecha_estreno.touched && formulario.controls.fecha_estreno.invalid"
+            [disabled]="guardando()"
+          />
+
+          @if (formulario.controls.fecha_estreno.touched && formulario.controls.fecha_estreno.invalid) {
+            <small class="error-campo">Ingresá una fecha de estreno válida.</small>
+          }
+        </div>
+
         <div class="campo campo-ancho">
           <label for="imagen">URL de la imagen</label>
 
           <input
             id="imagen"
-            name="imagen"
             type="url"
-            [(ngModel)]="formulario.imagen_url"
+            formControlName="imagen_url"
             placeholder="https://..."
+            [class.campo-invalido]="formulario.controls.imagen_url.touched && formulario.controls.imagen_url.invalid"
             [disabled]="guardando()"
           />
+
+          @if (formulario.controls.imagen_url.touched && formulario.controls.imagen_url.hasError('pattern')) {
+            <small class="error-campo">La URL debe comenzar con http:// o https://.</small>
+          } @else if (formulario.controls.imagen_url.touched && formulario.controls.imagen_url.hasError('maxlength')) {
+            <small class="error-campo">La URL no puede superar los 500 caracteres.</small>
+          }
         </div>
 
         <div class="campo campo-ancho">
@@ -121,12 +155,16 @@
 
           <textarea
             id="sinopsis"
-            name="sinopsis"
             rows="5"
-            [(ngModel)]="formulario.sinopsis"
+            formControlName="sinopsis"
             placeholder="Escribí una descripción de la película..."
+            [class.campo-invalido]="formulario.controls.sinopsis.touched && formulario.controls.sinopsis.invalid"
             [disabled]="guardando()"
           ></textarea>
+
+          @if (formulario.controls.sinopsis.touched && formulario.controls.sinopsis.hasError('maxlength')) {
+            <small class="error-campo">La sinopsis no puede superar los 1000 caracteres.</small>
+          }
         </div>
       </div>
 
@@ -161,9 +199,8 @@
       <label class="estado-opcion">
         <input
           type="checkbox"
-          name="activa"
-          [(ngModel)]="formulario.activa"
-          [disabled]="guardando()"
+          formControlName="activa"
+          [disabled]="guardando() || formulario.invalid"
         />
 
         <span>

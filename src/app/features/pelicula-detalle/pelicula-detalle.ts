@@ -1,19 +1,24 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { PeliculasService } from '../../core/services/peliculas.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-pelicula-detalle',
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './pelicula-detalle.html',
   styleUrl: './pelicula-detalle.css'
 })
 export class PeliculaDetalle implements OnInit {
   private route = inject(ActivatedRoute);
   private peliculasService = inject(PeliculasService);
+  private formBuilder = inject(FormBuilder);
   auth = inject(AuthService); // público, lo usamos desde el template
 
   peliculaId = '';
@@ -22,9 +27,10 @@ export class PeliculaDetalle implements OnInit {
   resenas = signal<any[]>([]);
   cargando = signal(true);
 
-  // formulario de nueva reseña
-  nuevaEstrellas = 5;
-  nuevoComentario = '';
+  resenaForm = this.formBuilder.nonNullable.group({
+    estrellas: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
+    comentario: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(200)]]
+  });
   enviandoResena = signal(false);
   errorResena = signal('');
 
@@ -58,7 +64,9 @@ export class PeliculaDetalle implements OnInit {
     return;
   }
 
-  const comentario = this.nuevoComentario.trim();
+  const { estrellas, comentario: comentarioIngresado } =
+    this.resenaForm.getRawValue();
+  const comentario = comentarioIngresado.trim();
 
   if (comentario.length === 0) {
     this.errorResena.set(
@@ -75,8 +83,8 @@ export class PeliculaDetalle implements OnInit {
   }
 
   if (
-    this.nuevaEstrellas < 1 ||
-    this.nuevaEstrellas > 5
+    estrellas < 1 ||
+    estrellas > 5
   ) {
     this.errorResena.set(
       'Seleccioná una puntuación entre 1 y 5 estrellas.'
@@ -95,7 +103,7 @@ export class PeliculaDetalle implements OnInit {
     await this.peliculasService.crearResena(
       this.peliculaId,
       usuario.id,
-      this.nuevaEstrellas,
+      estrellas,
       comentario
     );
 
@@ -115,8 +123,10 @@ export class PeliculaDetalle implements OnInit {
     return;
   }
 
-  this.nuevoComentario = '';
-  this.nuevaEstrellas = 5;
+  this.resenaForm.reset({
+    estrellas: 5,
+    comentario: ''
+  });
 
   await this.cargarTodo();
   }

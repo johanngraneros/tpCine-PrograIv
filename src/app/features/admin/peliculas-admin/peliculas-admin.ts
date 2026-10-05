@@ -4,7 +4,11 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminPeliculasService } from '../../../core/services/admin-peliculas.service';
 import type {
@@ -16,7 +20,7 @@ import type {
 @Component({
   selector: 'app-peliculas-admin',
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     RouterLink
   ],
   templateUrl: './peliculas-admin.html',
@@ -25,6 +29,7 @@ import type {
 export class PeliculasAdmin implements OnInit {
   private adminPeliculas =
     inject(AdminPeliculasService);
+  private formBuilder = inject(FormBuilder);
 
   peliculas = signal<PeliculaAdmin[]>([]);
   generos = signal<Genero[]>([]);
@@ -41,23 +46,28 @@ export class PeliculasAdmin implements OnInit {
   generosSeleccionados =
     signal<Set<string>>(new Set());
 
-  formulario: PeliculaFormulario =
-    this.crearFormularioVacio();
+  formulario = this.formBuilder.group({
+    titulo: ['', [
+      Validators.required,
+      Validators.maxLength(120)
+    ]],
+    sinopsis: ['', Validators.maxLength(1000)],
+    duracion_min: [90, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(600)
+    ]],
+    imagen_url: ['', [
+      Validators.maxLength(500),
+      Validators.pattern(/^$|https?:\/\/.+/i)
+    ]],
+    restriccion_edad: this.formBuilder.control<number | null>(null),
+    fecha_estreno: ['', Validators.pattern(/^$|\d{4}-\d{2}-\d{2}$/)],
+    activa: [true]
+  });
 
   async ngOnInit() {
     await this.cargarDatos();
-  }
-
-  private crearFormularioVacio():
-    PeliculaFormulario {
-    return {
-      titulo: '',
-      sinopsis: '',
-      duracion_min: 90,
-      imagen_url: '',
-      restriccion_edad: null,
-      activa: true
-    };
   }
 
   async cargarDatos() {
@@ -120,25 +130,62 @@ export class PeliculasAdmin implements OnInit {
   }
 
   validarFormulario(): string {
-    if (!this.formulario.titulo.trim()) {
+    const formulario = this.formulario.getRawValue();
+
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
+    }
+
+    if (!formulario.titulo?.trim()) {
       return 'El título es obligatorio.';
     }
 
-    if (
-      !Number.isInteger(
-        this.formulario.duracion_min
-      ) ||
-      this.formulario.duracion_min <= 0
-    ) {
-      return 'La duración debe ser mayor a cero.';
+    if (this.formulario.controls.titulo.hasError('maxlength')) {
+      return 'El título no puede superar los 120 caracteres.';
+    }
+
+    const duracion = this.formulario.controls.duracion_min;
+
+    if (duracion.hasError('required')) {
+      return 'La duración es obligatoria.';
+    }
+
+    if (duracion.hasError('min')) {
+      return 'La duración debe ser mayor a 0 minutos.';
+    }
+
+    if (duracion.hasError('max')) {
+      return 'La duración no puede superar los 600 minutos.';
+    }
+
+    if (this.formulario.controls.fecha_estreno.invalid) {
+      return 'Ingresá una fecha de estreno válida.';
+    }
+
+    const imagen = this.formulario.controls.imagen_url;
+
+    if (imagen.hasError('pattern')) {
+      return 'La URL de la imagen debe comenzar con http:// o https://.';
+    }
+
+    if (imagen.hasError('maxlength')) {
+      return 'La URL de la imagen no puede superar los 500 caracteres.';
+    }
+
+    if (this.formulario.controls.sinopsis.hasError('maxlength')) {
+      return 'La sinopsis no puede superar los 1000 caracteres.';
+    }
+
+    if (this.formulario.invalid) {
+      return 'Revisá los datos ingresados en el formulario.';
     }
 
     if (
-      this.formulario.restriccion_edad !==
+      formulario.restriccion_edad !==
         null &&
-      this.formulario.restriccion_edad !==
+      formulario.restriccion_edad !==
         13 &&
-      this.formulario.restriccion_edad !==
+      formulario.restriccion_edad !==
         18
     ) {
       return 'La restricción debe ser 13, 18 o sin restricción.';
@@ -174,6 +221,7 @@ export class PeliculasAdmin implements OnInit {
     const generoIds = Array.from(
       this.generosSeleccionados()
     );
+    const datos = this.formulario.getRawValue() as PeliculaFormulario;
 
     const peliculaId =
       this.peliculaEditandoId();
@@ -185,14 +233,14 @@ export class PeliculasAdmin implements OnInit {
         await this.adminPeliculas
           .actualizarPelicula(
             peliculaId,
-            this.formulario,
+            datos,
             generoIds
           );
     } else {
       resultado =
         await this.adminPeliculas
           .crearPelicula(
-            this.formulario,
+            datos,
             generoIds
           );
     }
@@ -225,7 +273,7 @@ export class PeliculasAdmin implements OnInit {
       pelicula.id
     );
 
-    this.formulario = {
+    this.formulario.reset({
       titulo: pelicula.titulo,
       sinopsis: pelicula.sinopsis ?? '',
       duracion_min:
@@ -234,8 +282,9 @@ export class PeliculasAdmin implements OnInit {
         pelicula.imagen_url ?? '',
       restriccion_edad:
         pelicula.restriccion_edad,
+      fecha_estreno: pelicula.fecha_estreno ?? '',
       activa: pelicula.activa
-    };
+    });
 
     const generoIds =
       pelicula.pelicula_generos.map(
@@ -258,8 +307,15 @@ export class PeliculasAdmin implements OnInit {
   cancelarEdicion() {
     this.peliculaEditandoId.set(null);
 
-    this.formulario =
-      this.crearFormularioVacio();
+    this.formulario.reset({
+      titulo: '',
+      sinopsis: '',
+      duracion_min: 90,
+      imagen_url: '',
+      restriccion_edad: null,
+      fecha_estreno: '',
+      activa: true
+    });
 
     this.generosSeleccionados.set(
       new Set()

@@ -2,13 +2,7 @@
   display: block;
   min-height: 100vh;
   color: #f7f4f1;
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(244, 7, 47, 0.1),
-      transparent 30rem
-    ),
-    #0d0d0c;
+  background: #0d0d0c;
 }
 
 * {
@@ -394,13 +388,7 @@ h2 {
   overflow: hidden;
   border: 1px solid #403b35;
   border-radius: 17px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 23, 63, 0.08),
-      rgba(255, 218, 0, 0.04)
-    ),
-    #0f0f0e;
+  background: #0f0f0e;
 }
 
 .vista-imagen img {

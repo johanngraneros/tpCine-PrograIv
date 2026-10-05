@@ -6,24 +6,7 @@
   overflow: hidden;
   border: 1px solid var(--borde);
   border-radius: 22px;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.96) 0%,
-      rgba(0, 0, 0, 0.8) 45%,
-      rgba(0, 0, 0, 0.18) 100%
-    ),
-    radial-gradient(
-      circle at 75% 40%,
-      rgba(229, 9, 20, 0.5),
-      transparent 27%
-    ),
-    linear-gradient(
-      135deg,
-      #21130f,
-      #12100d 50%,
-      #25110f
-    );
+  background: #12100d;
   box-shadow: var(--sombra);
 }
 
@@ -108,6 +91,112 @@
   margin-top: 4.5rem;
 }
 
+.seccion-proximos {
+  margin-top: 4.5rem;
+}
+
+.grid-proximos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.estreno {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  min-height: 270px;
+  overflow: hidden;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.estreno-poster {
+  position: relative;
+  display: grid;
+  min-height: 270px;
+  place-items: center;
+  overflow: hidden;
+  color: inherit;
+  background: #080808;
+  font-size: 45px;
+}
+
+.estreno-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fecha-estreno {
+  position: absolute;
+  right: .65rem;
+  bottom: .65rem;
+  left: .65rem;
+  padding: .6rem .7rem;
+  color: #ffffff;
+  background: rgb(0 0 0 / 82%);
+  border-radius: 8px;
+  font-size: .72rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.estreno-contenido {
+  display: flex;
+  padding: 1.5rem;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.estreno-contenido h3 {
+  margin: 0 0 .85rem;
+  font-size: 1.5rem;
+}
+
+.estreno-contenido p {
+  display: -webkit-box;
+  margin: 0 0 1.2rem;
+  overflow: hidden;
+  color: var(--texto-suave);
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.estreno-contenido a {
+  color: var(--rojo);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.boton-alerta {
+  margin-top: 1rem;
+  padding: .7rem .8rem;
+  color: #ffffff;
+  background: #292621;
+  border: 1px solid #4a453d;
+  border-radius: 8px;
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.boton-alerta.alerta-activa {
+  color: #171304;
+  background: var(--amarillo);
+  border-color: var(--amarillo);
+}
+
+.mensaje-alerta {
+  margin-top: 1rem;
+  color: #87edae;
+  font-weight: 800;
+}
+
 .titulo-seccion {
   display: flex;
   align-items: flex-end;
@@ -133,9 +222,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns:
-    repeat(auto-fill, minmax(210px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.8rem;
 }
 
 .card {
@@ -144,6 +232,8 @@
   border-radius: var(--radio);
   background: var(--superficie);
   box-shadow: var(--sombra);
+  color: var(--texto);
+  text-decoration: none;
   transition:
     transform 180ms ease,
     border-color 180ms ease;
@@ -193,7 +283,7 @@
 .card h3 {
   min-height: 2.7rem;
   margin-bottom: 0.65rem;
-  font-size: 1.08rem;
+  font-size: 1.3rem;
   line-height: 1.25;
 }
 
@@ -206,6 +296,33 @@
 .card .vendidas {
   margin-bottom: 0;
   color: #ddd9d5;
+}
+
+.formatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin-top: .9rem;
+}
+
+.formatos span {
+  padding: .35rem .6rem;
+  color: #111;
+  background: var(--amarillo);
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.sin-funciones {
+  margin-top: .85rem;
+  font-style: italic;
+}
+
+.estado-error {
+  color: #ff8797;
+  border-color: rgb(229 9 20 / 45%);
 }
 
 .estado {
@@ -258,6 +375,10 @@
     gap: 0.8rem;
   }
 
+  .grid-proximos {
+    grid-template-columns: 1fr;
+  }
+
   .card-contenido {
     padding: 0.8rem;
   }
@@ -267,8 +388,35 @@
   }
 }
 
+@media (min-width: 701px) and (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 430px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .estreno {
+    grid-template-columns: 125px 1fr;
+    min-height: 220px;
+  }
+
+  .estreno-poster {
+    min-height: 220px;
+  }
+
+  .estreno-contenido {
+    padding: 1rem;
+  }
+
+  .estreno-contenido h3 {
+    font-size: 1.15rem;
+  }
+
+  .estreno-contenido p {
+    -webkit-line-clamp: 3;
   }
 }

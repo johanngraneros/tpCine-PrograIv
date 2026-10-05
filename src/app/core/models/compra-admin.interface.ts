@@ -36,6 +36,9 @@ export interface EntradaAdmin {
 export interface CompraAdmin {
   id: string;
   usuario_id: string | null;
+  invitado_nombre: string | null;
+  invitado_email: string | null;
+  invitado_fecha_nacimiento: string | null;
   fecha: string;
   subtotal: number;
   descuento: number;

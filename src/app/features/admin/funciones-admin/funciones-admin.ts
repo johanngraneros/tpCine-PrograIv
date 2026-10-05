@@ -5,7 +5,13 @@ import {
   signal
 } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import {
@@ -21,7 +27,7 @@ import type {
 @Component({
   selector: 'app-funciones-admin',
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     RouterLink
   ],
   templateUrl: './funciones-admin.html',
@@ -30,6 +36,7 @@ import type {
 export class FuncionesAdmin implements OnInit {
   private adminFunciones =
     inject(AdminFuncionesService);
+  private formBuilder = inject(FormBuilder);
 
   funciones = signal<FuncionAdmin[]>([]);
 
@@ -45,26 +52,29 @@ export class FuncionesAdmin implements OnInit {
   funcionEditandoId =
     signal<string | null>(null);
 
-  formulario: FuncionFormulario =
-    this.crearFormularioVacio();
+  formulario = this.formBuilder.group({
+    pelicula_id: ['', Validators.required],
+    fecha_hora: ['', Validators.required],
+    duracion_min: [90, [Validators.required, Validators.min(1), Validators.max(600)]],
+    formato: ['2D', Validators.required],
+    idioma: ['castellano', Validators.required],
+    precio: [0, [Validators.required, Validators.min(0)]],
+    precio_vip: this.formBuilder.control<number | null>(null, Validators.min(0)),
+    precio_preventa: this.formBuilder.control<number | null>(null, Validators.min(0)),
+    fecha_fin_preventa: this.formBuilder.control<string | null>(null)
+  }, { validators: [this.validarPreventa] });
 
   async ngOnInit() {
     await this.cargarDatos();
   }
 
-  private crearFormularioVacio():
-    FuncionFormulario {
-    return {
-      pelicula_id: '',
-      fecha_hora: '',
-      duracion_min: 90,
-      formato: '2D',
-      idioma: 'castellano',
-      precio: 0,
-      precio_vip: null,
-      precio_preventa: null,
-      fecha_fin_preventa: null
-    };
+  private validarPreventa(control: AbstractControl): ValidationErrors | null {
+    const precio = control.get('precio_preventa')?.value;
+    const fecha = control.get('fecha_fin_preventa')?.value;
+    return (precio !== null && precio !== '' && !fecha) ||
+      ((precio === null || precio === '') && Boolean(fecha))
+      ? { preventaIncompleta: true }
+      : null;
   }
 
   async cargarDatos() {
@@ -107,26 +117,29 @@ export class FuncionesAdmin implements OnInit {
     const pelicula = this.peliculas().find(
       item =>
         item.id ===
-        this.formulario.pelicula_id
+        this.formulario.controls.pelicula_id.value
     );
 
     if (pelicula) {
-      this.formulario.duracion_min =
-        pelicula.duracion_min;
+      this.formulario.controls.duracion_min.setValue(
+        pelicula.duracion_min
+      );
     }
   }
 
   validarFormulario(): string {
-    if (!this.formulario.pelicula_id) {
+    const formulario = this.formulario.getRawValue();
+
+    if (!formulario.pelicula_id) {
       return 'Seleccioná una película.';
     }
 
-    if (!this.formulario.fecha_hora) {
+    if (!formulario.fecha_hora) {
       return 'Seleccioná la fecha y el horario.';
     }
 
     const fechaFuncion = new Date(
-      this.formulario.fecha_hora
+      formulario.fecha_hora
     );
 
     if (
@@ -141,30 +154,30 @@ export class FuncionesAdmin implements OnInit {
 
     if (
       !Number.isInteger(
-        this.formulario.duracion_min
+        formulario.duracion_min
       ) ||
-      this.formulario.duracion_min <= 0
+      Number(formulario.duracion_min) <= 0
     ) {
       return 'La duración debe ser mayor a cero.';
     }
 
-    if (this.formulario.precio < 0) {
+    if (Number(formulario.precio) < 0) {
       return 'El precio no puede ser negativo.';
     }
 
     if (
-      this.formulario.precio_vip !== null &&
-      this.formulario.precio_vip < 0
+      formulario.precio_vip !== null &&
+      Number(formulario.precio_vip) < 0
     ) {
       return 'El precio VIP no puede ser negativo.';
     }
 
     const tienePrecioPreventa =
-      this.formulario.precio_preventa !== null;
+      formulario.precio_preventa !== null;
 
     const tieneFechaPreventa =
       Boolean(
-        this.formulario.fecha_fin_preventa
+        formulario.fecha_fin_preventa
       );
 
     if (
@@ -175,18 +188,18 @@ export class FuncionesAdmin implements OnInit {
     }
 
     if (
-      this.formulario.precio_preventa !==
+      formulario.precio_preventa !==
         null &&
-      this.formulario.precio_preventa < 0
+      Number(formulario.precio_preventa) < 0
     ) {
       return 'El precio de preventa no puede ser negativo.';
     }
 
     if (
-      this.formulario.fecha_fin_preventa
+      formulario.fecha_fin_preventa
     ) {
       const finPreventa = new Date(
-        this.formulario.fecha_fin_preventa
+        formulario.fecha_fin_preventa
       );
 
       if (finPreventa >= fechaFuncion) {
@@ -215,17 +228,24 @@ export class FuncionesAdmin implements OnInit {
 
     this.guardando.set(true);
 
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
+      this.mensajeError.set('Revisá los datos ingresados en el formulario.');
+      return;
+    }
+
     const funcionId =
       this.funcionEditandoId();
+    const datos = this.formulario.getRawValue() as FuncionFormulario;
 
     const resultado = funcionId
       ? await this.adminFunciones
           .actualizarFuncion(
             funcionId,
-            this.formulario
+            datos
           )
       : await this.adminFunciones
-          .crearFuncion(this.formulario);
+          .crearFuncion(datos);
 
     this.guardando.set(false);
 
@@ -251,7 +271,7 @@ export class FuncionesAdmin implements OnInit {
       funcion.id
     );
 
-    this.formulario = {
+    this.formulario.reset({
       pelicula_id:
         funcion.pelicula_id,
 
@@ -284,7 +304,7 @@ export class FuncionesAdmin implements OnInit {
               funcion.fecha_fin_preventa
             )
           : null
-    };
+    });
 
     this.mensajeError.set('');
     this.mensajeExito.set('');
@@ -298,8 +318,17 @@ export class FuncionesAdmin implements OnInit {
   cancelarEdicion() {
     this.funcionEditandoId.set(null);
 
-    this.formulario =
-      this.crearFormularioVacio();
+    this.formulario.reset({
+      pelicula_id: '',
+      fecha_hora: '',
+      duracion_min: 90,
+      formato: '2D',
+      idioma: 'castellano',
+      precio: 0,
+      precio_vip: null,
+      precio_preventa: null,
+      fecha_fin_preventa: null
+    });
   }
 
   async cambiarEstado(

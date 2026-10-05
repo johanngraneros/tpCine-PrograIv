@@ -2,13 +2,7 @@
   display: block;
   min-height: 100vh;
   color: #f8f7f5;
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(255, 22, 53, 0.1),
-      transparent 32rem
-    ),
-    #12100d;
+  background: #12100d;
 }
 
 * {

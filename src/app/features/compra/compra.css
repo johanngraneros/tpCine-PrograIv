@@ -3,6 +3,135 @@
   margin-bottom: 2.5rem;
 }
 
+/* Candy compacto: conserva la estética de sala, pero reduce el peso visual. */
+.encabezado-compra {
+  margin-bottom: 1.5rem;
+}
+
+.encabezado-compra h1 {
+  font-size: clamp(2.5rem, 5vw, 4.6rem);
+  line-height: .92;
+}
+
+.distribucion-compra {
+  gap: 1.5rem;
+}
+
+.bloque,
+.panel-total {
+  border-radius: 22px;
+}
+
+.bloque {
+  padding: 1.6rem;
+}
+
+.franja-combos {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin: 1.1rem 0 .8rem;
+  padding: .65rem .85rem;
+  border-left: 4px solid #ffe000;
+  background: linear-gradient(90deg, rgba(255, 224, 0, .12), transparent);
+}
+
+.franja-combos span {
+  color: #ffe000;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.franja-combos strong {
+  color: #d7c9b9;
+  font-size: .82rem;
+}
+
+.combos-candy {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.combo-candy {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .8rem;
+  min-height: 130px;
+  padding: 1.1rem;
+  overflow: hidden;
+  border: 1px solid #4f463c;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #28241f, #1c1a17);
+}
+
+.combo-candy.producto-seleccionado {
+  border-color: #ffe000;
+  box-shadow: inset 0 0 0 1px rgba(255, 224, 0, .25);
+}
+
+.sello-combo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: .35rem .7rem;
+  color: #111;
+  background: #ffe000;
+  font-size: .68rem;
+  font-weight: 950;
+  letter-spacing: .12em;
+}
+
+.datos-combo h3 {
+  margin: 0 0 .35rem;
+  font-size: 1.08rem;
+}
+
+.datos-combo p {
+  max-width: 36ch;
+  margin: 0 0 .55rem;
+  color: #c8b9a7;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.datos-combo strong {
+  color: #ffe000;
+}
+
+.productos-candy {
+  gap: .75rem;
+}
+
+.producto-candy {
+  min-height: 130px;
+  padding: 1rem;
+  border-radius: 16px;
+}
+
+.imagen-producto {
+  width: 76px;
+  height: 76px;
+}
+
+.panel-total {
+  padding: 1.6rem;
+}
+
+@media (max-width: 760px) {
+  .combos-candy {
+    grid-template-columns: 1fr;
+  }
+
+  .franja-combos {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .subtitulo {
   display: inline-block;
   margin-bottom: 0.65rem;
@@ -523,6 +652,102 @@
   font-weight: 900;
 }
 
+.descuento-cupon {
+  min-height: 48px;
+  padding: 0.75rem 0.9rem;
+  color: #81edab;
+  background: #102d1c;
+  border: 1px solid #276840;
+  border-radius: 10px;
+}
+
+.descuento-cupon span,
+.descuento-cupon strong {
+  color: #81edab;
+  font-weight: 800;
+}
+
+.descuento-cupon span {
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.descuento-cupon strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.beneficios-disponibles {
+  display: grid;
+  gap: .65rem;
+  margin-bottom: 1rem;
+}
+
+.opcion-beneficio {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem;
+  border: 1px solid #514a40;
+  border-radius: 12px;
+  background: #211f1b;
+  cursor: pointer;
+}
+
+.opcion-beneficio.seleccionado {
+  border-color: #ffe000;
+  background: rgba(255, 224, 0, .09);
+}
+
+.opcion-beneficio input {
+  width: 19px;
+  height: 19px;
+  accent-color: #ffe000;
+}
+
+.opcion-beneficio span {
+  display: grid;
+  gap: .2rem;
+}
+
+.opcion-beneficio small {
+  color: var(--texto-suave);
+  line-height: 1.35;
+}
+
+.items-beneficio {
+  display: grid;
+  gap: .35rem;
+  padding: .8rem .9rem;
+  color: #aaf1c5;
+  background: #102d1c;
+  border: 1px solid #276840;
+  border-radius: 10px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.items-beneficio small {
+  margin-top: .25rem;
+  color: #b9c9bf;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.descuento-beneficio {
+  min-height: 48px;
+  padding: .75rem .9rem;
+  color: #ffe76a;
+  background: #312b0a;
+  border: 1px solid #81720b;
+  border-radius: 10px;
+}
+
+.descuento-beneficio strong {
+  color: #ffe76a;
+  white-space: nowrap;
+}
+
 /* Crédito */
 
 .opcion-credito {
@@ -811,6 +1036,55 @@
 }
 
 /* Responsive */
+
+.datos-invitado {
+  display: grid;
+  gap: .55rem;
+  margin: 1rem 0 1.4rem;
+  padding: 1rem;
+  background: #211f1b;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+}
+
+.datos-invitado label {
+  margin-top: .35rem;
+  color: var(--texto-suave);
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.datos-invitado input {
+  min-height: 44px;
+  padding: 0 .8rem;
+  color: var(--texto);
+  background: #171613;
+  border: 1px solid #48443d;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.datos-invitado input.ng-invalid.ng-touched {
+  border-color: #ff6578;
+}
+
+.datos-invitado small {
+  margin-top: .35rem;
+  color: var(--texto-suave);
+  line-height: 1.4;
+}
+
+.etiqueta-preventa {
+  display: inline-flex;
+  margin-top: .45rem;
+  padding: .35rem .6rem;
+  color: #171304;
+  background: var(--amarillo);
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 950;
+  letter-spacing: .06em;
+}
 
 @media (max-width: 850px) {
   .distribucion-compra {

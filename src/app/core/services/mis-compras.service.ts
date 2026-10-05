@@ -19,6 +19,15 @@ export class MisComprasService {
         total,
         estado,
         puntos_ganados,
+        qr_code,
+        compra_productos (
+          id, cantidad, estado,
+          productos ( nombre )
+        ),
+        compra_combos (
+          id, cantidad, estado,
+          combos ( nombre )
+        ),
         entradas (
           id,
           qr_code,

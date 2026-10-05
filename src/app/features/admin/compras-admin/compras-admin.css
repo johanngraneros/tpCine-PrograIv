@@ -122,6 +122,39 @@
   font-weight: 900;
 }
 
+.acciones-reporte {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.boton-exportar {
+  min-height: 44px;
+  padding: 0 16px;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.boton-pdf {
+  background: #b32235;
+  border-color: #d13a4e;
+}
+
+.boton-excel {
+  background: #176b3b;
+  border-color: #2b9859;
+}
+
+.boton-exportar:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
 .filtros {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
@@ -391,6 +424,20 @@
 
   .panel {
     padding: 23px 16px;
+  }
+
+  .panel-encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .acciones-reporte {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .boton-exportar {
+    flex: 1 1 140px;
   }
 
   .encabezado h1 {

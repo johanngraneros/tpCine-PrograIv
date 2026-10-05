@@ -32,11 +32,402 @@
   font-size: 1.05rem;
 }
 
+.estadisticas {
+  margin-bottom: 2rem;
+}
+
+.estadistica-candy {
+  display: flex;
+  min-height: 145px;
+  padding: 1.6rem;
+  align-items: center;
+  gap: 1.25rem;
+  background:
+    linear-gradient(120deg, #2a260b, var(--superficie) 62%);
+  border: 1px solid #746819;
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.estadistica-icono {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  place-items: center;
+  background: #17150a;
+  border-radius: 50%;
+  font-size: 2.3rem;
+}
+
+.estadistica-etiqueta {
+  display: block;
+  margin-bottom: .55rem;
+  color: var(--amarillo);
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.estadistica-candy strong {
+  display: block;
+  font-size: clamp(1.55rem, 4vw, 2.2rem);
+}
+
+.estadistica-candy p {
+  margin: .45rem 0 0;
+  color: var(--texto-suave);
+}
+
+.estadistica-candy .estadistica-error {
+  color: #ff8797;
+  font-size: 1rem;
+}
+
+.reporte-peliculas {
+  margin-bottom: 2rem;
+  padding: 1.6rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.reporte-diario {
+  margin-bottom: 2rem;
+  padding: 1.6rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.reporte-diario h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.reporte-diario header p {
+  margin: .55rem 0 1.4rem;
+  color: var(--texto-suave);
+}
+
+.tabla-reporte {
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+}
+
+.fila-reporte {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(90px, .6fr) minmax(150px, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.1rem;
+}
+
+.fila-reporte + .fila-reporte {
+  border-top: 1px solid var(--borde);
+}
+
+.encabezado-tabla {
+  color: var(--texto-suave);
+  background: #211f1b;
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.importe-diario {
+  color: var(--amarillo);
+}
+
+.reporte-encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.reporte-encabezado h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.selector-periodo {
+  display: flex;
+  min-width: 210px;
+  flex-direction: column;
+  gap: .45rem;
+}
+
+.selector-periodo span {
+  color: var(--texto-suave);
+  font-size: .75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.selector-periodo select {
+  min-height: 44px;
+  padding: 0 .8rem;
+  color: var(--texto);
+  background: #25231f;
+  border: 1px solid #454139;
+  border-radius: 9px;
+  font: inherit;
+}
+
+.ranking {
+  display: grid;
+  gap: 1rem;
+}
+
+.fila-ranking {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+
+.posicion {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #111111;
+  background: var(--amarillo);
+  border-radius: 50%;
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.pelicula-datos {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .45rem;
+}
+
+.pelicula-datos span {
+  color: var(--texto-suave);
+  font-size: .85rem;
+}
+
+.barra-fondo {
+  height: 13px;
+  overflow: hidden;
+  background: #2b2925;
+  border-radius: 10px;
+}
+
+.barra-valor {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  background: var(--rojo);
+  border-radius: inherit;
+}
+
+.acciones-exportacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .75rem;
+  padding: 0 0 1.25rem;
+}
+
+.acciones-exportacion > div {
+  display: grid;
+  gap: .2rem;
+  margin-right: auto;
+}
+
+.acciones-exportacion span {
+  color: var(--texto-suave);
+}
+
+.acciones-exportacion button {
+  min-width: 150px;
+}
+
+.exportar-pdf { background: var(--rojo); }
+.exportar-excel { background: #168553; }
+.exportar-excel:hover:not(:disabled) { background: #1aa96a; }
+
+.total-reporte {
+  border-top: 2px solid var(--amarillo);
+  background: #211f1a;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .acciones-exportacion { align-items: stretch; flex-direction: column; }
+  .acciones-exportacion > div { margin-right: 0; }
+}
+
+.ranking-vacio {
+  padding: 2rem;
+  color: var(--texto-suave);
+  text-align: center;
+  background: #211f1b;
+  border: 1px dashed #48433b;
+  border-radius: 12px;
+}
+
+.configuracion-descuentos {
+  margin-bottom: 2rem;
+  padding: 1.6rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.configuracion-descuentos h2 {
+  margin: 0 0 .5rem;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.configuracion-descuentos header > p {
+  margin: 0 0 1.4rem;
+  color: var(--texto-suave);
+}
+
+.configuracion-descuentos form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.configuracion-descuentos label {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  color: var(--texto-suave);
+  font-size: .8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.campo-porcentaje {
+  display: flex;
+  align-items: center;
+  background: #25231f;
+  border: 1px solid #454139;
+  border-radius: 9px;
+}
+
+.campo-porcentaje input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 .8rem;
+  color: var(--texto);
+  background: transparent;
+  border: 0;
+  outline: none;
+  font: inherit;
+}
+
+.campo-porcentaje strong {
+  padding-right: .9rem;
+  color: var(--amarillo);
+}
+
+.configuracion-descuentos button {
+  min-height: 48px;
+  padding: 0 1.1rem;
+  color: #ffffff;
+  background: var(--rojo);
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.configuracion-descuentos button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.mensaje-descuentos {
+  margin: 1rem 0 0;
+  color: #81edab;
+  font-weight: 800;
+}
+
+.registro-actividad {
+  margin-bottom: 2rem;
+  padding: 1.6rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.registro-actividad h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.registro-actividad header p {
+  margin: .55rem 0 1.4rem;
+  color: var(--texto-suave);
+}
+
+.lista-actividad {
+  display: grid;
+}
+
+.item-actividad {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.item-actividad + .item-actividad {
+  border-top: 1px solid var(--borde);
+}
+
+.marca-actividad {
+  width: 10px;
+  height: 10px;
+  background: var(--rojo);
+  border-radius: 50%;
+}
+
+.item-actividad p {
+  margin: .25rem 0 0;
+  color: var(--texto-suave);
+}
+
+.item-actividad time {
+  color: var(--texto-suave);
+  font-size: .82rem;
+}
+
 .opciones-admin {
   display: grid;
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
   gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.opciones-admin-duplicadas {
+  display: none;
+}
+
+#facturacion,
+#descuentos,
+#actividad {
+  scroll-margin-top: 7rem;
 }
 
 .opcion {
@@ -97,6 +488,46 @@
 }
 
 @media (max-width: 700px) {
+  .item-actividad {
+    grid-template-columns: 10px minmax(0, 1fr);
+  }
+
+  .item-actividad time {
+    grid-column: 2;
+  }
+
+  .fila-reporte {
+    grid-template-columns: 1fr;
+    gap: .35rem;
+  }
+
+  .encabezado-tabla {
+    display: none;
+  }
+
+  .estadistica-candy {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .reporte-encabezado {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .selector-periodo {
+    min-width: 0;
+  }
+
+  .configuracion-descuentos form {
+    grid-template-columns: 1fr;
+  }
+
+  .pelicula-datos {
+    flex-direction: column;
+    gap: .25rem;
+  }
+
   .opciones-admin {
     grid-template-columns: 1fr;
   }

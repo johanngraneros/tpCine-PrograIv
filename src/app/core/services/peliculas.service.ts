@@ -16,6 +16,28 @@ export class PeliculasService {
     return { data, error };
   }
 
+  async getFormatosDisponibles(peliculaIds: string[]) {
+    if (peliculaIds.length === 0) return { data: [], error: null };
+    return this.supabase.instance
+      .from('funciones')
+      .select('pelicula_id, formato')
+      .in('pelicula_id', peliculaIds)
+      .eq('activa', true)
+      .gte('fecha_hora', new Date().toISOString());
+  }
+
+  async getProximosEstrenos() {
+    const { data, error } = await this.supabase.instance
+      .from('peliculas')
+      .select('id, titulo, sinopsis, imagen_url, fecha_estreno')
+      .eq('activa', true)
+      .gte('fecha_estreno', new Date().toISOString().slice(0, 10))
+      .order('fecha_estreno', { ascending: true })
+      .limit(4);
+
+    return { data, error };
+  }
+
   async getTodasActivas() {
     const { data, error } = await this.supabase.instance
       .from('peliculas_con_stats')
@@ -71,7 +93,7 @@ export class PeliculasService {
     async getResenas(peliculaId: string) {
     const { data, error } = await this.supabase.instance
       .from('resenas')
-      .select('*, perfiles(nombre)')
+      .select('id, pelicula_id, usuario_id, estrellas, comentario, fecha')
       .eq('pelicula_id', peliculaId)
       .order('fecha', { ascending: false });
     return { data, error };

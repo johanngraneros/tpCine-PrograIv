@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { MiCompra, MiCompraEntrada } from '../../core/models/mi-compra.interface';
 import { AuthService } from '../../core/services/auth.service';
 import { MisComprasService } from '../../core/services/mis-compras.service';
+import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-mis-compras',
@@ -17,6 +18,8 @@ export class MisCompras implements OnInit {
     inject(AuthService);
 
   compras = signal<MiCompra[]>([]);
+  codigosCandy = signal<Record<string, string>>({});
+  codigosEntradas = signal<Record<string, string>>({});
   credito = signal(0);
 
   cargando = signal(true);
@@ -64,9 +67,54 @@ export class MisCompras implements OnInit {
       return;
     }
 
-    this.compras.set(
-      (resultado.data ?? []) as unknown as MiCompra[]
+    const compras = (resultado.data ?? []) as unknown as MiCompra[];
+    this.compras.set(compras);
+    await Promise.all([
+      this.generarCodigosCandy(compras),
+      this.generarCodigosEntradas(compras)
+    ]);
+  }
+
+  private async generarCodigosCandy(compras: MiCompra[]) {
+    const pares = await Promise.all(
+      compras
+        .filter(compra => compra.compra_productos.length > 0 || compra.compra_combos.length > 0)
+        .map(async compra => [
+          compra.id,
+          await QRCode.toDataURL(`CINEIZE:${compra.qr_code}`, { width: 220, margin: 1 })
+        ] as const)
     );
+    this.codigosCandy.set(Object.fromEntries(pares));
+  }
+
+  private async generarCodigosEntradas(compras: MiCompra[]) {
+    const entradas = compras.flatMap(compra => compra.entradas);
+    const pares = await Promise.all(
+      entradas.map(async entrada => [
+        entrada.id,
+        await QRCode.toDataURL(`CINEIZE:${entrada.qr_code}`, { width: 180, margin: 1 })
+      ] as const)
+    );
+    this.codigosEntradas.set(Object.fromEntries(pares));
+  }
+
+  async copiarCodigoEntrada(codigo: string) {
+    try {
+      await navigator.clipboard.writeText(this.formatearCodigoEntrada(codigo));
+      this.mensajeError.set('');
+      this.mensajeExito.set('Código de entrada copiado.');
+    } catch {
+      this.mensajeExito.set('');
+      this.mensajeError.set('No se pudo copiar el código. Seleccionalo manualmente.');
+    }
+  }
+
+  formatearCodigoEntrada(codigo: string) {
+    return `CINEIZE:${codigo}`;
+  }
+
+  tieneCandy(compra: MiCompra) {
+    return compra.compra_productos.length > 0 || compra.compra_combos.length > 0;
   }
   
   private async cargarCredito() {

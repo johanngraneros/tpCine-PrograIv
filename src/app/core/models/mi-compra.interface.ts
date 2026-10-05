@@ -31,6 +31,20 @@ export interface MiCompraEntrada {
   butacas: MiCompraButaca;
 }
 
+export interface MiCompraProducto {
+  id: string;
+  cantidad: number;
+  estado: 'valida' | 'usada' | 'cancelada';
+  productos: { nombre: string };
+}
+
+export interface MiCompraCombo {
+  id: string;
+  cantidad: number;
+  estado: 'valida' | 'usada' | 'cancelada';
+  combos: { nombre: string };
+}
+
 export interface MiCompra {
   id: string;
   fecha: string;
@@ -40,5 +54,8 @@ export interface MiCompra {
   total: number;
   estado: 'confirmada' | 'cancelada';
   puntos_ganados: number;
+  qr_code: string;
   entradas: MiCompraEntrada[];
+  compra_productos: MiCompraProducto[];
+  compra_combos: MiCompraCombo[];
 }

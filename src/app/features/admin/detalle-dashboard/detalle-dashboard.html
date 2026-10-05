@@ -1,0 +1,28 @@
+<header class="encabezado-admin">
+  <a routerLink="/admin" class="subtitulo">← Volver al panel</a>
+  @switch (seccion) {
+    @case ('facturacion') { <h1>Facturación diaria</h1><p>Importes confirmados y entradas vendidas, agrupados por día.</p> }
+    @case ('estadisticas') { <h1>Películas más vistas</h1><p>Ranking calculado a partir de entradas utilizadas.</p> }
+    @case ('descuentos') { <h1>Descuentos</h1><p>Configuración de los beneficios automáticos.</p> }
+    @case ('actividad') { <h1>Actividad reciente</h1><p>Acciones realizadas por administradores y empleados.</p> }
+  }
+</header>
+
+@if (cargando()) { <div class="ranking-vacio">Cargando...</div> }
+@else if (error()) { <div class="ranking-vacio">{{ error() }}</div> }
+@else {
+  @switch (seccion) {
+    @case ('facturacion') {
+      <section class="reporte-diario">@if (reporteDiario().length === 0) { <div class="ranking-vacio">Todavía no hay ventas confirmadas.</div> } @else { <div class="acciones-exportacion"><div><strong>Reporte de facturación</strong><span>{{ totalEntradas() }} entradas · {{ formatearPrecio(totalFacturacion()) }}</span></div><button type="button" class="exportar-pdf" (click)="exportarPdf()">Exportar PDF</button><button type="button" class="exportar-excel" (click)="exportarExcel()">Exportar Excel</button></div><div class="tabla-reporte"><div class="fila-reporte encabezado-tabla"><strong>Fecha</strong><strong>Entradas</strong><strong>Facturación</strong></div>@for (dia of reporteDiario(); track dia.fecha.getTime()) { <div class="fila-reporte"><span>{{ formatearFecha(dia.fecha) }}</span><strong>{{ dia.entradas }}</strong><strong class="importe-diario">{{ formatearPrecio(dia.facturacion) }}</strong></div> }<div class="fila-reporte total-reporte"><strong>Total</strong><strong>{{ totalEntradas() }}</strong><strong class="importe-diario">{{ formatearPrecio(totalFacturacion()) }}</strong></div></div> }</section>
+    }
+    @case ('estadisticas') {
+      <section class="reporte-peliculas"><header class="reporte-encabezado"><span class="estadistica-etiqueta">ENTRADAS UTILIZADAS</span><label class="selector-periodo"><span>Período</span><select [formControl]="periodoControl"><option [ngValue]="7">Últimos 7 días</option><option [ngValue]="30">Últimos 30 días</option></select></label></header>@if (ranking().length === 0) { <div class="ranking-vacio">No hay funciones finalizadas con entradas válidas en este período.</div> } @else { <div class="ranking">@for (pelicula of ranking(); track pelicula.titulo; let posicion = $index) { <article class="fila-ranking"><span class="posicion">{{ posicion + 1 }}</span><div class="pelicula-ranking"><div class="pelicula-datos"><strong>{{ pelicula.titulo }}</strong><span>{{ pelicula.entradas }} entradas</span></div><div class="barra-fondo"><span class="barra-valor" [style.width.%]="anchoBarra(pelicula.entradas)"></span></div></div></article> }</div> }</section>
+    }
+    @case ('descuentos') {
+      <section class="configuracion-descuentos"><form [formGroup]="descuentosForm" (ngSubmit)="guardarDescuentos()"><label><span>Primera compra</span><div class="campo-porcentaje"><input type="number" min="0" max="100" formControlName="primeraCompra"><strong>%</strong></div></label><label><span>Mayores de 50 años</span><div class="campo-porcentaje"><input type="number" min="0" max="100" formControlName="mayores50"><strong>%</strong></div></label><button type="submit" [disabled]="descuentosForm.invalid || guardando()">{{ guardando() ? 'Guardando...' : 'Guardar descuentos' }}</button></form>@if (mensaje()) { <p class="mensaje-descuentos">{{ mensaje() }}</p> }</section>
+    }
+    @case ('actividad') {
+      <section class="registro-actividad">@if (actividad().length === 0) { <div class="ranking-vacio">Todavía no hay actividad registrada.</div> } @else { <div class="lista-actividad">@for (item of actividad(); track item.id) { <article class="item-actividad"><span class="marca-actividad"></span><div><strong>{{ nombreActor(item) }}</strong><p>{{ item.detalle }}</p></div><time [attr.datetime]="item.fecha">{{ formatearFechaHora(item.fecha) }}</time></article> }</div> }</section>
+    }
+  }
+}

@@ -56,7 +56,7 @@
       }
     </div>
 
-    <form (ngSubmit)="guardar()">
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
       <div class="campos-grid">
         <div class="campo campo-ancho">
           <label for="pelicula">
@@ -65,9 +65,8 @@
 
           <select
             id="pelicula"
-            name="pelicula"
-            [(ngModel)]="formulario.pelicula_id"
-            (ngModelChange)="seleccionarPelicula()"
+            formControlName="pelicula_id"
+            (change)="seleccionarPelicula()"
             [disabled]="guardando()"
           >
             <option value="">
@@ -93,9 +92,8 @@
 
           <input
             id="fechaHora"
-            name="fechaHora"
             type="datetime-local"
-            [(ngModel)]="formulario.fecha_hora"
+            formControlName="fecha_hora"
             [disabled]="guardando()"
           />
         </div>
@@ -107,11 +105,10 @@
 
           <input
             id="duracion"
-            name="duracion"
             type="number"
             min="1"
             step="1"
-            [(ngModel)]="formulario.duracion_min"
+            formControlName="duracion_min"
             [disabled]="guardando()"
           />
         </div>
@@ -123,8 +120,7 @@
 
           <select
             id="formato"
-            name="formato"
-            [(ngModel)]="formulario.formato"
+            formControlName="formato"
             [disabled]="guardando()"
           >
             <option value="2D">2D</option>
@@ -141,8 +137,7 @@
 
           <select
             id="idioma"
-            name="idioma"
-            [(ngModel)]="formulario.idioma"
+            formControlName="idioma"
             [disabled]="guardando()"
           >
             <option value="castellano">
@@ -162,11 +157,10 @@
 
           <input
             id="precio"
-            name="precio"
             type="number"
             min="0"
             step="0.01"
-            [(ngModel)]="formulario.precio"
+            formControlName="precio"
             [disabled]="guardando()"
           />
         </div>
@@ -178,11 +172,10 @@
 
           <input
             id="precioVip"
-            name="precioVip"
             type="number"
             min="0"
             step="0.01"
-            [(ngModel)]="formulario.precio_vip"
+            formControlName="precio_vip"
             placeholder="Opcional"
             [disabled]="guardando()"
           />
@@ -204,13 +197,10 @@
 
             <input
               id="precioPreventa"
-              name="precioPreventa"
               type="number"
               min="0"
               step="0.01"
-              [(ngModel)]="
-                formulario.precio_preventa
-              "
+              formControlName="precio_preventa"
               placeholder="Opcional"
               [disabled]="guardando()"
             />
@@ -223,11 +213,8 @@
 
             <input
               id="finPreventa"
-              name="finPreventa"
               type="datetime-local"
-              [(ngModel)]="
-                formulario.fecha_fin_preventa
-              "
+              formControlName="fecha_fin_preventa"
               [disabled]="guardando()"
             />
           </div>
@@ -238,7 +225,7 @@
         <button
           type="submit"
           class="boton-principal"
-          [disabled]="guardando()"
+          [disabled]="guardando() || formulario.invalid"
         >
           {{
             guardando()

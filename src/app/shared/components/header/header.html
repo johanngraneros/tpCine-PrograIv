@@ -17,7 +17,13 @@
     <a routerLink="/cartelera">
       Cartelera
     </a>
+
+    <a routerLink="/candy">
+      Candy
+    </a>
   </nav>
+
+  <a class="candy-movil" routerLink="/candy">Candy</a>
 
   <div class="sesion">
     @if (auth.currentUser()) {
@@ -129,24 +135,6 @@
 
     <nav class="menu-perfil">
       <a
-        routerLink="/mis-entradas"
-        (click)="cerrarPanel()"
-      >
-        <span class="menu-icono">
-          🎟️
-        </span>
-
-        <span>
-          <strong>Mis entradas</strong>
-          <small>
-            Consultá tus QR y comprobantes
-          </small>
-        </span>
-
-        <span class="flecha">→</span>
-      </a>
-
-      <a
         routerLink="/mis-compras"
         (click)="cerrarPanel()"
       >
@@ -157,8 +145,22 @@
         <span>
           <strong>Mis compras</strong>
           <small>
-            Consultá y cancelá tus operaciones
+            Entradas, Candy, QR y operaciones
           </small>
+        </span>
+
+        <span class="flecha">→</span>
+      </a>
+
+      <a
+        routerLink="/mis-peliculas"
+        (click)="cerrarPanel()"
+      >
+        <span class="menu-icono">🎞️</span>
+
+        <span>
+          <strong>Mis películas</strong>
+          <small>Historial y calificaciones</small>
         </span>
 
         <span class="flecha">→</span>
@@ -176,24 +178,6 @@
           <strong>Beneficios</strong>
           <small>
             Canjeá tus puntos por premios
-          </small>
-        </span>
-
-        <span class="flecha">→</span>
-      </a>
-
-      <a
-        routerLink="/cartelera"
-        (click)="cerrarPanel()"
-      >
-        <span class="menu-icono">
-          🎬
-        </span>
-
-        <span>
-          <strong>Cartelera</strong>
-          <small>
-            Buscá tu próxima película
           </small>
         </span>
 
@@ -236,6 +220,15 @@
             </small>
           </span>
 
+          <span class="flecha">→</span>
+        </a>
+
+        <a routerLink="/control-candy" class="opcion-staff" (click)="cerrarPanel()">
+          <span class="menu-icono">🥤</span>
+          <span>
+            <strong>Entregas Candy</strong>
+            <small>Escaneá el QR de la compra</small>
+          </span>
           <span class="flecha">→</span>
         </a>
       }

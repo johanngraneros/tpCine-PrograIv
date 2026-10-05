@@ -1,8 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+
+function fechaNacimientoValida(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+  const fecha = new Date(`${control.value}T00:00:00`);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (Number.isNaN(fecha.getTime()) || fecha > hoy || fecha.getFullYear() < 1900) {
+    return { fechaNacimientoInvalida: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-register',
@@ -12,6 +23,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './register.css'
 })
 export class Register {
+  readonly fechaMaxima = new Date().toISOString().slice(0, 10);
   //readonly protegemos la referencia a un objeto. Ayuda a evitar reemplazos accidentales.
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
@@ -24,7 +36,7 @@ export class Register {
       '',
       [Validators.required, Validators.minLength(6)]
     ],
-    fechaNacimiento: ['', Validators.required],
+    fechaNacimiento: ['', [Validators.required, fechaNacimientoValida]],
     tipoSangre: ['', Validators.required],
     colorOjos: ['', Validators.required],
     diasVacaciones: [

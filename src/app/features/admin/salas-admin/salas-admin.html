@@ -1,0 +1,65 @@
+<header class="encabezado">
+  <span>Administración</span>
+  <h1>Salas y butacas</h1>
+  <p>Revisá la distribución y cambiá cada butaca entre normal, VIP y accesible.</p>
+</header>
+
+<form class="crear-sala" [formGroup]="salaForm" (ngSubmit)="crearSala()">
+  <label for="nombreSala">Nueva sala</label>
+  <div>
+    <input id="nombreSala" type="text" formControlName="nombre" placeholder="Ej.: Sala 4" maxlength="60">
+    <button type="submit" [disabled]="salaForm.invalid || creando()">
+      {{ creando() ? 'Creando...' : 'Crear sala' }}
+    </button>
+  </div>
+  @if (salaForm.controls.nombre.touched && salaForm.controls.nombre.invalid) {
+    <small>Ingresá un nombre de entre 3 y 60 caracteres.</small>
+  }
+</form>
+
+@if (cargando()) {
+  <p class="estado">Cargando salas...</p>
+} @else if (salas().length === 0) {
+  <p class="estado">No hay salas configuradas.</p>
+} @else {
+  <label class="selector">
+    Sala
+    <select #salaSelect (change)="seleccionarSala(salaSelect.value)">
+      @for (sala of salas(); track sala.id) {
+        <option [value]="sala.id">{{ sala.nombre }}</option>
+      }
+    </select>
+  </label>
+
+  <div class="leyenda" aria-label="Tipos de butaca">
+    <span><i class="normal"></i> Normal</span>
+    <span><i class="vip"></i> VIP</span>
+    <span><i class="accesible"></i> Accesible</span>
+  </div>
+  <p class="ayuda">La distribución inicial respeta 4/20/4; J y K usan 2/10/2 accesible, y R–T son VIP. Hacé clic en una butaca para cambiar su tipo.</p>
+
+  @if (salaSeleccionada(); as sala) {
+    <section class="mapa" [attr.aria-label]="'Distribución de ' + sala.nombre">
+      <div class="pantalla">Pantalla</div>
+      @for (grupo of filas(sala); track grupo.fila) {
+        <div class="fila">
+          <strong>{{ grupo.fila }}</strong>
+          <div class="butacas">
+            @for (butaca of grupo.butacas; track butaca.id) {
+              <button
+                type="button"
+                [class]="butaca.tipo"
+                [disabled]="guardando() === butaca.id"
+                [attr.aria-label]="'Butaca ' + butaca.fila + butaca.numero + ', ' + butaca.tipo"
+                (click)="alternarTipo(butaca)"
+                [title]="'Cambiar tipo de ' + butaca.fila + butaca.numero"
+              >{{ butaca.numero }}</button>
+            }
+          </div>
+        </div>
+      }
+    </section>
+  }
+}
+
+@if (mensaje()) { <p class="mensaje" role="status">{{ mensaje() }}</p> }

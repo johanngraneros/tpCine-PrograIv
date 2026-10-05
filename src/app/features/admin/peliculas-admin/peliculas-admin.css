@@ -162,6 +162,20 @@
   box-shadow: 0 0 0 3px rgb(22 139 234 / 15%);
 }
 
+.campo input.campo-invalido,
+.campo select.campo-invalido,
+.campo textarea.campo-invalido {
+  border-color: #f20c1f;
+  box-shadow: 0 0 0 3px rgb(242 12 31 / 12%);
+}
+
+.error-campo {
+  color: #ff9ba3;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .campo input::placeholder,
 .campo textarea::placeholder {
   color: #77736e;

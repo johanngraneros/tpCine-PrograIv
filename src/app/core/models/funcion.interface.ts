@@ -17,6 +17,8 @@ export interface FuncionDetalle {
   idioma: string;
   precio: number;
   precio_vip: number | null;
+  precio_preventa: number | null;
+  fecha_fin_preventa: string | null;
   salas: SalaResumen;
   peliculas: PeliculaResumen;
 }

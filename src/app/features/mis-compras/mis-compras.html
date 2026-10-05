@@ -225,7 +225,7 @@
                 track entrada.id
               ) {
                 <article class="entrada">
-                  <div>
+                  <div class="entrada-datos">
                     <span>
                       Fila
                       {{ entrada.butacas.fila }}
@@ -250,16 +250,50 @@
                   >
                     {{ entrada.estado }}
                   </span>
+
+                  <div class="entrada-codigo">
+                    @if (codigosEntradas()[entrada.id]) {
+                      <img [src]="codigosEntradas()[entrada.id]" alt="QR de la entrada">
+                    }
+                    <div>
+                      <span>Código de la entrada</span>
+                      <code>{{ formatearCodigoEntrada(entrada.qr_code) }}</code>
+                      <button type="button" (click)="copiarCodigoEntrada(entrada.qr_code)">
+                        Copiar código
+                      </button>
+                    </div>
+                  </div>
                 </article>
               }
             </div>
           </section>
 
+          @if (tieneCandy(compra)) {
+            <section class="retiro-candy">
+              <div class="qr-retiro">
+                @if (codigosCandy()[compra.id]) {
+                  <img [src]="codigosCandy()[compra.id]" alt="QR para retirar productos del Candy Bar">
+                }
+              </div>
+              <div class="detalle-candy">
+                <span>CANDY BAR · CÓDIGO ÚNICO</span>
+                <h3>Retirá tu pedido en mostrador</h3>
+                @for (item of compra.compra_combos; track item.id) {
+                  <p>{{ item.cantidad }} × {{ item.combos.nombre }} · {{ item.estado }}</p>
+                }
+                @for (item of compra.compra_productos; track item.id) {
+                  <p>{{ item.cantidad }} × {{ item.productos.nombre }} · {{ item.estado }}</p>
+                }
+                <code>{{ compra.qr_code }}</code>
+              </div>
+            </section>
+          }
+
           <footer class="acciones">
             @if (puedeCancelar(compra)) {
               <div class="credito-cancelacion">
                 <span>
-                  Crédito a recibir
+                  Crédito a recibir al cancelar
                 </span>
 
                 <strong>
