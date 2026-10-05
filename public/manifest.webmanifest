@@ -1,0 +1,24 @@
+{
+  "name": "Cineize",
+  "short_name": "Cineize",
+  "description": "Cartelera, entradas y Candy Bar de Cineize",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/home",
+  "theme_color": "#0d0c0a",
+  "background_color": "#0d0c0a",
+  "icons": [
+  {
+    "src": "icons/boca-192.png",
+    "sizes": "192x192",
+    "type": "image/png",
+    "purpose": "any"
+  },
+  {
+    "src": "icons/boca-512.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any"
+  }
+]
+}

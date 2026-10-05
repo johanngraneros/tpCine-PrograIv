@@ -46,3 +46,8 @@ Thumbs.db
 # Configuración local
 
 /src/environments/environment.development.ts
+.vercel
+.env*
+
+# Migraciones locales de Supabase (se aplican manualmente)
+/supabase/migrations/
