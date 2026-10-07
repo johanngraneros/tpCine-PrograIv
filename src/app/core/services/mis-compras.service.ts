@@ -35,6 +35,8 @@ export class MisComprasService {
           funciones (
             id,
             fecha_hora,
+            formato,
+            idioma,
             peliculas (
               id,
               titulo,

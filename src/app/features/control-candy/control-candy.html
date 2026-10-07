@@ -56,7 +56,7 @@
         }
       </div>
       <button class="entregar" type="button" [disabled]="!puedeEntregar(pedido) || entregando()" (click)="confirmarEntrega()">
-        {{ entregando() ? 'CONFIRMANDO...' : 'CONFIRMAR ENTREGA' }}
+        {{ entregando() ? 'CONFIRMANDO...' : confirmandoEntrega() ? 'CONFIRMAR DEFINITIVAMENTE' : 'CONFIRMAR ENTREGA' }}
       </button>
     </section>
   }

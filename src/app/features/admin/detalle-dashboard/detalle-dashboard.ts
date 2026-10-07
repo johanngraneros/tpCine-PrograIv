@@ -29,6 +29,7 @@ export class DetalleDashboard implements OnInit {
   seccion = this.ruta.snapshot.data['seccion'] as SeccionDashboard;
   compras = signal<CompraAdmin[]>([]);
   actividad = signal<ActividadReciente[]>([]);
+  productoMasVendido = signal<{ id: string; nombre: string; cantidad: number } | null>(null);
   cargando = signal(true);
   error = signal('');
   guardando = signal(false);
@@ -63,7 +64,7 @@ export class DetalleDashboard implements OnInit {
       if (compra.estado !== 'confirmada') continue;
       for (const entrada of compra.entradas) {
         const fecha = new Date(entrada.funciones.fecha_hora).getTime();
-        if (entrada.estado === 'cancelada' || fecha < desde || fecha > ahora) continue;
+        if (entrada.estado !== 'usada' || fecha < desde || fecha > ahora) continue;
         const titulo = entrada.funciones.peliculas.titulo;
         cantidades.set(titulo, (cantidades.get(titulo) ?? 0) + 1);
       }
@@ -79,10 +80,21 @@ export class DetalleDashboard implements OnInit {
   );
 
   async ngOnInit() {
-    if (this.seccion === 'facturacion' || this.seccion === 'estadisticas') {
+    if (this.seccion === 'facturacion') {
       const { data, error } = await this.servicio.obtenerComprasParaEstadisticas();
       if (error) this.error.set('No se pudieron cargar las estadísticas.');
       else this.compras.set((data ?? []) as unknown as CompraAdmin[]);
+    } else if (this.seccion === 'estadisticas') {
+      const [compras, producto] = await Promise.all([
+        this.servicio.obtenerComprasParaEstadisticas(),
+        this.servicio.obtenerProductoCandyMasVendido()
+      ]);
+      if (compras.error || producto.error) {
+        this.error.set('No se pudieron cargar los gráficos.');
+      } else {
+        this.compras.set((compras.data ?? []) as unknown as CompraAdmin[]);
+        this.productoMasVendido.set(producto.data);
+      }
     } else if (this.seccion === 'descuentos') {
       const { data, error } = await this.servicio.obtenerConfiguracionDescuentos();
       if (error) this.error.set('No se pudo cargar la configuración.');
@@ -107,7 +119,7 @@ export class DetalleDashboard implements OnInit {
   anchoBarra(valor: number) { return this.mayorCantidad() ? valor / this.mayorCantidad() * 100 : 0; }
   formatearFecha(fecha: Date) { return new Intl.DateTimeFormat('es-AR').format(fecha); }
   formatearPrecio(valor: number) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(valor); }
-  nombreActor(item: ActividadReciente) { return item.perfiles ? [item.perfiles.nombre, item.perfiles.apellido].filter(Boolean).join(' ') : 'Usuario eliminado'; }
+  nombreActor(item: ActividadReciente) { return item.perfiles ? [item.perfiles.nombre, item.perfiles.apellido].filter(Boolean).join(' ') : 'Personal del cine'; }
   formatearFechaHora(fecha: string) { return new Intl.DateTimeFormat('es-AR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(fecha)); }
 
   exportarPdf() {

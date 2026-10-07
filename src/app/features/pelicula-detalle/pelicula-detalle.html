@@ -57,6 +57,15 @@
         {{ peli.sinopsis }}
       </p>
 
+      @if (versionesDisponibles().length > 0) {
+        <div class="versiones-disponibles" aria-label="Idiomas y formatos disponibles">
+          <strong>Versiones disponibles:</strong>
+          @for (version of versionesDisponibles(); track version) {
+            <span>{{ version }}</span>
+          }
+        </div>
+      }
+
       <section class="funciones">
         <div class="titulo-bloque">
           <div>
@@ -120,13 +129,15 @@
                 <div class="funcion-etiquetas">
                   <span>{{ funcion.formato }}</span>
                   <span>{{ funcion.idioma }}</span>
+                  @if (preventaActiva(funcion)) { <span class="etiqueta-preventa">PREVENTA</span> }
                 </div>
 
                 <div class="funcion-precio">
                   <span>Desde</span>
                   <strong>
-                    ${{ funcion.precio }}
+                    ${{ precioFuncion(funcion) }}
                   </strong>
+                  @if (preventaActiva(funcion)) { <small>Precio especial</small> }
                 </div>
 
                 <span class="funcion-flecha">
@@ -177,17 +188,16 @@
                 </div>
 
                 <div>
-                  <strong>
-                    {{
-                      r.perfiles?.nombre
-                        ?? 'Usuario'
-                    }}
-                  </strong>
+                  <strong>{{ autorResena(r) }}</strong>
 
                   <div class="estrellas">
                     ★ {{ r.estrellas }} / 5
                   </div>
                 </div>
+
+                @if (r.usuario_id === auth.currentUser()?.id && puedeResenar()) {
+                  <button type="button" class="editar-resena" (click)="editarResena(r)">Editar</button>
+                }
               </div>
 
               <p>{{ r.comentario }}</p>
@@ -197,7 +207,13 @@
       </div>
 
       <aside class="panel-resena">
-        @if (auth.currentUser()) {
+        @if (auth.currentUser() && verificandoEdad()) {
+          <div class="iniciar-sesion">
+            <span class="subtitulo">Verificando edad</span>
+            <h3>Un momento...</h3>
+            <p>Estamos comprobando si cumplís la clasificación de la película.</p>
+          </div>
+        } @else if (auth.currentUser() && puedeResenar()) {
           <form
             class="nueva-resena"
             [formGroup]="resenaForm"
@@ -207,7 +223,7 @@
               Tu opinión
             </span>
 
-            <h3>Dejá tu reseña</h3>
+            <h3>{{ resenaEditandoId() ? 'Editá tu reseña' : 'Dejá tu reseña' }}</h3>
 
             <label for="estrellas">
               Puntuación
@@ -256,6 +272,8 @@
               </p>
             }
 
+            @if (mensajeResena()) { <p class="exito">{{ mensajeResena() }}</p> }
+
             <button
               type="submit"
               [disabled]="enviandoResena()"
@@ -263,10 +281,19 @@
               {{
                 enviandoResena()
                   ? 'Enviando...'
-                  : 'Publicar reseña'
+                  : resenaEditandoId() ? 'Guardar cambios' : 'Publicar reseña'
               }}
             </button>
           </form>
+        } @else if (auth.currentUser()) {
+          <div class="iniciar-sesion">
+            <span class="subtitulo">Restricción de edad</span>
+            <h3>No podés publicar una reseña</h3>
+            <p>
+              Esta película requiere tener al menos
+              {{ restriccionEdad() }} años.
+            </p>
+          </div>
         } @else {
           <div class="iniciar-sesion">
             <span class="subtitulo">

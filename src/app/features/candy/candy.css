@@ -180,15 +180,21 @@
   display: grid;
   grid-template-columns: 34px 38px 34px;
   overflow: hidden;
-  border: 1px solid #403b35;
+  border: 1px solid #696158;
   border-radius: 9px;
 }
 
 .cantidad button,
 .cantidad input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   height: 34px;
+  margin: 0;
+  padding: 0;
   border: 0;
-  background: #26231f;
+  border-radius: 0;
+  background: #302c27;
   color: white;
   text-align: center;
   font: inherit;
@@ -196,8 +202,17 @@
 }
 
 .cantidad button {
+  display: grid;
+  place-items: center;
   color: #ffe000;
+  font-size: 1.2rem;
+  line-height: 1;
   cursor: pointer;
+}
+
+.cantidad button:hover:not(:disabled) {
+  transform: none;
+  background: #454038;
 }
 
 .cantidad button:disabled {
@@ -206,22 +221,25 @@
 }
 
 .cantidad input {
-  width: 38px;
-  background: #11100e;
+  background: #0d0c0a;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  opacity: 1;
   appearance: textfield;
+  line-height: 34px;
 }
 
 .resumen-candy {
   position: sticky;
   top: 105px;
-  padding: 1.6rem;
+  padding: 1.75rem;
   border: 1px solid #3d3832;
   border-radius: 18px;
   background: #191714;
 }
 
 .resumen-candy h2 {
-  margin: 0.35rem 0 1.4rem;
+  margin: 0.45rem 0 1.7rem;
   font-size: 2rem;
   text-transform: uppercase;
 }
@@ -231,7 +249,7 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 0;
+  padding: 1rem 0;
   border-bottom: 1px solid #38332d;
   color: #c3b8ad;
 }
@@ -269,7 +287,9 @@
 
 .total {
   align-items: center;
-  margin-top: 0.5rem;
+  margin-top: 0.8rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #4a433b;
   border: 0;
   color: white;
   font-weight: 900;
@@ -283,7 +303,7 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 0.6rem;
+  margin-top: 1.15rem;
   padding: 1rem;
   border: 0;
   border-radius: 10px;
@@ -305,6 +325,13 @@
   color: #948a80;
   font-size: 0.82rem;
   text-align: center;
+}
+
+.resumen-candy .nota {
+  margin: 1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid #38332d;
+  line-height: 1.45;
 }
 
 .estado-vacio {

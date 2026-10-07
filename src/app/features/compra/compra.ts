@@ -13,6 +13,8 @@ import { ComprasService } from '../../core/services/compras.service';
 import { CombosService } from '../../core/services/combos.service';
 import { ProductosService } from '../../core/services/productos.service';
 import { EntradaDocumentoService } from '../../core/services/entrada-documento.service';
+import { convertirFechaAISO, enmascararFecha, esPreventaActiva } from '../../core/utils/fecha.utils';
+import { traducirError } from '../../core/services/supabase.service';
 
 interface EntradaInvitado {
   entrada_id: string;
@@ -27,7 +29,9 @@ interface EntradaInvitado {
 
 function fechaNacimientoValida(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
-  const fecha = new Date(`${control.value}T00:00:00`);
+  const fechaIso = convertirFechaAISO(control.value);
+  if (!fechaIso) return { fechaNacimientoInvalida: true };
+  const fecha = new Date(`${fechaIso}T00:00:00`);
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   if (Number.isNaN(fecha.getTime()) || fecha > hoy || fecha.getFullYear() < 1900) {
@@ -69,7 +73,7 @@ export class Compra implements OnInit {
 
   combos = signal<Combo[]>([]);
   canjesAplicables = signal<Canje[]>([]);
-  canjeSeleccionadoId = signal<string | null>(null);
+  canjesSeleccionadosIds = signal<Set<string>>(new Set());
 
   formularioProductos =
     new FormRecord<FormControl<number>>({});
@@ -90,6 +94,11 @@ export class Compra implements OnInit {
     ]],
     fechaNacimiento: ['', [Validators.required, fechaNacimientoValida]]
   });
+
+  aplicarMascaraFechaNacimiento() {
+    const control = this.formularioInvitado.controls.fechaNacimiento;
+    control.setValue(enmascararFecha(control.value), { emitEvent: false });
+  }
 
   creditoDisponible = signal(0);
   usarCredito = signal(false);
@@ -167,35 +176,46 @@ export class Compra implements OnInit {
       return;
     }
 
-    const canjes = (data ?? []) as unknown as Canje[];
-    this.canjesAplicables.set(
-      canjes.filter(canje =>
-        ['Combos', 'Entradas'].includes(
-          canje.productos.categorias_productos?.nombre ?? ''
-        )
-      )
+    this.canjesAplicables.set((data ?? []) as unknown as Canje[]);
+  }
+
+  canjesDeEntradas() {
+    return this.canjesAplicables().filter(canje =>
+      this.esCanjeDeEntrada(canje)
     );
   }
 
+  canjesDeCandy() {
+    return this.canjesAplicables().filter(canje =>
+      !this.esCanjeDeEntrada(canje)
+    );
+  }
+
+  esCanjeDeEntrada(canje: Canje) {
+    return canje.productos.categorias_productos?.nombre.toLowerCase() === 'entradas';
+  }
+
   cambiarCanje(canjeId: string) {
-    const seleccionado = this.canjeSeleccionadoId() !== canjeId;
-    this.canjeSeleccionadoId.set(seleccionado ? canjeId : null);
-
-    if (seleccionado) {
-      this.limpiarComponentesIncluidos();
-    }
+    this.canjesSeleccionadosIds.update(ids => {
+      const nuevosIds = new Set(ids);
+      nuevosIds.has(canjeId) ? nuevosIds.delete(canjeId) : nuevosIds.add(canjeId);
+      return nuevosIds;
+    });
   }
 
-  private limpiarComponentesIncluidos() {
-    for (const producto of this.productosCandy()) {
-      if (['bebida grande', 'pochoclo grande'].includes(producto.nombre.toLowerCase())) {
-        this.formularioProductos.controls[producto.id]?.setValue(0);
-      }
-    }
+  canjeEstaSeleccionado(canjeId: string) {
+    return this.canjesSeleccionadosIds().has(canjeId);
   }
 
-  canjeSeleccionado() {
-    return this.canjesAplicables().find(canje => canje.id === this.canjeSeleccionadoId()) ?? null;
+  canjesSeleccionados() {
+    const ids = this.canjesSeleccionadosIds();
+    return this.canjesAplicables().filter(canje => ids.has(canje.id));
+  }
+
+  productosDeCanjesSeleccionados() {
+    return this.canjesSeleccionados()
+      .filter(canje => !this.esCanjeDeEntrada(canje))
+      .map(canje => canje.productos);
   }
 
   private async cargarCombos() {
@@ -368,19 +388,11 @@ export class Compra implements OnInit {
   }
 
   preventaActiva() {
-    const funcion = this.datosFuncion();
-    if (!funcion?.precio_preventa || !funcion.fecha_fin_preventa) return false;
-
-    const ahora = Date.now();
-    const fechaFuncion = new Date(funcion.fecha_hora).getTime();
-    const finPreventa = new Date(funcion.fecha_fin_preventa).getTime();
-    const inicioPreventa = fechaFuncion - 7 * 24 * 60 * 60 * 1000;
-
-    return ahora >= inicioPreventa && ahora <= finPreventa;
+    return esPreventaActiva(this.datosFuncion());
   }
 
   subtotalProductos() {
-    return this.productosCandy().reduce(
+    const subtotalProductosElegidos = this.productosCandy().reduce(
       (total, producto) => {
         const cantidad =
           this.cantidadProducto(
@@ -395,6 +407,11 @@ export class Compra implements OnInit {
       },
       0
     );
+
+    const valorProductosCanjeados = this.productosDeCanjesSeleccionados()
+      .reduce((total, producto) => total + Number(producto.precio), 0);
+
+    return subtotalProductosElegidos + valorProductosCanjeados;
   }
 
   subtotalCombos() {
@@ -412,35 +429,32 @@ export class Compra implements OnInit {
     );
   }
 
-  valorProductosIncluidos() {
-    if (!this.canjeSeleccionado()) return 0;
-
-    return this.productosCandy()
-      .filter(producto =>
-        ['bebida grande', 'pochoclo grande'].includes(producto.nombre.toLowerCase())
-      )
-      .reduce((total, producto) => total + Number(producto.precio), 0);
-  }
-
   subtotalMostrado() {
-    return this.subtotalCompra() + this.valorProductosIncluidos();
+    return this.subtotalCompra();
   }
 
   descuentoAplicado() {
-    return this.subtotalCompra() * this.cupon().porcentaje / 100;
+    const valorCandyGratis = this.productosDeCanjesSeleccionados()
+      .reduce((total, producto) => total + Number(producto.precio), 0);
+    return (this.subtotalCompra() - valorCandyGratis) * this.cupon().porcentaje / 100;
   }
 
   descuentoCanje() {
     const funcion = this.datosFuncion();
-    if (!funcion || !this.canjeSeleccionado()) return 0;
+    if (!funcion) return 0;
+
     const precioEntrada = this.preventaActiva()
       ? Number(funcion.precio_preventa)
       : Number(funcion.precio);
-    const descuentoEntrada = Math.min(
-      precioEntrada,
+    const cantidadEntradasGratis = this.canjesSeleccionados()
+      .filter(canje => this.esCanjeDeEntrada(canje)).length;
+    const valorCandyGratis = this.productosDeCanjesSeleccionados()
+      .reduce((total, producto) => total + Number(producto.precio), 0);
+
+    return Math.min(
+      precioEntrada * cantidadEntradasGratis + valorCandyGratis,
       Math.max(this.subtotalCompra() - this.descuentoAplicado(), 0)
     );
-    return descuentoEntrada + this.valorProductosIncluidos();
   }
 
   combosSeleccionados(): ComboSeleccionadoCompra[] {
@@ -542,22 +556,22 @@ export class Compra implements OnInit {
 
     const productos = this.productosSeleccionados();
     const combos = this.combosSeleccionados();
-    const canjeId = this.canjeSeleccionadoId();
+    const canjesIds = [...this.canjesSeleccionadosIds()];
     const resultado = esInvitado
       ? await this.comprasService.confirmarCompraInvitado(
           this.funcionId,
           butacaIds,
           this.formularioInvitado.controls.nombre.value.trim(),
           this.formularioInvitado.controls.email.value.trim().toLowerCase(),
-          this.formularioInvitado.controls.fechaNacimiento.value,
+          convertirFechaAISO(this.formularioInvitado.controls.fechaNacimiento.value)!,
           productos,
           combos
         )
-      : canjeId
-      ? await this.comprasService.confirmarCompraConCanje(
+      : canjesIds.length > 0
+      ? await this.comprasService.confirmarCompraConCanjes(
           this.funcionId,
           butacaIds,
-          canjeId,
+          canjesIds,
           this.usarCredito(),
           productos,
           combos
@@ -573,9 +587,7 @@ export class Compra implements OnInit {
     const { data, error } = resultado;
 
     if (error) {
-      this.mensajeError.set(
-        error.message
-      );
+      this.mensajeError.set(traducirError(error, 'No se pudo confirmar la compra. Intentá nuevamente.'));
 
       this.procesando.set(false);
       return;

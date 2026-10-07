@@ -59,7 +59,7 @@ export class Home implements OnInit {
         const agrupados: Record<string, Set<string>> = {};
         for (const funcion of formatos.data ?? []) {
           agrupados[funcion.pelicula_id] ??= new Set<string>();
-          agrupados[funcion.pelicula_id].add(funcion.formato);
+          agrupados[funcion.pelicula_id].add(`${funcion.formato} · ${funcion.idioma}`);
         }
         this.formatosPorPelicula.set(
           Object.fromEntries(

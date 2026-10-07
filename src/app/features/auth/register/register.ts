@@ -3,16 +3,26 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { traducirError } from '../../../core/services/supabase.service';
+import { convertirFechaAISO, enmascararFecha } from '../../../core/utils/fecha.utils';
 
 function fechaNacimientoValida(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
-  const fecha = new Date(`${control.value}T00:00:00`);
+  const fechaIso = convertirFechaAISO(control.value);
+  if (!fechaIso) return { fechaNacimientoInvalida: true };
+  const fecha = new Date(`${fechaIso}T00:00:00`);
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   if (Number.isNaN(fecha.getTime()) || fecha > hoy || fecha.getFullYear() < 1900) {
     return { fechaNacimientoInvalida: true };
   }
   return null;
+}
+
+function contrasenasCoinciden(formulario: AbstractControl): ValidationErrors | null {
+  const password = formulario.get('password')?.value;
+  const confirmarPassword = formulario.get('confirmarPassword')?.value;
+  return password === confirmarPassword ? null : { contrasenasNoCoinciden: true };
 }
 
 @Component({
@@ -36,6 +46,7 @@ export class Register {
       '',
       [Validators.required, Validators.minLength(6)]
     ],
+    confirmarPassword: ['', Validators.required],
     fechaNacimiento: ['', [Validators.required, fechaNacimientoValida]],
     tipoSangre: ['', Validators.required],
     colorOjos: ['', Validators.required],
@@ -43,11 +54,18 @@ export class Register {
       0,
       [Validators.required, Validators.min(0)]
     ]
+  }, {
+    validators: contrasenasCoinciden
   });
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
+
+  aplicarMascaraFechaNacimiento(): void {
+    const control = this.registerForm.controls.fechaNacimiento;
+    control.setValue(enmascararFecha(control.value), { emitEvent: false });
+  }
 
   async onSubmit(): Promise<void> {
     if (this.registerForm.invalid) {
@@ -67,7 +85,7 @@ export class Register {
         datos.password,
         datos.nombre,
         datos.apellido,
-        datos.fechaNacimiento,
+        convertirFechaAISO(datos.fechaNacimiento)!,
         datos.tipoSangre,
         datos.colorOjos,
         datos.diasVacaciones
@@ -88,11 +106,7 @@ export class Register {
 
       this.registerForm.reset();
     } catch (error: unknown) {
-      this.errorMessage.set(
-        error instanceof Error
-          ? error.message
-          : 'Error al registrarse'
-      );
+      this.errorMessage.set(traducirError(error, 'No se pudo completar el registro. Intentá nuevamente.'));
     } finally {
       this.isLoading.set(false);
     }

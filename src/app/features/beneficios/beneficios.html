@@ -155,7 +155,7 @@
                   } @else if (!puedeCanjear(producto)) {
                     PUNTOS INSUFICIENTES
                   } @else {
-                    CANJEAR PRODUCTO
+                    {{ confirmandoCanjeId() === producto.id ? 'CONFIRMAR CANJE' : 'CANJEAR PRODUCTO' }}
                     <span>→</span>
                   }
                 </button>

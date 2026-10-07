@@ -10,6 +10,7 @@ export interface MiPelicula {
   imagenUrl: string | null;
   ultimaFuncion: string;
   funcionesVistas: string[];
+  versionesVistas: string[];
   cantidadEntradas: number;
   resena: MiPeliculaResena | null;
 }

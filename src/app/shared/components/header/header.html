@@ -27,6 +27,57 @@
 
   <div class="sesion">
     @if (auth.currentUser()) {
+      <div class="contenedor-notificaciones">
+        <button
+          type="button"
+          class="boton-campana"
+          [attr.aria-expanded]="panelNotificacionesAbierto()"
+          aria-label="Ver notificaciones"
+          (click)="alternarNotificaciones()"
+        >
+          <span aria-hidden="true">🔔</span>
+          @if (notificacionesSinLeer() > 0) {
+            <strong class="contador-notificaciones">{{ notificacionesSinLeer() > 9 ? '9+' : notificacionesSinLeer() }}</strong>
+          }
+        </button>
+
+        @if (panelNotificacionesAbierto()) {
+          <section class="panel-notificaciones" aria-label="Notificaciones de entradas y preventas">
+            <header>
+              <div>
+                <span>Alertas</span>
+                <h2>Notificaciones</h2>
+              </div>
+              @if (notificacionesSinLeer() > 0) {
+                <button type="button" class="marcar-leidas" (click)="marcarNotificacionesLeidas()">Marcar leídas</button>
+              }
+            </header>
+
+            @if (cargandoNotificaciones()) {
+              <p class="notificaciones-vacias">Cargando avisos...</p>
+            } @else if (notificaciones().length === 0) {
+              <p class="notificaciones-vacias">Todavía no tenés avisos. Activá “Avisarme cuando haya entradas” en una película.</p>
+            } @else {
+              <div class="lista-notificaciones">
+                @for (notificacion of notificaciones(); track notificacion.id) {
+                  <a
+                    [routerLink]="['/pelicula', notificacion.pelicula_id]"
+                    [class.no-leida]="!notificacion.leida"
+                    (click)="panelNotificacionesAbierto.set(false)"
+                  >
+                    <span class="punto-notificacion"></span>
+                    <span>
+                      <strong>{{ notificacion.titulo }}</strong>
+                      <small>{{ notificacion.mensaje }}</small>
+                    </span>
+                  </a>
+                }
+              </div>
+            }
+          </section>
+        }
+      </div>
+
       <button
         type="button"
         class="boton-perfil"
@@ -116,6 +167,27 @@
           {{ auth.currentUser()?.email }}
         </p>
       </div>
+    </section>
+
+    <section class="edicion-perfil">
+      @if (editandoPerfil()) {
+        <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()">
+          <label for="perfil-nombre">Nombre</label>
+          <input id="perfil-nombre" type="text" formControlName="nombre" maxlength="60" />
+          <label for="perfil-apellido">Apellido</label>
+          <input id="perfil-apellido" type="text" formControlName="apellido" maxlength="60" />
+          @if (errorPerfil()) { <p class="perfil-error">{{ errorPerfil() }}</p> }
+          <div class="acciones-perfil">
+            <button type="button" class="boton-secundario" (click)="cancelarEdicionPerfil()">Cancelar</button>
+            <button type="submit" [disabled]="guardandoPerfil() || perfilForm.invalid">
+              {{ guardandoPerfil() ? 'Guardando...' : 'Guardar nombre' }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <button type="button" class="editar-perfil" (click)="comenzarEdicionPerfil()">Editar nombre de usuario</button>
+        @if (mensajePerfil()) { <p class="perfil-exito">{{ mensajePerfil() }}</p> }
+      }
     </section>
 
     <section class="resumen-puntos">

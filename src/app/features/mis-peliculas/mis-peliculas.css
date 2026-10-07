@@ -129,6 +129,24 @@
   line-height: 1.15;
 }
 
+.versiones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -5px 0 15px;
+}
+
+.versiones span {
+  padding: 6px 9px;
+  color: #ffe000;
+  background: #302b0e;
+  border: 1px solid #6c6110;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: capitalize;
+}
+
 .estadisticas {
   display: flex;
   gap: 9px;

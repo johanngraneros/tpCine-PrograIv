@@ -4,6 +4,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
 import { EntregaCandy } from '../../core/models/entrega-candy.interface';
 import { ControlCandyService } from '../../core/services/control-candy.service';
+import { traducirError } from '../../core/services/supabase.service';
 
 @Component({
   selector: 'app-control-candy',
@@ -21,6 +22,7 @@ export class ControlCandy implements OnDestroy {
   entrega = signal<EntregaCandy | null>(null);
   buscando = signal(false);
   entregando = signal(false);
+  confirmandoEntrega = signal(false);
   scannerActivo = signal(false);
   mensajeError = signal('');
   mensajeExito = signal('');
@@ -43,7 +45,7 @@ export class ControlCandy implements OnDestroy {
     try {
       const { data, error } = await this.servicio.buscarPorCodigo(codigo);
       if (error || !data) {
-        this.mensajeError.set(error?.message ?? 'No existe una compra con ese código.');
+        this.mensajeError.set(traducirError(error, 'No existe una compra con ese código.'));
       } else {
         const pedido = data as unknown as EntregaCandy;
         this.entrega.set(pedido);
@@ -125,12 +127,16 @@ export class ControlCandy implements OnDestroy {
   async confirmarEntrega() {
     const entrega = this.entrega();
     if (!entrega || !this.puedeEntregar(entrega) || this.entregando()) return;
-    if (!window.confirm('¿Confirmar la entrega de todos los productos pendientes?')) return;
+    if (!this.confirmandoEntrega()) {
+      this.confirmandoEntrega.set(true);
+      return;
+    }
+    this.confirmandoEntrega.set(false);
 
     this.entregando.set(true);
     const { error } = await this.servicio.marcarEntregado(entrega.qr_code);
     if (error) {
-      this.mensajeError.set(error.message);
+      this.mensajeError.set(traducirError(error, 'No se pudo confirmar la entrega. Intentá nuevamente.'));
     } else {
       this.mensajeExito.set('Entrega confirmada.');
       await this.buscar();

@@ -11,20 +11,81 @@ import { Supabase } from './supabase.service';
 export class AdminComprasService {
   private supabase = inject(Supabase);
 
-  obtenerActividadReciente() {
-    return this.supabase.instance
+  async obtenerActividadReciente() {
+    const actividad = await this.supabase.instance
       .from('registro_actividad')
       .select(`
         id,
+        usuario_id,
         accion,
         entidad,
         registro_id,
         detalle,
-        fecha,
-        perfiles (nombre, apellido)
+        fecha
       `)
       .order('fecha', { ascending: false })
       .limit(15);
+
+    if (actividad.error) {
+      return this.obtenerActividadDesdeContenido();
+    }
+    if (!actividad.data?.length) return actividad;
+
+    const usuarios = [...new Set(
+      actividad.data.map(item => item.usuario_id).filter(Boolean)
+    )];
+    const perfiles = usuarios.length
+      ? await this.supabase.instance
+          .from('perfiles')
+          .select('id, nombre, apellido')
+          .in('id', usuarios)
+      : { data: [], error: null };
+
+    if (perfiles.error) return actividad;
+    const porId = new Map((perfiles.data ?? []).map(perfil => [perfil.id, perfil]));
+    return {
+      data: actividad.data.map(item => ({
+        ...item,
+        perfiles: porId.get(item.usuario_id) ?? null
+      })),
+      error: null
+    };
+  }
+
+  private async obtenerActividadDesdeContenido() {
+    const [peliculas, funciones, productos] = await Promise.all([
+      this.supabase.instance.from('peliculas').select('id, titulo, created_at').order('created_at', { ascending: false }).limit(15),
+      this.supabase.instance.from('funciones').select('id, fecha_hora, formato, idioma, created_at, peliculas(titulo)').order('created_at', { ascending: false }).limit(15),
+      this.supabase.instance.from('productos').select('id, nombre, created_at').order('created_at', { ascending: false }).limit(15)
+    ]);
+
+    const error = peliculas.error ?? funciones.error ?? productos.error;
+    if (error) return { data: null, error };
+
+    const actividad = [
+      ...(peliculas.data ?? []).map(item => ({
+        id: `pelicula-${item.id}`,
+        detalle: `Se creó la película “${item.titulo}”.`,
+        fecha: item.created_at,
+        perfiles: null
+      })),
+      ...(funciones.data ?? []).map(item => ({
+        id: `funcion-${item.id}`,
+        detalle: `Se programó una función de “${(item.peliculas as unknown as { titulo: string } | null)?.titulo ?? 'película'}” (${item.formato} · ${item.idioma}).`,
+        fecha: item.created_at,
+        perfiles: null
+      })),
+      ...(productos.data ?? []).map(item => ({
+        id: `producto-${item.id}`,
+        detalle: `Se creó el producto “${item.nombre}”.`,
+        fecha: item.created_at,
+        perfiles: null
+      }))
+    ]
+      .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+      .slice(0, 15);
+
+    return { data: actividad, error: null };
   }
 
   obtenerConfiguracionDescuentos() {

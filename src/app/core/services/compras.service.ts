@@ -34,23 +34,23 @@ export class ComprasService {
     );
   }
 
-  confirmarCompraConCanje(
+  confirmarCompraConCanjes(
     funcionId: string,
     butacaIds: string[],
-    canjeId: string,
+    canjesIds: string[],
     usarCredito: boolean,
     productos: ProductoSeleccionadoCompra[] = [],
     combos: ComboSeleccionadoCompra[] = []
   ) {
     return this.supabase.instance.rpc(
-      'confirmar_compra_con_beneficio_valorado',
+      'confirmar_compra_con_beneficios_valorados',
       {
         p_funcion_id: funcionId,
         p_butaca_ids: butacaIds,
         p_usar_credito: usarCredito,
         p_productos: productos,
         p_combos: combos,
-        p_canje_id: canjeId
+        p_canje_ids: canjesIds
       }
     );
   }

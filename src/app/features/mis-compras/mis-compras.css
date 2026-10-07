@@ -34,6 +34,37 @@
 .detalle-candy p { margin: .2rem 0; color: #d1c5b7; }
 .detalle-candy code { display: block; margin-top: .65rem; color: #ffe000; overflow-wrap: anywhere; }
 
+.boton-descarga {
+  margin-left: auto;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid #168bea;
+  border-radius: 8px;
+  background: #168bea;
+  color: #ffffff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.boton-descarga:hover:not(:disabled) {
+  background: #0878cf;
+}
+
+.boton-descarga:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.boton-descarga-candy {
+  margin-top: 14px;
+  margin-left: 0;
+  border-color: #ffe000;
+  background: #ffe000;
+  color: #171300;
+}
+
 @media (max-width: 560px) {
   .retiro-candy { grid-template-columns: 1fr; }
 }

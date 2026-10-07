@@ -5,6 +5,7 @@ import { Combo, ComboFormulario } from '../../../core/models/combo.interface';
 import { Producto } from '../../../core/models/producto.interface';
 import { AdminProductosService } from '../../../core/services/admin-productos.service';
 import { CombosService } from '../../../core/services/combos.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-combos-admin',
@@ -83,7 +84,7 @@ export class CombosAdmin implements OnInit {
       : await this.combosService.crearCombo(formulario);
 
     if (resultado.error) {
-      this.mensajeError.set(resultado.error.message);
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo guardar el combo. Intentá nuevamente.'));
       this.guardando.set(false);
       return;
     }
@@ -126,7 +127,7 @@ export class CombosAdmin implements OnInit {
   async cambiarEstado(combo: Combo) {
     const resultado = await this.combosService.cambiarEstado(combo.id, !combo.activo);
     if (resultado.error) {
-      this.mensajeError.set(resultado.error.message);
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo cambiar el estado del combo. Intentá nuevamente.'));
       return;
     }
     await this.cargarDatos();

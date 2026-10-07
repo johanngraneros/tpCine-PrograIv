@@ -259,7 +259,7 @@
                   @if (cancelandoId() === compra.id) {
                     Cancelando...
                   } @else {
-                    Cancelar compra
+                    {{ confirmandoCancelacionId() === compra.id ? 'Confirmar cancelación' : 'Cancelar compra' }}
                   }
                 </button>
               }

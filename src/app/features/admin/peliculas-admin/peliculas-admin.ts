@@ -5,17 +5,20 @@ import {
   signal
 } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminPeliculasService } from '../../../core/services/admin-peliculas.service';
+import { traducirError } from '../../../core/services/supabase.service';
 import type {
   Genero,
   PeliculaAdmin,
   PeliculaFormulario
 } from '../../../core/models/pelicula.interface';
+import { convertirFechaAISO, enmascararFecha, fechaParaMostrar } from '../../../core/utils/fecha.utils';
 
 @Component({
   selector: 'app-peliculas-admin',
@@ -38,6 +41,7 @@ export class PeliculasAdmin implements OnInit {
   guardando = signal(false);
 
   mensajeError = signal('');
+  confirmandoEliminacionId = signal<string | null>(null);
   mensajeExito = signal('');
 
   peliculaEditandoId =
@@ -62,12 +66,17 @@ export class PeliculasAdmin implements OnInit {
       Validators.pattern(/^$|https?:\/\/.+/i)
     ]],
     restriccion_edad: this.formBuilder.control<number | null>(null),
-    fecha_estreno: ['', Validators.pattern(/^$|\d{4}-\d{2}-\d{2}$/)],
+    fecha_estreno: ['', (control: AbstractControl) => convertirFechaAISO(control.value ?? '', true) === null ? { fechaInvalida: true } : null],
     activa: [true]
   });
 
   async ngOnInit() {
     await this.cargarDatos();
+  }
+
+  aplicarMascaraFechaEstreno() {
+    const control = this.formulario.controls.fecha_estreno;
+    control.setValue(enmascararFecha(String(control.value ?? '')), { emitEvent: false });
   }
 
   async cargarDatos() {
@@ -221,7 +230,11 @@ export class PeliculasAdmin implements OnInit {
     const generoIds = Array.from(
       this.generosSeleccionados()
     );
-    const datos = this.formulario.getRawValue() as PeliculaFormulario;
+    const datosFormulario = this.formulario.getRawValue();
+    const datos = {
+      ...datosFormulario,
+      fecha_estreno: convertirFechaAISO(datosFormulario.fecha_estreno ?? '', true) ?? ''
+    } as PeliculaFormulario;
 
     const peliculaId =
       this.peliculaEditandoId();
@@ -248,9 +261,7 @@ export class PeliculasAdmin implements OnInit {
     this.guardando.set(false);
 
     if (resultado.error) {
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo guardar la película. Intentá nuevamente.'));
       return;
     }
 
@@ -282,7 +293,7 @@ export class PeliculasAdmin implements OnInit {
         pelicula.imagen_url ?? '',
       restriccion_edad:
         pelicula.restriccion_edad,
-      fecha_estreno: pelicula.fecha_estreno ?? '',
+      fecha_estreno: fechaParaMostrar(pelicula.fecha_estreno),
       activa: pelicula.activa
     });
 
@@ -336,9 +347,7 @@ export class PeliculasAdmin implements OnInit {
         );
 
     if (error) {
-      this.mensajeError.set(
-        error.message
-      );
+      this.mensajeError.set(traducirError(error, 'No se pudo eliminar la película. Intentá nuevamente.'));
       return;
     }
 
@@ -354,13 +363,11 @@ export class PeliculasAdmin implements OnInit {
   async eliminar(
     pelicula: PeliculaAdmin
   ) {
-    const confirmar = window.confirm(
-      `¿Eliminar definitivamente "${pelicula.titulo}"?`
-    );
-
-    if (!confirmar) {
+    if (this.confirmandoEliminacionId() !== pelicula.id) {
+      this.confirmandoEliminacionId.set(pelicula.id);
       return;
     }
+    this.confirmandoEliminacionId.set(null);
 
     this.mensajeError.set('');
     this.mensajeExito.set('');

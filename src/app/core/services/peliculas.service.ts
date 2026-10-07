@@ -20,7 +20,7 @@ export class PeliculasService {
     if (peliculaIds.length === 0) return { data: [], error: null };
     return this.supabase.instance
       .from('funciones')
-      .select('pelicula_id, formato')
+      .select('pelicula_id, formato, idioma')
       .in('pelicula_id', peliculaIds)
       .eq('activa', true)
       .gte('fecha_hora', new Date().toISOString());
@@ -90,19 +90,63 @@ export class PeliculasService {
     return { data, error };
   }
 
-    async getResenas(peliculaId: string) {
-    const { data, error } = await this.supabase.instance
+  async getResenas(peliculaId: string) {
+    const publicas = await this.supabase.instance.rpc('obtener_resenas_publicas', {
+      p_pelicula_id: peliculaId
+    });
+
+    if (!publicas.error) {
+      return {
+        data: (publicas.data ?? []).map((resena: any) => ({
+          ...resena,
+          perfiles: {
+            nombre: resena.autor_nombre ?? 'Usuario',
+            apellido: resena.autor_apellido ?? ''
+          }
+        })),
+        error: null
+      };
+    }
+
+    // Mientras la función SQL todavía no exista, los usuarios autenticados
+    // pueden seguir usando la relación original si su política lo permite.
+    const relacionadas = await this.supabase.instance
+      .from('resenas')
+      .select('id, pelicula_id, usuario_id, estrellas, comentario, fecha, perfiles(nombre, apellido)')
+      .eq('pelicula_id', peliculaId)
+      .order('fecha', { ascending: false });
+
+    if (!relacionadas.error) return relacionadas;
+
+    // Último recurso: las reseñas siguen siendo visibles aunque Supabase no
+    // permita leer perfiles. El autor se presenta como "Usuario".
+    const respaldo = await this.supabase.instance
       .from('resenas')
       .select('id, pelicula_id, usuario_id, estrellas, comentario, fecha')
       .eq('pelicula_id', peliculaId)
       .order('fecha', { ascending: false });
-    return { data, error };
+
+    return {
+      data: (respaldo.data ?? []).map(resena => ({ ...resena, perfiles: null })),
+      error: respaldo.error
+    };
   }
 
   async crearResena(peliculaId: string, usuarioId: string, estrellas: number, comentario: string) {
     const { data, error } = await this.supabase.instance
       .from('resenas')
       .insert({ pelicula_id: peliculaId, usuario_id: usuarioId, estrellas, comentario });
+    return { data, error };
+  }
+
+  async actualizarResena(resenaId: string, usuarioId: string, estrellas: number, comentario: string) {
+    const { data, error } = await this.supabase.instance
+      .from('resenas')
+      .update({ estrellas, comentario })
+      .eq('id', resenaId)
+      .eq('usuario_id', usuarioId)
+      .select()
+      .single();
     return { data, error };
   }
 

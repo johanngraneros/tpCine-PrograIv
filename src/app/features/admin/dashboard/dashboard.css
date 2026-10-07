@@ -33,6 +33,9 @@
 }
 
 .estadisticas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
@@ -47,6 +50,72 @@
   border: 1px solid #746819;
   border-radius: 16px;
   box-shadow: var(--sombra);
+}
+
+.grafico {
+  min-width: 0;
+}
+
+.estadistica-peliculas {
+  padding: 1.35rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.estadistica-peliculas header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.estadistica-peliculas header strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.estadistica-peliculas > p {
+  color: var(--texto-suave);
+}
+
+.mini-ranking,
+.mini-fila {
+  display: grid;
+  gap: .55rem;
+}
+
+.mini-ranking {
+  gap: .85rem;
+}
+
+.mini-fila > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: .85rem;
+}
+
+.mini-fila > div:first-child span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-barra {
+  height: 9px;
+  overflow: hidden;
+  background: #2b2925;
+  border-radius: 99px;
+}
+
+.mini-barra span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  background: var(--rojo);
+  border-radius: inherit;
 }
 
 .estadistica-icono {
@@ -264,6 +333,7 @@
 }
 
 @media (max-width: 700px) {
+  .estadisticas { grid-template-columns: 1fr; }
   .acciones-exportacion { align-items: stretch; flex-direction: column; }
   .acciones-exportacion > div { margin-right: 0; }
 }

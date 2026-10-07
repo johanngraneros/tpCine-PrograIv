@@ -92,8 +92,12 @@
 
           <input
             id="fechaHora"
-            type="datetime-local"
+            type="text"
             formControlName="fecha_hora"
+            inputmode="numeric"
+            maxlength="16"
+            placeholder="dd/mm/aaaa hh:mm"
+            (input)="aplicarMascaraFechaHora(formulario.controls.fecha_hora)"
             [disabled]="guardando()"
           />
         </div>
@@ -213,8 +217,12 @@
 
             <input
               id="finPreventa"
-              type="datetime-local"
+              type="text"
               formControlName="fecha_fin_preventa"
+              inputmode="numeric"
+              maxlength="16"
+              placeholder="dd/mm/aaaa hh:mm"
+              (input)="aplicarMascaraFechaHora(formulario.controls.fecha_fin_preventa)"
               [disabled]="guardando()"
             />
           </div>
@@ -416,7 +424,7 @@
                 class="boton-eliminar"
                 (click)="eliminar(funcion)"
               >
-                Eliminar
+                {{ confirmandoEliminacionId() === funcion.id ? 'Confirmar eliminación' : 'Eliminar' }}
               </button>
             </div>
           </article>

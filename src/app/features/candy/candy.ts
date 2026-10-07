@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CombosService } from '../../core/services/combos.service';
 import { ComprasService } from '../../core/services/compras.service';
 import { ProductosService } from '../../core/services/productos.service';
+import { traducirError } from '../../core/services/supabase.service';
 
 type SeccionCandy = 'Pochoclos' | 'Bebidas' | 'Snacks' | 'Combos';
 
@@ -173,7 +174,7 @@ export class Candy implements OnInit {
     );
 
     if (error) {
-      this.mensajeError.set(error.message);
+      this.mensajeError.set(traducirError(error, 'No se pudo confirmar la compra de Candy. Intentá nuevamente.'));
       this.procesando.set(false);
       return;
     }

@@ -73,6 +73,8 @@ input,
 select,
 textarea {
   font: inherit;
+  min-width: 0;
+  max-width: 100%;
 }
 
 button {
@@ -109,6 +111,32 @@ textarea {
   background: var(--superficie-clara);
   color: var(--texto);
   outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+textarea {
+  overflow: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+form,
+label,
+fieldset {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.error,
+.mensaje-error,
+.mensaje-exito,
+[class*="mensaje-"],
+[class*="error-"] {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 input:focus,

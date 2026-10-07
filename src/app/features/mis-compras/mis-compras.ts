@@ -1,7 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MiCompra, MiCompraEntrada } from '../../core/models/mi-compra.interface';
+import { DatosEntradaPdf } from '../../core/models/datos-entrada-pdf.interface';
 import { AuthService } from '../../core/services/auth.service';
+import { EntradaDocumentoService } from '../../core/services/entrada-documento.service';
 import { MisComprasService } from '../../core/services/mis-compras.service';
+import { traducirError } from '../../core/services/supabase.service';
 import QRCode from 'qrcode';
 
 @Component({
@@ -17,13 +20,19 @@ export class MisCompras implements OnInit {
   private authService =
     inject(AuthService);
 
+  private entradaDocumento =
+    inject(EntradaDocumentoService);
+
   compras = signal<MiCompra[]>([]);
   codigosCandy = signal<Record<string, string>>({});
   codigosEntradas = signal<Record<string, string>>({});
   credito = signal(0);
+  nombreCliente = signal('Usuario registrado');
 
   cargando = signal(true);
   cancelandoId = signal<string | null>(null);
+  confirmandoCancelacionId = signal<string | null>(null);
+  generandoPdfId = signal<string | null>(null);
 
   mensajeError = signal('');
   mensajeExito = signal('');
@@ -60,9 +69,7 @@ export class MisCompras implements OnInit {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudieron cargar tus compras. Intentá nuevamente.'));
 
       return;
     }
@@ -138,6 +145,79 @@ export class MisCompras implements OnInit {
     this.credito.set(
       Number(data?.credito ?? 0)
     );
+
+    const nombre = [data?.nombre, data?.apellido]
+      .filter(Boolean)
+      .join(' ');
+
+    this.nombreCliente.set(
+      nombre || 'Usuario registrado'
+    );
+  }
+
+  async descargarEntradasPdf(compra: MiCompra) {
+    const entradas: DatosEntradaPdf[] = compra.entradas
+      .filter(entrada => entrada.estado !== 'cancelada')
+      .map(entrada => ({
+        qrCode: entrada.qr_code,
+        pelicula: entrada.funciones.peliculas.titulo,
+        fechaHora: this.formatearFecha(entrada.funciones.fecha_hora),
+        sala: entrada.funciones.salas.nombre,
+        fila: entrada.butacas.fila,
+        numeroButaca: entrada.butacas.numero,
+        tipoButaca: entrada.butacas.tipo,
+        cliente: this.nombreCliente(),
+        compraId: compra.id
+      }));
+
+    if (!entradas.length) return;
+
+    this.generandoPdfId.set(`entradas-${compra.id}`);
+    this.mensajeError.set('');
+
+    try {
+      await this.entradaDocumento.descargarPdfMultiple(entradas);
+    } catch (error) {
+      console.error(error);
+      this.mensajeError.set('No se pudo generar el PDF de las entradas.');
+    } finally {
+      this.generandoPdfId.set(null);
+    }
+  }
+
+  async descargarCandyPdf(compra: MiCompra) {
+    if (!this.tieneCandy(compra)) return;
+
+    this.generandoPdfId.set(`candy-${compra.id}`);
+    this.mensajeError.set('');
+
+    const items = [
+      ...compra.compra_productos.map(item => ({
+        nombre: item.productos.nombre,
+        cantidad: item.cantidad,
+        estado: item.estado
+      })),
+      ...compra.compra_combos.map(item => ({
+        nombre: item.combos.nombre,
+        cantidad: item.cantidad,
+        estado: item.estado
+      }))
+    ];
+
+    try {
+      await this.entradaDocumento.descargarCandyPdf({
+        qrCode: compra.qr_code,
+        compraId: compra.id,
+        fechaCompra: this.formatearFecha(compra.fecha),
+        cliente: this.nombreCliente(),
+        items
+      });
+    } catch (error) {
+      console.error(error);
+      this.mensajeError.set('No se pudo generar el PDF del Candy Bar.');
+    } finally {
+      this.generandoPdfId.set(null);
+    }
   }
 
   entradaPrincipal(
@@ -222,18 +302,13 @@ export class MisCompras implements OnInit {
       return;
     }
 
-    const credito =
-      this.formatearPrecio(
-        this.creditoARecibir(compra)
-      );
-
-    const confirmada = window.confirm(
-      `¿Cancelar esta compra? Recibirás ${credito} de crédito en tu cuenta.`
-    );
-
-    if (!confirmada) {
+    if (this.confirmandoCancelacionId() !== compra.id) {
+      this.confirmandoCancelacionId.set(compra.id);
       return;
     }
+    this.confirmandoCancelacionId.set(null);
+
+    const credito = this.formatearPrecio(this.creditoARecibir(compra));
 
     this.cancelandoId.set(compra.id);
     this.mensajeError.set('');
@@ -246,9 +321,7 @@ export class MisCompras implements OnInit {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo cancelar la compra. Intentá nuevamente.'));
 
       this.cancelandoId.set(null);
       return;

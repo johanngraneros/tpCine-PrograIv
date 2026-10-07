@@ -91,6 +91,7 @@ export class MisPeliculas implements OnInit {
 
       for (const entrada of compra.entradas) {
         const fechaFuncion = entrada.funciones.fecha_hora;
+        const version = `${entrada.funciones.formato} · ${entrada.funciones.idioma}`;
 
         if (
           entrada.estado === 'cancelada' ||
@@ -109,6 +110,10 @@ export class MisPeliculas implements OnInit {
             existente.funcionesVistas.push(fechaFuncion);
           }
 
+          if (!existente.versionesVistas.includes(version)) {
+            existente.versionesVistas.push(version);
+          }
+
           if (
             new Date(fechaFuncion).getTime() >
             new Date(existente.ultimaFuncion).getTime()
@@ -125,6 +130,7 @@ export class MisPeliculas implements OnInit {
           imagenUrl: pelicula.imagen_url,
           ultimaFuncion: fechaFuncion,
           funcionesVistas: [fechaFuncion],
+          versionesVistas: [version],
           cantidadEntradas: 1,
           resena: resena ? this.mapearResena(resena) : null
         });

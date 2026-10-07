@@ -4,19 +4,6 @@
   <p>Gestioná el contenido y las operaciones de CINEIZE.</p>
 </header>
 
-<section class="estadisticas" aria-label="Estadísticas del Candy Bar">
-  <article class="estadistica-candy">
-    <span class="estadistica-icono" aria-hidden="true">🍿</span>
-    <div>
-      <span class="estadistica-etiqueta">Producto de Candy más vendido</span>
-      @if (cargandoEstadistica()) { <strong>Calculando...</strong> }
-      @else if (errorProducto()) { <strong class="estadistica-error">{{ errorProducto() }}</strong> }
-      @else if (productoMasVendido(); as producto) { <strong>{{ producto.nombre }}</strong><p>{{ producto.cantidad }} unidades vendidas</p> }
-      @else { <strong>Sin ventas registradas</strong><p>La estadística aparecerá cuando haya ventas de Candy.</p> }
-    </div>
-  </article>
-</section>
-
 <section class="opciones-admin" aria-label="Opciones de administración">
   <a routerLink="/admin/peliculas" class="opcion"><span class="icono">🎬</span><div><h2>Películas</h2><p>Crear, modificar y eliminar películas.</p></div><span class="flecha">→</span></a>
   <a routerLink="/admin/funciones" class="opcion"><span class="icono">📅</span><div><h2>Funciones</h2><p>Programar fechas, horarios, formatos y precios.</p></div><span class="flecha">→</span></a>
@@ -26,7 +13,7 @@
   <a routerLink="/admin/combos" class="opcion"><span class="icono">🥤</span><div><h2>Combos</h2><p>Configurar productos y precios especiales.</p></div><span class="flecha">→</span></a>
   <a routerLink="/admin/salas" class="opcion"><span class="icono">💺</span><div><h2>Salas y butacas</h2><p>Visualizar y configurar la distribución.</p></div><span class="flecha">→</span></a>
   <a routerLink="/admin/facturacion" class="opcion"><span class="icono">📊</span><div><h2>Facturación diaria</h2><p>Consultar ventas e importes por día.</p></div><span class="flecha">→</span></a>
-  <a routerLink="/admin/estadisticas" class="opcion"><span class="icono">📈</span><div><h2>Películas más vistas</h2><p>Comparar las entradas utilizadas por período.</p></div><span class="flecha">→</span></a>
+  <a routerLink="/admin/estadisticas" class="opcion"><span class="icono">📈</span><div><h2>Gráficos</h2><p>Consultar películas más vistas y el producto de Candy más vendido.</p></div><span class="flecha">→</span></a>
   <a routerLink="/admin/descuentos" class="opcion"><span class="icono">🏷️</span><div><h2>Descuentos</h2><p>Configurar los beneficios automáticos.</p></div><span class="flecha">→</span></a>
   <a routerLink="/admin/actividad" class="opcion"><span class="icono">🕘</span><div><h2>Actividad reciente</h2><p>Revisar acciones de administradores y empleados.</p></div><span class="flecha">→</span></a>
 </section>

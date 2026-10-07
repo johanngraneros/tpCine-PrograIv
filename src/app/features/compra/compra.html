@@ -386,10 +386,13 @@
           <label for="fechaNacimientoInvitado">Fecha de nacimiento</label>
           <input
             id="fechaNacimientoInvitado"
-            type="date"
+            type="text"
             formControlName="fechaNacimiento"
-            min="1900-01-01"
-            [max]="fechaMaximaNacimiento"
+            inputmode="numeric"
+            maxlength="10"
+            placeholder="dd/mm/aaaa"
+            (input)="aplicarMascaraFechaNacimiento()"
+            autocomplete="bday"
           />
           @if (formularioInvitado.controls.fechaNacimiento.touched && formularioInvitado.controls.fechaNacimiento.hasError('required')) {
             <small class="error-campo">La fecha de nacimiento es obligatoria.</small>
@@ -534,29 +537,44 @@
         @if (canjesAplicables().length > 0) {
           <div class="beneficios-disponibles">
             <span class="resumen-etiqueta">Tus beneficios</span>
-            @for (canje of canjesAplicables(); track canje.id) {
-              <label class="opcion-beneficio" [class.seleccionado]="canjeSeleccionadoId() === canje.id">
+            @for (canje of canjesDeEntradas(); track canje.id) {
+              <label class="opcion-beneficio" [class.seleccionado]="canjeEstaSeleccionado(canje.id)">
                 <input
                   type="checkbox"
-                  [checked]="canjeSeleccionadoId() === canje.id"
+                  [checked]="canjeEstaSeleccionado(canje.id)"
                   [disabled]="procesando()"
                   (change)="cambiarCanje(canje.id)"
                 >
                 <span>
                   <strong>Usar {{ canje.productos.nombre }}</strong>
-                  <small>
-                    Incluye una entrada normal, una bebida grande y un pochoclo grande.
-                  </small>
+                  <small>Descuenta una entrada normal de esta compra.</small>
                 </span>
               </label>
             }
 
-            @if (canjeSeleccionado()) {
+            @for (canje of canjesDeCandy(); track canje.id) {
+              <label class="opcion-beneficio" [class.seleccionado]="canjeEstaSeleccionado(canje.id)">
+                <input
+                  type="checkbox"
+                  [checked]="canjeEstaSeleccionado(canje.id)"
+                  [disabled]="procesando()"
+                  (change)="cambiarCanje(canje.id)"
+                >
+                <span>
+                  <strong>Usar {{ canje.productos.nombre }} gratis</strong>
+                  <small>Agrega una unidad sin costo a esta compra.</small>
+                </span>
+              </label>
+            }
+
+            @if (canjesSeleccionados().length > 0) {
               <div class="items-beneficio">
-                <span>✓ 1 entrada normal</span>
-                <span>✓ 1 bebida grande</span>
-                <span>✓ 1 pochoclo grande</span>
-                <small>Incluidos sin costo. Podés sumar unidades adicionales desde Candy Bar.</small>
+                @for (canje of canjesSeleccionados(); track canje.id) {
+                  <span>✓ 1 {{ canje.productos.nombre }} sin costo</span>
+                }
+                @if (productosDeCanjesSeleccionados().length > 0) {
+                  <small>Los productos se incluirán en el QR de Candy Bar de esta compra.</small>
+                }
               </div>
             }
           </div>
@@ -622,7 +640,7 @@
 
         @if (descuentoCanje() > 0) {
           <div class="linea-pago descuento-beneficio">
-            <span>{{ canjeSeleccionado()?.productos?.nombre }} completo</span>
+            <span>Beneficios aplicados</span>
             <strong>− {{ formatearPrecio(descuentoCanje()) }}</strong>
           </div>
         }

@@ -248,6 +248,11 @@
   border-top: 1px solid var(--borde);
 }
 
+.versiones-disponibles { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; margin: 1.3rem 0; color: var(--texto-suave); }
+.versiones-disponibles span { border: 1px solid var(--borde); border-radius: 999px; padding: .45rem .75rem; background: var(--superficie); color: white; font-weight: 750; }
+.etiqueta-preventa { border-color: var(--amarillo) !important; color: var(--amarillo) !important; }
+.funcion-precio small { display: block; color: var(--amarillo); font-size: .65rem; }
+
 .encabezado-resenas {
   display: flex;
   align-items: flex-end;
@@ -285,11 +290,13 @@
     minmax(280px, 360px);
   gap: 1.5rem;
   align-items: start;
+  min-width: 0;
 }
 
 .lista-resenas {
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 .resena {
@@ -297,6 +304,8 @@
   border-radius: var(--radio);
   padding: 1.2rem;
   background: var(--superficie);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .resena-encabezado {
@@ -305,6 +314,9 @@
   gap: 0.8rem;
   margin-bottom: 1rem;
 }
+
+.resena-encabezado > div:nth-child(2) { min-width: 0; }
+.editar-resena { margin-left: auto; padding: .5rem .8rem; border: 1px solid var(--borde); background: #292722; color: white; font-size: .8rem; }
 
 .avatar {
   display: grid;
@@ -327,6 +339,10 @@
   margin-bottom: 0;
   color: #c8c5c2;
   line-height: 1.65;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .panel-resena {
@@ -374,6 +390,8 @@
   color: #ff989e;
   font-size: 0.85rem;
 }
+
+.exito { margin: .8rem 0 0; border-radius: 8px; padding: .7rem; background: rgba(28, 180, 96, .13); color: #72efaa; font-size: .85rem; }
 
 .iniciar-sesion p {
   color: var(--texto-suave);

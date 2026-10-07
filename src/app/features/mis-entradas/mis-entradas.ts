@@ -17,6 +17,7 @@ import {
 import {
   MisEntradasService
 } from '../../core/services/mis-entradas.service';
+import { traducirError } from '../../core/services/supabase.service';
 
 import {
   EntradaDocumentoService
@@ -101,9 +102,7 @@ export class MisEntradas implements OnInit {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudieron cargar tus entradas. Intentá nuevamente.'));
 
       this.cargando.set(false);
       return;

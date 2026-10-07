@@ -128,6 +128,30 @@
   line-height: 1.25;
 }
 
+.versiones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: .75rem;
+}
+
+.versiones span {
+  padding: .32rem .5rem;
+  color: var(--amarillo);
+  background: #302b0e;
+  border: 1px solid #6c6110;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 850;
+  text-transform: capitalize;
+}
+
+.card small {
+  display: block;
+  margin-bottom: .75rem;
+  color: var(--texto-suave);
+}
+
 .card p {
   margin-bottom: 0;
   color: var(--texto-suave);

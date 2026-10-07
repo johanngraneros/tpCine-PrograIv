@@ -62,6 +62,59 @@ export class EntradaDocumentoService {
     pdf.save(`entradas-${this.nombreSeguro(entradas[0].pelicula)}.pdf`);
   }
 
+  async descargarCandyPdf(pedido: {
+    qrCode: string;
+    compraId: string;
+    fechaCompra: string;
+    cliente: string;
+    items: Array<{ nombre: string; cantidad: number; estado: string }>;
+  }) {
+    const qrImagen = await this.generarQr(pedido.qrCode);
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    pdf.setFillColor(18, 16, 13);
+    pdf.rect(0, 0, 210, 297, 'F');
+    pdf.setTextColor(255, 225, 0);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(25);
+    pdf.text('CINEIZE', 20, 25);
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(11);
+    pdf.text('COMPROBANTE CANDY BAR', 20, 34);
+    pdf.setDrawColor(65, 61, 54);
+    pdf.roundedRect(15, 45, 180, 225, 5, 5, 'S');
+    pdf.setFontSize(18);
+    pdf.text('Retirá tu pedido en mostrador', 25, 63);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(190, 183, 174);
+    pdf.setFontSize(10);
+    pdf.text(`Cliente: ${pedido.cliente}`, 25, 75);
+    pdf.text(`Fecha: ${pedido.fechaCompra}`, 25, 83);
+    pdf.setTextColor(255, 225, 0);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('PEDIDO', 25, 98);
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont('helvetica', 'normal');
+
+    let posicionY = 108;
+    for (const item of pedido.items) {
+      pdf.text(`${item.cantidad} x ${item.nombre} - ${item.estado}`, 30, posicionY);
+      posicionY += 7;
+    }
+
+    const qrY = Math.max(posicionY + 5, 145);
+    pdf.addImage(qrImagen, 'PNG', 65, qrY, 80, 80);
+    pdf.setTextColor(255, 225, 0);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(9);
+    pdf.text(pedido.qrCode, 105, qrY + 88, { align: 'center', maxWidth: 155 });
+    pdf.setTextColor(150, 143, 134);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(8);
+    pdf.text(`Compra: ${pedido.compraId}`, 105, 260, { align: 'center' });
+    pdf.save(`candy-${pedido.compraId}.pdf`);
+  }
+
   private async dibujarEntrada(pdf: jsPDF, entrada: DatosEntradaPdf) {
     const qrImagen = await this.generarQr(entrada.qrCode);
 

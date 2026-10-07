@@ -15,6 +15,7 @@ export class Cartelera implements OnInit {
   peliculas = signal<any[]>([]);
   generos = signal<any[]>([]);
   cargando = signal(true);
+  versionesPorPelicula = signal<Record<string, string[]>>({});
 
   textoBusqueda = signal('');
   generoSeleccionado = signal<string | null>(null);
@@ -38,7 +39,24 @@ export class Cartelera implements OnInit {
     const { data, error } = await this.peliculasService.buscar(texto, generoId);
     if (!error && data) {
       this.peliculas.set(data);
+      const versiones = await this.peliculasService.getFormatosDisponibles(
+        data.map(pelicula => pelicula.id)
+      );
+      if (!versiones.error) {
+        const agrupadas: Record<string, Set<string>> = {};
+        for (const funcion of versiones.data ?? []) {
+          agrupadas[funcion.pelicula_id] ??= new Set<string>();
+          agrupadas[funcion.pelicula_id].add(`${funcion.formato} · ${funcion.idioma}`);
+        }
+        this.versionesPorPelicula.set(Object.fromEntries(
+          Object.entries(agrupadas).map(([id, valores]) => [id, [...valores]])
+        ));
+      }
     }
     this.cargando.set(false);
+  }
+
+  versionesDe(peliculaId: string) {
+    return this.versionesPorPelicula()[peliculaId] ?? [];
   }
 }

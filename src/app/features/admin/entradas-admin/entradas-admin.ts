@@ -3,6 +3,7 @@ import { DatosEntradaPdf } from '../../../core/models/datos-entrada-pdf.interfac
 import { EntradaAdmin } from '../../../core/models/entrada-admin.interface';
 import { AdminEntradasService } from '../../../core/services/admin-entradas.service';
 import { EntradaDocumentoService } from '../../../core/services/entrada-documento.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-entradas-admin',
@@ -125,9 +126,7 @@ export class EntradasAdmin implements OnInit {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudieron cargar las entradas. Intentá nuevamente.'));
 
       this.cargando.set(false);
       return;

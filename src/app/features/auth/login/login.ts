@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-login',
@@ -36,8 +37,8 @@ export class Login {
       
       // Si el login es exitoso, redirigimos al home o favoritos
       this.router.navigate(['/home']);
-    } catch (error: any) {
-      this.errorMessage.set(error.message || 'Error al iniciar sesión');
+    } catch (error: unknown) {
+      this.errorMessage.set(traducirError(error, 'No se pudo iniciar sesión. Intentá nuevamente.'));
     } finally {
       this.isLoading.set(false);
     }

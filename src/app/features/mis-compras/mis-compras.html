@@ -217,6 +217,21 @@
               <span>
                 {{ compra.entradas.length }}
               </span>
+
+              @if (compra.entradas.length > 0 && compra.estado !== 'cancelada') {
+                <button
+                  type="button"
+                  class="boton-descarga"
+                  [disabled]="generandoPdfId() === 'entradas-' + compra.id"
+                  (click)="descargarEntradasPdf(compra)"
+                >
+                  {{
+                    generandoPdfId() === 'entradas-' + compra.id
+                      ? 'Generando PDF...'
+                      : 'Descargar entradas PDF'
+                  }}
+                </button>
+              }
             </div>
 
             <div class="lista-entradas">
@@ -285,6 +300,21 @@
                   <p>{{ item.cantidad }} × {{ item.productos.nombre }} · {{ item.estado }}</p>
                 }
                 <code>{{ compra.qr_code }}</code>
+
+                @if (compra.estado !== 'cancelada') {
+                  <button
+                    type="button"
+                    class="boton-descarga boton-descarga-candy"
+                    [disabled]="generandoPdfId() === 'candy-' + compra.id"
+                    (click)="descargarCandyPdf(compra)"
+                  >
+                    {{
+                      generandoPdfId() === 'candy-' + compra.id
+                        ? 'Generando PDF...'
+                        : 'Descargar Candy PDF'
+                    }}
+                  </button>
+                }
               </div>
             </section>
           }
@@ -318,7 +348,7 @@
                 ) {
                   Cancelando...
                 } @else {
-                  Cancelar compra
+                  {{ confirmandoCancelacionId() === compra.id ? 'Confirmar: recibir crédito' : 'Cancelar compra' }}
                 }
               </button>
             } @else {

@@ -17,6 +17,7 @@ import {
 import {
   AdminComprasService
 } from '../../../core/services/admin-compras.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-compras-admin',
@@ -30,6 +31,7 @@ export class ComprasAdmin implements OnInit {
   compras = signal<CompraAdmin[]>([]);
   cargando = signal(true);
   cancelandoId = signal<string | null>(null);
+  confirmandoCancelacionId = signal<string | null>(null);
 
   mensajeError = signal('');
   mensajeExito = signal('');
@@ -130,9 +132,7 @@ export class ComprasAdmin implements OnInit {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudieron cargar las compras. Intentá nuevamente.'));
 
       this.cargando.set(false);
       return;
@@ -359,13 +359,11 @@ export class ComprasAdmin implements OnInit {
       return;
     }
 
-    const confirmada = window.confirm(
-      `¿Cancelar la compra de ${this.obtenerNombreCliente(compra)}?`
-    );
-
-    if (!confirmada) {
+    if (this.confirmandoCancelacionId() !== compra.id) {
+      this.confirmandoCancelacionId.set(compra.id);
       return;
     }
+    this.confirmandoCancelacionId.set(null);
 
     this.cancelandoId.set(compra.id);
     this.mensajeError.set('');
@@ -377,10 +375,7 @@ export class ComprasAdmin implements OnInit {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message ||
-          'No se pudo cancelar la compra.'
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo cancelar la compra. Intentá nuevamente.'));
 
       this.cancelandoId.set(null);
       return;

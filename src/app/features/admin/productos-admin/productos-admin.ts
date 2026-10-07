@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CategoriaProducto, Producto, ProductoFormulario } from '../../../core/models/producto.interface';
 import { AdminProductosService } from '../../../core/services/admin-productos.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-productos-admin',
@@ -37,6 +38,7 @@ export class ProductosAdmin implements OnInit {
   vistaPrevia = signal('');
 
   mensajeError = signal('');
+  confirmandoEliminacionId = signal<string | null>(null);
   mensajeExito = signal('');
 
   formulario = this.formBuilder.nonNullable.group({
@@ -214,10 +216,7 @@ export class ProductosAdmin implements OnInit {
       if (subida.error || !subida.data) {
         console.error(subida.error);
 
-        this.mensajeError.set(
-          subida.error?.message ??
-          'No se pudo subir la imagen.'
-        );
+        this.mensajeError.set(traducirError(subida.error, 'No se pudo subir la imagen. Intentá nuevamente.'));
 
         this.guardando.set(false);
         return;
@@ -289,9 +288,7 @@ export class ProductosAdmin implements OnInit {
           );
       }
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo guardar el producto. Intentá nuevamente.'));
 
       this.guardando.set(false);
       return;
@@ -405,9 +402,7 @@ export class ProductosAdmin implements OnInit {
     if (error) {
       console.error(error);
 
-      this.mensajeError.set(
-        error.message
-      );
+      this.mensajeError.set(traducirError(error, 'No se pudo eliminar el producto. Intentá nuevamente.'));
 
       return;
     }
@@ -422,13 +417,11 @@ export class ProductosAdmin implements OnInit {
   }
 
   async eliminar(producto: Producto) {
-    const confirmado = window.confirm(
-      `¿Eliminar definitivamente "${producto.nombre}"?`
-    );
-
-    if (!confirmado) {
+    if (this.confirmandoEliminacionId() !== producto.id) {
+      this.confirmandoEliminacionId.set(producto.id);
       return;
     }
+    this.confirmandoEliminacionId.set(null);
 
     this.mensajeError.set('');
     this.mensajeExito.set('');

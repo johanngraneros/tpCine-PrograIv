@@ -5,6 +5,7 @@ import {
   ButacaSalaAdmin,
   SalaAdmin
 } from '../../../core/services/admin-salas.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-salas-admin',
@@ -59,7 +60,7 @@ export class SalasAdmin implements OnInit {
     this.mensaje.set('');
     const { error } = await this.servicio.crearSala(this.salaForm.controls.nombre.value.trim());
     if (error) {
-      this.mensaje.set(error.message);
+      this.mensaje.set(traducirError(error, 'No se pudo crear la sala. Intentá nuevamente.'));
     } else {
       this.salaForm.reset();
       await this.cargarSalas();
@@ -83,7 +84,7 @@ export class SalasAdmin implements OnInit {
     this.mensaje.set('');
     const { error } = await this.servicio.cambiarTipoButaca(butaca.id, tipo);
     if (error) {
-      this.mensaje.set(error.message);
+      this.mensaje.set(traducirError(error, 'No se pudo cambiar el tipo de butaca. Intentá nuevamente.'));
     } else {
       butaca.tipo = tipo;
       this.salas.update(salas => [...salas]);

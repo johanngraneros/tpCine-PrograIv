@@ -312,7 +312,7 @@
             @if (validando()) {
               Validando entrada...
             } @else {
-              Confirmar ingreso
+              {{ confirmandoValidacion() ? 'Confirmar definitivamente' : 'Confirmar ingreso' }}
             }
           </button>
         } @else if (

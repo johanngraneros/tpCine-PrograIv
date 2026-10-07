@@ -17,12 +17,14 @@ import { RouterLink } from '@angular/router';
 import {
   AdminFuncionesService
 } from '../../../core/services/admin-funciones.service';
+import { traducirError } from '../../../core/services/supabase.service';
 
 import type {
   FuncionAdmin,
   FuncionFormulario,
   PeliculaFuncionAdmin
 } from '../../../core/models/funcion-admin.interface';
+import { convertirFechaHoraAISO, enmascararFechaHora, fechaHoraParaMostrar } from '../../../core/utils/fecha.utils';
 
 @Component({
   selector: 'app-funciones-admin',
@@ -47,6 +49,7 @@ export class FuncionesAdmin implements OnInit {
   guardando = signal(false);
 
   mensajeError = signal('');
+  confirmandoEliminacionId = signal<string | null>(null);
   mensajeExito = signal('');
 
   funcionEditandoId =
@@ -54,14 +57,14 @@ export class FuncionesAdmin implements OnInit {
 
   formulario = this.formBuilder.group({
     pelicula_id: ['', Validators.required],
-    fecha_hora: ['', Validators.required],
+    fecha_hora: ['', [Validators.required, control => convertirFechaHoraAISO(control.value) ? null : { fechaHoraInvalida: true }]],
     duracion_min: [90, [Validators.required, Validators.min(1), Validators.max(600)]],
     formato: ['2D', Validators.required],
     idioma: ['castellano', Validators.required],
     precio: [0, [Validators.required, Validators.min(0)]],
     precio_vip: this.formBuilder.control<number | null>(null, Validators.min(0)),
     precio_preventa: this.formBuilder.control<number | null>(null, Validators.min(0)),
-    fecha_fin_preventa: this.formBuilder.control<string | null>(null)
+    fecha_fin_preventa: this.formBuilder.control<string | null>(null, control => !control.value || convertirFechaHoraAISO(control.value) ? null : { fechaHoraInvalida: true })
   }, { validators: [this.validarPreventa] });
 
   async ngOnInit() {
@@ -127,6 +130,10 @@ export class FuncionesAdmin implements OnInit {
     }
   }
 
+  aplicarMascaraFechaHora(control: AbstractControl) {
+    control.setValue(enmascararFechaHora(String(control.value ?? '')), { emitEvent: false });
+  }
+
   validarFormulario(): string {
     const formulario = this.formulario.getRawValue();
 
@@ -138,9 +145,9 @@ export class FuncionesAdmin implements OnInit {
       return 'Seleccioná la fecha y el horario.';
     }
 
-    const fechaFuncion = new Date(
-      formulario.fecha_hora
-    );
+    const fechaFuncionIso = convertirFechaHoraAISO(formulario.fecha_hora);
+    if (!fechaFuncionIso) return 'Ingresá la fecha y hora como dd/mm/aaaa hh:mm.';
+    const fechaFuncion = new Date(fechaFuncionIso);
 
     if (
       Number.isNaN(fechaFuncion.getTime())
@@ -198,9 +205,9 @@ export class FuncionesAdmin implements OnInit {
     if (
       formulario.fecha_fin_preventa
     ) {
-      const finPreventa = new Date(
-        formulario.fecha_fin_preventa
-      );
+      const finPreventaIso = convertirFechaHoraAISO(formulario.fecha_fin_preventa);
+      if (!finPreventaIso) return 'Ingresá el final de preventa como dd/mm/aaaa hh:mm.';
+      const finPreventa = new Date(finPreventaIso);
 
       if (finPreventa >= fechaFuncion) {
         return 'La preventa debe finalizar antes de la función.';
@@ -236,7 +243,14 @@ export class FuncionesAdmin implements OnInit {
 
     const funcionId =
       this.funcionEditandoId();
-    const datos = this.formulario.getRawValue() as FuncionFormulario;
+    const valores = this.formulario.getRawValue();
+    const datos = {
+      ...valores,
+      fecha_hora: convertirFechaHoraAISO(valores.fecha_hora)!,
+      fecha_fin_preventa: valores.fecha_fin_preventa
+        ? convertirFechaHoraAISO(valores.fecha_fin_preventa)
+        : null
+    } as FuncionFormulario;
 
     const resultado = funcionId
       ? await this.adminFunciones
@@ -250,9 +264,7 @@ export class FuncionesAdmin implements OnInit {
     this.guardando.set(false);
 
     if (resultado.error) {
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo guardar la función. Intentá nuevamente.'));
       return;
     }
 
@@ -276,7 +288,7 @@ export class FuncionesAdmin implements OnInit {
         funcion.pelicula_id,
 
       fecha_hora:
-        this.convertirAFechaLocal(
+        fechaHoraParaMostrar(
           funcion.fecha_hora
         ),
 
@@ -300,7 +312,7 @@ export class FuncionesAdmin implements OnInit {
 
       fecha_fin_preventa:
         funcion.fecha_fin_preventa
-          ? this.convertirAFechaLocal(
+          ? fechaHoraParaMostrar(
               funcion.fecha_fin_preventa
             )
           : null
@@ -345,9 +357,7 @@ export class FuncionesAdmin implements OnInit {
         );
 
     if (error) {
-      this.mensajeError.set(
-        error.message
-      );
+      this.mensajeError.set(traducirError(error, 'No se pudo eliminar la función. Intentá nuevamente.'));
       return;
     }
 
@@ -363,13 +373,11 @@ export class FuncionesAdmin implements OnInit {
   async eliminar(
     funcion: FuncionAdmin
   ) {
-    const confirmar = window.confirm(
-      `¿Eliminar definitivamente la función de "${funcion.peliculas.titulo}"?`
-    );
-
-    if (!confirmar) {
+    if (this.confirmandoEliminacionId() !== funcion.id) {
+      this.confirmandoEliminacionId.set(funcion.id);
       return;
     }
+    this.confirmandoEliminacionId.set(null);
 
     this.mensajeError.set('');
     this.mensajeExito.set('');
@@ -410,20 +418,4 @@ export class FuncionesAdmin implements OnInit {
     ).format(new Date(fecha));
   }
 
-  private convertirAFechaLocal(
-    fecha: string
-  ) {
-    const valor = new Date(fecha);
-
-    const numero = (dato: number) =>
-      dato.toString().padStart(2, '0');
-
-    return (
-      `${valor.getFullYear()}-` +
-      `${numero(valor.getMonth() + 1)}-` +
-      `${numero(valor.getDate())}T` +
-      `${numero(valor.getHours())}:` +
-      `${numero(valor.getMinutes())}`
-    );
-  }
 }

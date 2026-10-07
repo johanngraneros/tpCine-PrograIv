@@ -256,7 +256,7 @@
             @if (validando()) {
               CONFIRMANDO ENTREGA...
             } @else {
-              CONFIRMAR ENTREGA
+              {{ confirmandoEntrega() ? 'CONFIRMAR DEFINITIVAMENTE' : 'CONFIRMAR ENTREGA' }}
             }
           </button>
         } @else if (

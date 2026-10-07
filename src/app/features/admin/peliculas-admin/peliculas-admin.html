@@ -120,8 +120,12 @@
           <label for="fechaEstreno">Fecha de estreno</label>
           <input
             id="fechaEstreno"
-            type="date"
+            type="text"
             formControlName="fecha_estreno"
+            inputmode="numeric"
+            maxlength="10"
+            placeholder="dd/mm/aaaa"
+            (input)="aplicarMascaraFechaEstreno()"
             [class.campo-invalido]="formulario.controls.fecha_estreno.touched && formulario.controls.fecha_estreno.invalid"
             [disabled]="guardando()"
           />
@@ -340,7 +344,7 @@
                   class="boton-eliminar"
                   (click)="eliminar(pelicula)"
                 >
-                  Eliminar
+                  {{ confirmandoEliminacionId() === pelicula.id ? 'Confirmar eliminación' : 'Eliminar' }}
                 </button>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Canje, Producto } from '../../core/models/producto.interface';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductosService } from '../../core/services/productos.service';
+import { traducirError } from '../../core/services/supabase.service';
 
 @Component({
   imports: [],
@@ -19,6 +20,7 @@ export class Beneficios implements OnInit {
 
   cargando = signal(true);
   canjeandoId = signal<string | null>(null);
+  confirmandoCanjeId = signal<string | null>(null);
 
   mensajeError = signal('');
   mensajeExito = signal('');
@@ -123,13 +125,11 @@ export class Beneficios implements OnInit {
       return;
     }
 
-    const confirmado = window.confirm(
-      `¿Canjear "${producto.nombre}" por ${producto.costo_puntos} puntos?`
-    );
-
-    if (!confirmado) {
+    if (this.confirmandoCanjeId() !== producto.id) {
+      this.confirmandoCanjeId.set(producto.id);
       return;
     }
+    this.confirmandoCanjeId.set(null);
 
     this.canjeandoId.set(producto.id);
     this.mensajeError.set('');
@@ -141,7 +141,7 @@ export class Beneficios implements OnInit {
 
     if (error) {
       console.error(error);
-      this.mensajeError.set(error.message);
+      this.mensajeError.set(traducirError(error, 'No se pudo realizar el canje. Intentá nuevamente.'));
       this.canjeandoId.set(null);
       return;
     }

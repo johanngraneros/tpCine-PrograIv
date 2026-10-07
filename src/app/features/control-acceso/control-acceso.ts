@@ -2,6 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } f
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
 import { EntradaAdmin } from '../../core/models/entrada-admin.interface';
 import { AdminEntradasService } from '../../core/services/admin-entradas.service';
+import { traducirError } from '../../core/services/supabase.service';
 
 @Component({
   selector: 'app-control-acceso',
@@ -22,6 +23,7 @@ export class ControlAcceso implements OnInit, OnDestroy {
 
   cargando = signal(true);
   validando = signal(false);
+  confirmandoValidacion = signal(false);
 
   scannerActivo = signal(false);
   iniciandoScanner = signal(false);
@@ -51,9 +53,7 @@ export class ControlAcceso implements OnInit, OnDestroy {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudieron cargar las entradas. Intentá nuevamente.'));
 
       this.cargando.set(false);
       return;
@@ -265,13 +265,11 @@ export class ControlAcceso implements OnInit, OnDestroy {
       return;
     }
 
-    const confirmada = window.confirm(
-      `¿Confirmar el ingreso para "${entrada.funciones.peliculas.titulo}"?`
-    );
-
-    if (!confirmada) {
+    if (!this.confirmandoValidacion()) {
+      this.confirmandoValidacion.set(true);
       return;
     }
+    this.confirmandoValidacion.set(false);
 
     this.validando.set(true);
     this.mensajeError.set('');
@@ -285,9 +283,7 @@ export class ControlAcceso implements OnInit, OnDestroy {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo validar la entrada. Intentá nuevamente.'));
 
       this.validando.set(false);
       return;
@@ -320,6 +316,7 @@ export class ControlAcceso implements OnInit, OnDestroy {
   }
 
   limpiarResultado() {
+    this.confirmandoValidacion.set(false);
     this.codigoManual.set('');
     this.entradaEncontrada.set(null);
     this.mensajeError.set('');
@@ -353,4 +350,4 @@ export class ControlAcceso implements OnInit, OnDestroy {
       }
     ).format(new Date(fecha));
   }
-}         
+}

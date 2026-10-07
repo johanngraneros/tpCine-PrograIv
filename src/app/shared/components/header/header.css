@@ -74,6 +74,25 @@
   margin-left: auto;
 }
 
+.contenedor-notificaciones { position: relative; }
+.boton-campana { position: relative; display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 1px solid #49443c; border-radius: 50%; background: #292722; font-size: 20px; }
+.contador-notificaciones { position: absolute; top: -5px; right: -5px; display: grid; place-items: center; min-width: 20px; height: 20px; border: 2px solid #12100d; border-radius: 999px; padding: 0 4px; background: var(--rojo); color: white; font-size: 10px; }
+.panel-notificaciones { position: absolute; top: calc(100% + 12px); right: 0; z-index: 950; width: min(390px, calc(100vw - 24px)); max-height: min(560px, calc(100vh - 100px)); overflow: auto; border: 1px solid #49443c; border-radius: 16px; background: #191816; box-shadow: 0 20px 55px rgb(0 0 0 / 55%); }
+.panel-notificaciones > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px; border-bottom: 1px solid #39362f; }
+.panel-notificaciones header span { color: var(--amarillo); font-size: 11px; font-weight: 900; text-transform: uppercase; }
+.panel-notificaciones h2 { margin: 3px 0 0; font-size: 21px; }
+.marcar-leidas { padding: 8px 10px; background: #302d27; font-size: 12px; }
+.lista-notificaciones { display: grid; }
+.lista-notificaciones a { display: grid; grid-template-columns: 9px minmax(0, 1fr); gap: 10px; padding: 16px 18px; border-bottom: 1px solid #39362f; background: #1d1b18; text-decoration: none; }
+.lista-notificaciones a:last-child { border-bottom: 0; }
+.lista-notificaciones a.no-leida { background: #29261d; }
+.punto-notificacion { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: transparent; }
+.no-leida .punto-notificacion { background: var(--amarillo); }
+.lista-notificaciones a > span:last-child { min-width: 0; }
+.lista-notificaciones strong, .lista-notificaciones small { display: block; overflow-wrap: anywhere; word-break: break-word; }
+.lista-notificaciones small { margin-top: 5px; color: #aaa196; line-height: 1.45; }
+.notificaciones-vacias { margin: 0; padding: 28px 20px; color: #aaa196; line-height: 1.5; text-align: center; }
+
 .boton-registro {
   display: inline-flex;
   align-items: center;
@@ -244,10 +263,12 @@
   flex-shrink: 0;
   gap: 20px;
 
-  padding: 34px 28px;
+  padding: 28px 28px 34px;
 
   border-bottom: 1px solid #39362f;
 }
+
+.perfil-presentacion > div:last-child { min-width: 0; max-width: 100%; overflow: hidden; }
 
 .avatar {
   display: grid;
@@ -279,6 +300,10 @@
   margin: 4px 0 7px;
   font-size: 28px;
   text-transform: uppercase;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.08;
 }
 
 .perfil-presentacion p {
@@ -290,6 +315,23 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.edicion-perfil {
+  padding: 24px 28px;
+  border-bottom: 1px solid #39362f;
+}
+
+.edicion-perfil form { display: grid; min-width: 0; gap: 8px; }
+.edicion-perfil label { color: #aaa196; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+.edicion-perfil input { width: 100%; min-width: 0; max-width: 100%; border: 1px solid #514c43; border-radius: 9px; padding: 10px 12px; background: #24221e; color: white; }
+.editar-perfil { width: 100%; border: 1px solid #514c43; background: #24221e; color: white; }
+.acciones-perfil { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.acciones-perfil button { padding: 10px; }
+.acciones-perfil .boton-secundario { background: #302d27; color: white; }
+.perfil-error, .perfil-exito { margin: 8px 0 0; font-size: 13px; }
+.perfil-error, .perfil-exito { overflow-wrap: anywhere; word-break: break-word; }
+.perfil-error { color: #ff989e; }
+.perfil-exito { color: #72efaa; }
 
 .resumen-puntos {
   display: flex;

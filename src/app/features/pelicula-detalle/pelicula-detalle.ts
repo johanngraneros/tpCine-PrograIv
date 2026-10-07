@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import {
@@ -8,6 +8,8 @@ import {
 } from '@angular/forms';
 import { PeliculasService } from '../../core/services/peliculas.service';
 import { AuthService } from '../../core/services/auth.service';
+import { AlertasEstrenosService } from '../../core/services/alertas-estrenos.service';
+import { calcularEdad, esPreventaActiva } from '../../core/utils/fecha.utils';
 
 @Component({
   selector: 'app-pelicula-detalle',
@@ -19,6 +21,7 @@ export class PeliculaDetalle implements OnInit {
   private route = inject(ActivatedRoute);
   private peliculasService = inject(PeliculasService);
   private formBuilder = inject(FormBuilder);
+  private alertas = inject(AlertasEstrenosService);
   auth = inject(AuthService); // público, lo usamos desde el template
 
   peliculaId = '';
@@ -26,6 +29,40 @@ export class PeliculaDetalle implements OnInit {
   funciones = signal<any[]>([]);
   resenas = signal<any[]>([]);
   cargando = signal(true);
+  perfilUsuario = signal<any>(null);
+  cargandoPerfil = signal(false);
+
+  restriccionEdad = computed(() => Number(this.pelicula()?.restriccion_edad ?? 0));
+  fechaNacimientoUsuario = computed(() =>
+    this.perfilUsuario()?.fecha_nacimiento ??
+    this.auth.currentUser()?.user_metadata?.['fecha_nacimiento'] ??
+    null
+  );
+  puedeResenar = computed(() => {
+    const restriccion = this.restriccionEdad();
+    if (restriccion <= 0) return true;
+
+    const edad = calcularEdad(this.fechaNacimientoUsuario());
+    return edad !== null && edad >= restriccion;
+  });
+  verificandoEdad = computed(() =>
+    Boolean(
+      this.auth.currentUser() &&
+      this.restriccionEdad() > 0 &&
+      !this.fechaNacimientoUsuario() &&
+      this.cargandoPerfil()
+    )
+  );
+
+  private cargarPerfilEffect = effect(() => {
+    const usuario = this.auth.currentUser();
+    if (!usuario) {
+      this.perfilUsuario.set(null);
+      return;
+    }
+
+    void this.cargarPerfilUsuario(usuario.id);
+  });
 
   resenaForm = this.formBuilder.nonNullable.group({
     estrellas: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
@@ -33,6 +70,11 @@ export class PeliculaDetalle implements OnInit {
   });
   enviandoResena = signal(false);
   errorResena = signal('');
+  resenaEditandoId = signal<string | null>(null);
+  mensajeResena = signal('');
+  versionesDisponibles = computed(() => [
+    ...new Set(this.funciones().map(funcion => `${funcion.formato} · ${funcion.idioma}`))
+  ]);
 
   async ngOnInit() {
     this.peliculaId = this.route.snapshot.paramMap.get('id')!;
@@ -49,7 +91,18 @@ export class PeliculaDetalle implements OnInit {
 
     if (peliculaResult.data) this.pelicula.set(peliculaResult.data);
     if (funcionesResult.data) this.funciones.set(funcionesResult.data);
-    if (resenasResult.data) this.resenas.set(resenasResult.data);
+    if (resenasResult.data) {
+      this.resenas.set(resenasResult.data);
+      this.prepararResenaDelUsuario(resenasResult.data);
+    }
+
+    if (resenasResult.error) {
+      this.errorResena.set('No se pudieron cargar las reseñas. Intentá nuevamente.');
+    }
+
+    if (peliculaResult.data && funcionesResult.data) {
+      this.alertas.notificarPreventasActivas(peliculaResult.data.titulo, funcionesResult.data);
+    }
 
     this.cargando.set(false);
   }
@@ -60,6 +113,13 @@ export class PeliculaDetalle implements OnInit {
   if (!usuario) {
     this.errorResena.set(
       'Tenés que iniciar sesión para publicar una reseña.'
+    );
+    return;
+  }
+
+  if (!(await this.verificarEdadUsuario(usuario.id))) {
+    this.errorResena.set(
+      `No podés publicar una reseña porque esta película requiere tener al menos ${this.restriccionEdad()} años.`
     );
     return;
   }
@@ -99,13 +159,10 @@ export class PeliculaDetalle implements OnInit {
   this.errorResena.set('');
   this.enviandoResena.set(true);
 
-  const { error } =
-    await this.peliculasService.crearResena(
-      this.peliculaId,
-      usuario.id,
-      estrellas,
-      comentario
-    );
+  const idExistente = this.resenaEditandoId();
+  const { error } = idExistente
+    ? await this.peliculasService.actualizarResena(idExistente, usuario.id, estrellas, comentario)
+    : await this.peliculasService.crearResena(this.peliculaId, usuario.id, estrellas, comentario);
 
   this.enviandoResena.set(false);
 
@@ -118,16 +175,62 @@ export class PeliculaDetalle implements OnInit {
     }
 
     this.errorResena.set(
-      'No se pudo publicar la reseña. Intentá nuevamente.'
+      `No se pudo ${idExistente ? 'actualizar' : 'publicar'} la reseña. Intentá nuevamente.`
     );
     return;
   }
 
-  this.resenaForm.reset({
-    estrellas: 5,
-    comentario: ''
-  });
-
   await this.cargarTodo();
+  this.mensajeResena.set(idExistente ? 'Reseña actualizada correctamente.' : 'Reseña publicada correctamente.');
+  }
+
+
+  editarResena(resena: any) {
+    const usuario = this.auth.currentUser();
+    if (!usuario || resena.usuario_id !== usuario.id || !this.puedeResenar()) return;
+    this.resenaEditandoId.set(resena.id);
+    this.resenaForm.setValue({ estrellas: Number(resena.estrellas), comentario: resena.comentario ?? '' });
+    this.errorResena.set('');
+    this.mensajeResena.set('');
+  }
+
+  preventaActiva(funcion: any) {
+    return esPreventaActiva(funcion);
+  }
+
+  precioFuncion(funcion: any) {
+    return this.preventaActiva(funcion) ? funcion.precio_preventa : funcion.precio;
+  }
+
+  autorResena(resena: any) {
+    return [resena.perfiles?.nombre, resena.perfiles?.apellido]
+      .filter(Boolean)
+      .join(' ') || 'Usuario';
+  }
+
+  private prepararResenaDelUsuario(resenas: any[]) {
+    const usuarioId = this.auth.currentUser()?.id;
+    if (!usuarioId) return;
+    const propia = resenas.find(resena => resena.usuario_id === usuarioId);
+    if (propia) this.editarResena(propia);
+  }
+
+  private async cargarPerfilUsuario(usuarioId: string) {
+    this.cargandoPerfil.set(true);
+    const { data } = await this.auth.getPerfil(usuarioId);
+    this.perfilUsuario.set(data ?? null);
+    this.cargandoPerfil.set(false);
+    this.prepararResenaDelUsuario(this.resenas());
+  }
+
+  private async verificarEdadUsuario(usuarioId: string): Promise<boolean> {
+    if (this.restriccionEdad() <= 0) return true;
+
+    if (!this.fechaNacimientoUsuario()) {
+      await this.cargarPerfilUsuario(usuarioId);
+    }
+
+    const edad = calcularEdad(this.fechaNacimientoUsuario());
+    return edad !== null && edad >= this.restriccionEdad();
   }
 }

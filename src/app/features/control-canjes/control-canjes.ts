@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CanjeControl } from '../../core/models/canje-control.interface';
 import { ControlCanjesService } from '../../core/services/control-canjes.service';
+import { traducirError } from '../../core/services/supabase.service';
 
 @Component({
   selector: 'app-control-canjes',
@@ -25,6 +26,7 @@ export class ControlCanjes {
 
   buscando = signal(false);
   validando = signal(false);
+  confirmandoEntrega = signal(false);
 
   canjeEncontrado = signal<CanjeControl | null>(null);
 
@@ -73,9 +75,7 @@ export class ControlCanjes {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo buscar el canje. Intentá nuevamente.'));
 
       this.buscando.set(false);
       return;
@@ -124,13 +124,11 @@ export class ControlCanjes {
       return;
     }
 
-    const confirmado = window.confirm(
-      `¿Confirmar la entrega de "${canje.productos.nombre}"?`
-    );
-
-    if (!confirmado) {
+    if (!this.confirmandoEntrega()) {
+      this.confirmandoEntrega.set(true);
       return;
     }
+    this.confirmandoEntrega.set(false);
 
     this.validando.set(true);
     this.mensajeError.set('');
@@ -143,9 +141,7 @@ export class ControlCanjes {
     if (resultado.error) {
       console.error(resultado.error);
 
-      this.mensajeError.set(
-        resultado.error.message
-      );
+      this.mensajeError.set(traducirError(resultado.error, 'No se pudo confirmar el canje. Intentá nuevamente.'));
 
       this.validando.set(false);
       return;

@@ -476,7 +476,7 @@
                       class="boton-tabla eliminar"
                       (click)="eliminar(producto)"
                     >
-                      Eliminar
+                      {{ confirmandoEliminacionId() === producto.id ? 'Confirmar eliminación' : 'Eliminar' }}
                     </button>
                   </div>
                 </td>

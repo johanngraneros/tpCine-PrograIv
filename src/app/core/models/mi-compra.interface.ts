@@ -12,6 +12,8 @@ export interface MiCompraSala {
 export interface MiCompraFuncion {
   id: string;
   fecha_hora: string;
+  formato: string;
+  idioma: string;
   peliculas: MiCompraPelicula;
   salas: MiCompraSala;
 }

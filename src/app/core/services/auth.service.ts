@@ -72,4 +72,14 @@ export class AuthService {
       .single();
     return { data, error };
   }
+
+  async actualizarNombre(userId: string, nombre: string, apellido: string) {
+    const { data, error } = await this.supabase.instance
+      .from('perfiles')
+      .update({ nombre, apellido })
+      .eq('id', userId)
+      .select('*')
+      .single();
+    return { data, error };
+  }
 }
